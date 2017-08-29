@@ -9,10 +9,9 @@ import os
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        if os.uname().nodename == "alexlaptop":
-            super().__init__(command_prefix=commands.when_mentioned_or('alex!'), **kwargs)
-        else:
-            super().__init__(command_prefix=commands.when_mentioned_or('a!'), **kwargs)
+        super().__init__(
+            command_prefix=commands.when_mentioned_or('alex!' if os.uname().nodename == 'alexlaptop' else 'a!'),
+            **kwargs)
 
         for cog in config.cogs:
             try:
