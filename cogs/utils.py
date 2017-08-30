@@ -25,5 +25,10 @@ class Utils:
             await ctx.send('**`SUCCESS`**')
 
 
+    @commands.command()
+    async def ping(self, ctx):
+        await ctx.send(f"Pong! time is {round(ctx.bot.latency * 1000, 2)} ms")
+
+
 def setup(bot):
     bot.add_cog(Utils(bot))
