@@ -9,3 +9,4 @@ requests==2.18.1
 urllib3==1.21.1
 websockets==3.3
 yarl==0.12.0
+lxml==3.8.0
