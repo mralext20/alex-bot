@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from discord.ext import commands
-
+from datetime import datetime
 
 class Utils:
     """The description for Utils goes here."""
@@ -27,7 +27,11 @@ class Utils:
 
     @commands.command()
     async def ping(self, ctx):
-        await ctx.send(f"Pong! time is {round(ctx.bot.latency * 1000, 2)} ms")
+        await ctx.send(f"Pong! time is {ctx.bot.latency * 1000:.2f)} ms")
+
+    @commands.command()
+    async def time(self,ctx):
+        await ctx.send(f'the time in alaska is {datetime.now().strftime("%a, %e %b %Y %H:%M:%S")}')
 
 
 def setup(bot):
