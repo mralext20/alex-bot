@@ -168,3 +168,4 @@ ENV/
 
 config.py
 .idea/**
+tags.pdb
