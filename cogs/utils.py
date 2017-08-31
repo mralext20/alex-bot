@@ -30,7 +30,8 @@ class Utils(Cog):
 
     @commands.command()
     async def time(self,ctx):
-        await ctx.send(f'the time in alaska is {datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")}')
+        time = datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")
+        await ctx.send(f'the time in alaska is {time}')
 
 
     @commands.command()
