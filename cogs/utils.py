@@ -2,12 +2,10 @@
 
 from discord.ext import commands
 from datetime import datetime
+from cogs.cog import Cog
 
-class Utils:
+class Utils(Cog):
     """The description for Utils goes here."""
-
-    def __init__(self, bot):
-        self.bot = bot
 
 
     @commands.command(name='reload', hidden=True)
@@ -31,7 +29,7 @@ class Utils:
 
     @commands.command()
     async def time(self,ctx):
-        await ctx.send(f'the time in alaska is {datetime.now().strftime("%a, %e %b %Y %H:%M:%S")}')
+        await ctx.send(f'the time in alaska is {datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")}')
 
 
 def setup(bot):
