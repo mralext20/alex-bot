@@ -3,6 +3,7 @@
 from discord.ext import commands
 from datetime import datetime
 from cogs.cog import Cog
+import discord
 
 class Utils(Cog):
     """The description for Utils goes here."""
@@ -30,6 +31,16 @@ class Utils(Cog):
     @commands.command()
     async def time(self,ctx):
         await ctx.send(f'the time in alaska is {datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")}')
+
+
+    @commands.command()
+    @commands.is_owner()
+    async def upload(self, ctx, file):
+        with open(file, 'rb') as f:
+            try:
+                await ctx.send(file = discord.File(f, file))
+            except FileNotFoundError:
+                await ctx.send(f"no such file: {file}")
 
 
 def setup(bot):
