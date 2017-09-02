@@ -26,7 +26,7 @@ class Utils(Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        await ctx.send(f"Pong! time is {ctx.bot.latency * 1000:.2f)} ms")
+        await ctx.send(f"Pong! time is {ctx.bot.latency * 1000:.2f} ms")
 
     @commands.command()
     async def time(self,ctx):
