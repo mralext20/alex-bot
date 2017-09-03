@@ -39,7 +39,7 @@ class Weather(Cog):
             in_temp = int(rec.search(in_temp).group(0))
             in_temp = f"{in_temp+237.15}k"
 
-        if str(wind[0:2]) in ("0.0","0 m"):
+        if "N/A" in wind:
             msg = f"Weather at Alex's Home:\nTemp: {temp}\nInside Tempature: {in_temp}"
         else:
             msg = f"Weather at Alex's Home:\nTemp: {temp}\nWind speed: {wind}\nInside Tempature: {in_temp}"
