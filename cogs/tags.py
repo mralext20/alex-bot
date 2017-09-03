@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import discord
 from discord.ext import commands
 from cogs.cog import Cog
 import asyncpg
@@ -58,7 +58,9 @@ class Tags(Cog):
     @tags.command()
     async def list(self, ctx):
         tags = list(await list_tags(self.bot.db, ctx.guild.id))
-        await ctx.send(tags)
+        tags = [(tag[0], self.bot.get_user(tag[1]).mention) for tag in tags]
+        tags = discord.Embed(description=str(tags))
+        await ctx.send(embed=tags)
 
 
 def setup(bot):
