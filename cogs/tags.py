@@ -2,73 +2,62 @@
 
 from discord.ext import commands
 from cogs.cog import Cog
-import pickle
+import asyncpg
+import hashlib
 
-from config import tagdb
-
-def query(tag:str):
-    with open(tagdb,"rb") as f:
-        tags = pickle.load(f)
-    try:
-        return tags[tag]
-    except KeyError:
+async def query(db: asyncpg.pool.Pool, tag: str, guild: int) -> str:
+    ret = await db.fetchval("""SELECT content from tags where name=$1 AND guild=$2""", tag, guild)
+    if ret is not None:
+        return ret
+    else:
         return "can not find that tag."
 
-def append(tag:str, content:str) -> bool:
-    with open(tagdb, "rb") as f:
-        tags = pickle.load(f)
-    if tag in tags:
+async def append(db: asyncpg.pool.Pool, tag: str, content: str, author: int, guild: int) -> bool:
+    exists = await db.fetchrow("""SELECT name FROM tags WHERE name=$1""", tag)
+    if exists:
         return False
     else:
-        with open(tagdb, 'wb') as f:
-            tags[tag] = content
-            pickle.dump(tags,f)
-            return True
+        h = hashlib.sha256(f"{tag}{guild}".encode()).hexdigest()
+        await db.execute("""INSERT INTO tags (hash, name, content, author, guild) 
+                            VALUES ($1, $2, $3, $4, $5)""", h, tag, content, author, guild)
+        return True
 
-def remove(tag:str) -> bool:
-    with open(tagdb, "rb") as f:
-        tags = pickle.load(f)
-    if tag in tags:
-        with open(tagdb, 'wb') as f:
-            del tags[tag]
-            pickle.dump(tags, f)
-            return True
+async def remove(db: asyncpg.pool.Pool, tag: str, author: int, guild: int) -> bool:
+    if await db.fetchrow("""SELECT * FROM tags WHERE author=$1 AND guild=$2 AND name=$3""", author, guild, tag):
+        await db.execute("""DROP FROM tags WHERE author=$1 AND guild=$2 AND name=$3""", author, guild, tag)
+        return True
     else:
         return False
 
-def list_tags():
-    with open(tagdb, "rb") as f:
-        tags = pickle.load(f)
-    return tags.keys()
+async def list_tags(db: asyncpg.pool.Pool, guild: int) -> list:
+    tags = await db.fetch("""SELECT * FROM tags WHERE guild=$1""", guild)
+    return [(tag["name"], tag["author"]) for tag in tags]
+
 
 class Tags(Cog):
     """The description for Tags goes here."""
 
-    @commands.group(name="tags", invoke_without_command=True)
-    async def tag(self, ctx, tag):
-        await ctx.send(query(tag))
+    @commands.group(name="tag", invoke_without_command=True)
+    async def tags(self, ctx, tag):
+        await ctx.send(await query(self.bot.db, tag, ctx.guild.id))
 
-
-    @tag.command()
+    @tags.command()
     async def create(self, ctx, tag, *, content):
-        if append(tag, content):
+        if await append(self.bot.db, tag, content, ctx.author.id, ctx.guild.id):
             await ctx.send(f"tag {tag} was added to database.")
         else:
             await ctx.send(f"tag {tag} failed to be added \U0001f626")
 
-
-    @tag.command()
-    async def remove(self,ctx, tag):
-        if remove(tag):
-            await ctx.send(f"tag '{tag}' removed sucessfully.")
+    @tags.command()
+    async def remove(self, ctx, tag):
+        if await remove(self.bot.db, tag, ctx.author.id, ctx.guild.id):
+            await ctx.send(f"tag '{tag}' removed successfully.")
         else:
-            await ctx.send(f"tag was not removed.")
+            await ctx.send(f"tag was not removed. Are you the owner?")
 
-    @tag.command()
+    @tags.command()
     async def list(self, ctx):
-        tags = list(list_tags())
-
-
+        tags = list(await list_tags(self.bot.db, ctx.guild.id))
         await ctx.send(tags)
 
 
