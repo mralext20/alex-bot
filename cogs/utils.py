@@ -38,12 +38,30 @@ class Utils(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def upload(self, ctx, file):
+    async def upload(self, ctx, file): 
         with open(file, 'rb') as f:
             try:
                 await ctx.send(file = discord.File(f, file))
             except FileNotFoundError:
                 await ctx.send(f"no such file: {file}")
+
+    @commands.command()
+    async def quote(self, ctx,msg:int , *,channel: int=None):
+        if channel is not None:
+            msg = await self.bot.get_channel(channel).get_message(msg)
+        else:
+            msg = await ctx.channel.get_message(msg)
+
+        assert isinstance(msg, discord.Message)
+
+        ret = discord.Embed(color=discord.Color.blurple())
+        ret.description = msg.content
+        ret.set_author(name=msg.author.name, icon_url=msg.author.avatar_url)
+        ret.timestamp = msg.created_at
+        # TODO: format the timedelta better. less microseconds.
+        ret.set_footer(text=f"Quoted message is {ctx.message.created_at - ret.timestamp} old, from ")
+
+        await ctx.send(embed=ret)
 
 
 def setup(bot):
