@@ -24,7 +24,7 @@ async def append(db: asyncpg.pool.Pool, tag: str, content: str, author: int, gui
 
 async def remove(db: asyncpg.pool.Pool, tag: str, author: int, guild: int) -> bool:
     if await db.fetchrow("""SELECT * FROM tags WHERE author=$1 AND guild=$2 AND name=$3""", author, guild, tag):
-        await db.execute("""DROP FROM tags WHERE author=$1 AND guild=$2 AND name=$3""", author, guild, tag)
+        await db.execute("""DELETE FROM tags WHERE author=$1 AND guild=$2 AND name=$3""", author, guild, tag)
         return True
     else:
         return False
