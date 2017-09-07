@@ -14,7 +14,9 @@ class Utils(Cog):
     async def cog_reload(self, ctx, *, cog: str):
         """Command which Reloads a Module.
         Remember to use dot path. e.g: cogs.owner"""
-
+        if cog == "cogs.utils":
+            ctx.send("im sorry, i cant reload myself for safety reasons.")
+            return
         try:
             self.bot.unload_extension(cog)
             self.bot.load_extension(cog)
