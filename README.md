@@ -1,12 +1,13 @@
-#alex's bot
+# Alex's Bot
 
-pls tag alex on discord. 
+Please tag `Alex from Alaska#9760` on Discord for help
 
-you need a config, like this:
+You need a config, like this:
 
-config.py
+
 ```python
-token ="lol token here"
-cogs = ['cogs.utils','cogs.weather']
+# config.py
+token = "lol token here"
+cogs = ['cogs.utils', 'cogs.weather']
 ```
 
