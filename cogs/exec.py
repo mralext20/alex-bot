@@ -185,6 +185,17 @@ class Exec(Cog):
             result = await run_subprocess(cmd)
         await ctx.send(f'```{result}```')
 
+    @commands.command()
+    @commands.is_owner()
+    async def reloadutils(self,ctx):
+        try:
+            self.bot.unload_extension("cogs.utils")
+            self.bot.load_extension("cogs.utils")
+        except Exception as e:
+            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+        else:
+            await ctx.send('**`SUCCESS`**')
+
 
 def setup(bot):
     bot.add_cog(Exec(bot))
