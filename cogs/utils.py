@@ -58,8 +58,13 @@ class Utils(Cog):
         ret.description = msg.content
         ret.set_author(name=msg.author.name, icon_url=msg.author.avatar_url)
         ret.timestamp = msg.created_at
-        if msg.attachments[0].width is not None:
+        try:
             ret.set_image(url=msg.attachments[0].url)
+        except IndexError:
+            try:
+                ret.set_image(url=msg.embeds[0].thumbnail.url)
+            except IndexError:
+                pass
 
         # TODO: format the timedelta better. less microseconds.
         ret.set_footer(text=f"Quoted message is {ctx.message.created_at - ret.timestamp} old, from ")
