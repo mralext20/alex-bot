@@ -43,6 +43,11 @@ class Tags(Cog):
 
     @tags.command()
     async def create(self, ctx, tag, *, content):
+        try:
+            assert len(tag) < len(content)
+        except AssertionError:
+            await ctx.send(f"failed to add tag {tag} to the database. content needs to be shorter than your tag name. <:lumaslime:340673841858740224>")
+            return
         if await append(self.bot.db, tag, content, ctx.author.id, ctx.guild.id):
             await ctx.send(f"tag {tag} was added to database.")
         else:
