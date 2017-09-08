@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from discord.ext import commands
-from datetime import datetime
+import datetime
 from cogs.cog import Cog
 import discord
 
@@ -32,23 +32,14 @@ class Utils(Cog):
 
     @commands.command()
     async def time(self,ctx):
-        time = datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")
+        time = datetime.datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")
         await ctx.send(f'the time in alaska is {time}')
 
 
     @commands.command()
-    @commands.is_owner()
-    async def upload(self, ctx, file): 
-        with open(file, 'rb') as f:
-            try:
-                await ctx.send(file = discord.File(f, file))
-            except FileNotFoundError:
-                await ctx.send(f"no such file: {file}")
-
-    @commands.command()
-    async def quote(self, ctx,msg:int , *,channel: discord.TextChannel=None):
+    async def quote(self, ctx,msg:int ,channel: discord.TextChannel=None):
         if channel is not None:
-            msg = await self.bot.get_channel(channel.id).get_message(msg)
+            msg = await channel.get_message(msg)
         else:
             msg = await ctx.channel.get_message(msg)
 
