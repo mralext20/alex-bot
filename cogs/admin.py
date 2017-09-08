@@ -197,5 +197,30 @@ class Exec(Cog):
             await ctx.send('**`SUCCESS`**')
 
 
+    @commands.command()
+    @commands.is_owner()
+    async def download(self, ctx, file):
+        with open(file, 'rb') as f:
+            try:
+                await ctx.send(file = discord.File(f, file))
+            except FileNotFoundError:
+                await ctx.send(f"no such file: {file}")
+
+    @commands.command()
+    @commands.is_owner()
+    async def upload(self, ctx):
+        attachments = ctx.message.attachments
+        # TODO: allow this to wait_for a upload file from the original sender.
+        if attachments is None:
+            ctx.send("please upload a file in the same message.")
+            return
+
+        for attachment in attachments:
+            with open(attachment.filename, "wb") as f:
+                attachment.save(f)
+            await ctx.send(f"saved as {attachment.filename}")
+
+
+
 def setup(bot):
     bot.add_cog(Exec(bot))
