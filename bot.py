@@ -8,6 +8,8 @@ from discord.ext import commands
 
 import config
 
+cogs = ["cogs.admin","cogs.errors","cogs.tags","cogs.utils","cogs.weather"]
+
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
@@ -15,7 +17,7 @@ class Bot(commands.Bot):
             command_prefix=('alex!' if os.uname().nodename == 'alexlaptop' else 'a!'),
             **kwargs)
 
-        for cog in config.cogs:
+        for cog in cogs:
             try:
                 self.load_extension(cog)
             except Exception as e:
@@ -27,10 +29,7 @@ class Bot(commands.Bot):
         print(f'Logged on as {self.user} (ID: {self.user.id})')
 
     async def db(self):
-        try:
-            self.db = await asyncpg.create_pool(config.dsn, loop=self.loop)
-        except Exception:
-            print('Could not connect to DB')
+        self.db = await asyncpg.create_pool(config.dsn, loop=self.loop)
 
 
 bot = Bot()
