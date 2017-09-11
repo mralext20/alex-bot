@@ -37,7 +37,7 @@ class Utils(Cog):
 
 
     @commands.command()
-    async def quote(self, ctx,msg:int ,channel: discord.TextChannel=None):
+    async def quote(self, ctx, msg:int, channel: discord.TextChannel=None):
         if channel is not None:
             msg = await channel.get_message(msg)
         else:
