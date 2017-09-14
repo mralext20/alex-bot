@@ -29,5 +29,8 @@ for i in [config.dsn, config.token]:
 
 cur = psycopg2.connect(config.dsn).cursor()
 
-cur.execute("""CREATE TABLE tags (hash TEXT PRIMARY KEY, name TEXT, guild BIGINT, content TEXT, author BIGINT""")
+cur.execute("""CREATE TABLE tags (hash TEXT PRIMARY KEY, name TEXT, guild BIGINT, content TEXT, author BIGINT)""")
 print("created tags table")
+print("created the tags DB")
+
+cur.execute("""CREATE TABLE todo (hash TEXT PRIMARY KEY, name TEXT, content TEXT, author BIGINT)""")

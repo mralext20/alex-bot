@@ -8,7 +8,7 @@ from discord.ext import commands
 
 import config
 
-cogs = ["cogs.admin","cogs.errors","cogs.tags","cogs.utils","cogs.weather"]
+cogs = ["cogs.admin","cogs.errors","cogs.tags","cogs.utils","cogs.weather","cogs.todo"]
 
 
 class Bot(commands.Bot):
