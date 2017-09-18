@@ -22,7 +22,7 @@ class Weather(Cog):
         if unit.lower() not in set("fck"):
             return await ctx.send("you idiot i only take f, c, or k for units.")
         if unit.lower() == "f":
-            url = "http://alext.duckdns.org/weewx/"
+            url = "http://alext.duckdns.org/weewx"
         else:
             url = "http://alext.duckdns.org/weewx/c"
         data = html.fromstring(await get_data(url))
@@ -38,13 +38,20 @@ class Weather(Cog):
             temp = f"{temp+237.15}k"
             in_temp = int(rec.search(in_temp).group(0))
             in_temp = f"{in_temp+237.15}k"
+            # set the URL to none to prevent getting a graph for K that doesnt exist.
+            url = None
 
         if "N/A" in wind:
             msg = f"Weather at Alex's Home:\nTemp: {temp}\nInside Tempature: {in_temp}"
         else:
             msg = f"Weather at Alex's Home:\nTemp: {temp}\nWind speed: {wind}\nInside Tempature: {in_temp}"
 
-        await ctx.send(msg)
+        if url is not None:
+            embed = discord.Embed()
+            embed.set_image(url=f"{url}/daytempdew.png")
+            await ctx.send(msg, embed=embed)
+        else:
+            await ctx.send(msg)
 
 def setup(bot):
     bot.add_cog(Weather(bot))
