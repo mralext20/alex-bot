@@ -31,17 +31,19 @@ async def remove(db: asyncpg.pool.Pool, tag: str, author: int, guild: int) -> bo
 
 async def list_tags(db: asyncpg.pool.Pool, guild: int) -> list:
     tags = await db.fetch("""SELECT * FROM tags WHERE guild=$1""", guild)
-    return [(tag["name"], tag["author"]) for tag in tags]
+    return tags
 
 
 class Tags(Cog):
     """The description for Tags goes here."""
 
     @commands.group(name="tag", invoke_without_command=True)
+    @commands.guild_only()
     async def tags(self, ctx, tag):
         await ctx.send(await query(self.bot.db, tag, ctx.guild.id))
 
     @tags.command()
+    @commands.guild_only()
     async def create(self, ctx, tag, *, content):
         try:
             assert len(tag) < len(content)
@@ -54,6 +56,7 @@ class Tags(Cog):
             await ctx.send(f"tag {tag} failed to be added \U0001f626")
 
     @tags.command()
+    @commands.guild_only()
     async def remove(self, ctx, tag):
         if await remove(self.bot.db, tag, ctx.author.id, ctx.guild.id):
             await ctx.send(f"tag '{tag}' removed successfully.")
@@ -61,11 +64,15 @@ class Tags(Cog):
             await ctx.send(f"tag was not removed. Are you the owner?")
 
     @tags.command()
+    @commands.guild_only()
     async def list(self, ctx):
         tags = list(await list_tags(self.bot.db, ctx.guild.id))
-        tags = [(tag[0], self.bot.get_user(tag[1]).mention) for tag in tags]
-        tags = discord.Embed(description=str(tags))
-        await ctx.send(embed=tags)
+        ret = ""
+        for tag in tags:
+            ret = ret + f"{tag['name']}, created by <@{tag['author']}>\n"
+        embed = discord.Embed()
+        embed.description = ret
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
