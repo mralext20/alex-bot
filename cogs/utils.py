@@ -4,6 +4,7 @@ from discord.ext import commands
 import datetime
 from cogs.cog import Cog
 import discord
+import humanize
 
 class Utils(Cog):
     """The description for Utils goes here."""
@@ -72,8 +73,10 @@ class Utils(Cog):
 
         ret.timestamp = msg.created_at
         ret.set_author(name=msg.author.name, icon_url=msg.author.avatar_url)
-        # TODO: format the timedelta better. less microseconds.
-        ret.set_footer(text=f"Quoted message is {ctx.message.created_at - ret.timestamp} old, from ")
+        age = ctx.message.created_at - ret.timestamp
+        age = humanize.naturaldelta(age)
+
+        ret.set_footer(text=f"Quoted message is {age} old, from ")
 
         await ctx.send(embed=ret)
 
