@@ -15,7 +15,7 @@ class Utils(Cog):
         """Command which Reloads a Module.
         Remember to use dot path. e.g: cogs.owner"""
         if cog == "cogs.utils":
-            ctx.send("im sorry, i cant reload myself for safety reasons.")
+            await ctx.send("im sorry, i cant reload myself for safety reasons.")
             return
         try:
             self.bot.unload_extension(cog)
