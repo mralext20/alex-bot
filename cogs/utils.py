@@ -38,11 +38,13 @@ class Utils(Cog):
 
     @commands.command()
     async def quote(self, ctx, msg:int, channel: discord.TextChannel=None):
-        if channel is not None:
-            msg = await channel.get_message(msg)
-        else:
-            msg = await ctx.channel.get_message(msg)
-
+        try:
+            if channel is not None:
+                msg = await channel.get_message(msg)
+            else:
+                msg = await ctx.channel.get_message(msg)
+        except discord.errors.NotFound:
+            await ctx.send("cant find that message. \N{SLIGHTLY FROWNING FACE}")
         assert isinstance(msg, discord.Message)
 
         ret = discord.Embed(color=discord.Color.blurple())
