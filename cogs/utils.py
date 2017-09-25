@@ -56,9 +56,7 @@ class Utils(Cog):
                 assert isinstance(embed, discord.Embed)
             except AssertionError:
                 return
-            ret.description = embed.description
-            for field in embed.fields:
-                ret.add_field(name=field.name, value=field.value, inline=field.inline)
+            ret = embed
         else:
             ret.description = msg.content
 
