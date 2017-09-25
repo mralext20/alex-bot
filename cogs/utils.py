@@ -48,17 +48,30 @@ class Utils(Cog):
         assert isinstance(msg, discord.Message)
 
         ret = discord.Embed(color=discord.Color.blurple())
-        ret.description = msg.content
-        ret.set_author(name=msg.author.name, icon_url=msg.author.avatar_url)
-        ret.timestamp = msg.created_at
-        try:
-            ret.set_image(url=msg.attachments[0].url)
-        except IndexError:
-            try:
-                ret.set_image(url=msg.embeds[0].thumbnail.url)
-            except IndexError:
-                pass
 
+        if msg.content is "" and msg.attachments == []:
+            embed = msg.embeds[0]
+            try:
+                assert isinstance(embed, discord.Embed)
+            except AssertionError:
+                return
+            ret.description = embed.description
+            for field in embed.fields:
+                ret.add_field(name=field.name, value=field.value, inline=field.inline)
+        else:
+            ret.description = msg.content
+
+            # handle images, and images attached with URLs
+            try:
+                ret.set_image(url=msg.attachments[0].url)
+            except IndexError:
+                try:
+                    ret.set_image(url=msg.embeds[0].thumbnail.url)
+                except IndexError:
+                    pass
+
+        ret.timestamp = msg.created_at
+        ret.set_author(name=msg.author.name, icon_url=msg.author.avatar_url)
         # TODO: format the timedelta better. less microseconds.
         ret.set_footer(text=f"Quoted message is {ctx.message.created_at - ret.timestamp} old, from ")
 
