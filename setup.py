@@ -1,4 +1,4 @@
-# creates databases in postgres
+# creates databases in mongodb
 import sys
 
 
@@ -7,7 +7,7 @@ def leave(str):
     exit(1)
 
 try:
-    assert sys.version_info[0] == 3 and sys.version_info[1] > 6
+    assert sys.version_info[0] == 3 and sys.version_info[1] > 5
 except AssertionError:
     leave("you need to have python 3.6 or later.")
 
@@ -15,19 +15,24 @@ except AssertionError:
 try:
     import config
     import pymongo
+    import pymongo.errors
 except ImportError(config):
     leave("you need to make a config. please read the README.md for help.")
 except ImportError(pymongo):
     leave("you need to install the requirements.")
 
 
-for i in [config.dsn, config.token]:
+for i in [config.mongo, config.token]:
     try:
         assert isinstance(i, str)
     except AssertionError:
         leave("please fill in the config file.")
 
-mongo = pymongo.MongoClient(config.mongo)
+try:
+    mongo = pymongo.MongoClient(config.mongo)
+except pymongo.errors.OperationFailure:
+    leave("uh ur auth is wrong kiddo.")
+
 
 db = mongo.alexbot
 
@@ -44,3 +49,5 @@ todo.insert_one({"NAME": "hello world",
                  "CONTENT":"this is a todo reminder for alex!",
                  "AUTHOR":108429628560924672,
                  "HASH": "59c09526346af2ce22dfb318bebc532736483b88ad2e2cbf41b9377a2528efec"})
+
+print("Done!")
