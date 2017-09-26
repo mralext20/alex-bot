@@ -1,0 +1,3 @@
+token = ""
+
+mongo = "mongodb://localhost"
