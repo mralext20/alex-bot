@@ -32,7 +32,7 @@ class Bot(commands.Bot):
         self.mongo = motor.motor_asyncio.AsyncIOMotorClient(config.mongo)
         self.db = self.mongo["alexbot"]
         self.tagsDB = self.db["tags"]
-        self.todoDB = self.db["todo"]
+
 
 bot = Bot()
 

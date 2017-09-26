@@ -37,7 +37,6 @@ except pymongo.errors.OperationFailure:
 db = mongo.alexbot
 
 tags = db.tags
-todo = db.todo
 
 tags.insert_one({"NAME":"hello world",
                  "CONTENT":"Its nice to meet you.",
@@ -45,9 +44,5 @@ tags.insert_one({"NAME":"hello world",
                  "AUTHOR":80351110224678912,
                  "HASH": "1ca25c85001011127a3db6712b5e425b4ad4672c9754535b81e72f99c784112e"})
 
-todo.insert_one({"NAME": "hello world",
-                 "CONTENT":"this is a todo reminder for alex!",
-                 "AUTHOR":108429628560924672,
-                 "HASH": "59c09526346af2ce22dfb318bebc532736483b88ad2e2cbf41b9377a2528efec"})
 
 print("Done!")
