@@ -6,6 +6,7 @@ from lxml import html
 import aiohttp
 import re
 from cogs.cog import Cog
+import time
 
 async def get_data(url) -> str:
     async with aiohttp.ClientSession() as session:
@@ -48,7 +49,7 @@ class Weather(Cog):
 
         if url is not None:
             embed = discord.Embed()
-            embed.set_image(url=f"{url}/daytempdew.png")
+            embed.set_image(url=f"{url}/daytempdew.png?t=   {int(time.time())}")
             await ctx.send(msg, embed=embed)
         else:
             await ctx.send(msg)
