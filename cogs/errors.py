@@ -36,7 +36,7 @@ class CommandErrorHandler(Cog):
 
         # post the error into the chat if no short error message could be generated
         if msg is None:
-            trace = traceback.format_exception(type(error), error, error.__traceback__, limit=7)
+            trace = traceback.format_exception(type(error), error, error.__traceback__, limit=5)
             actual_trace = '\n'.join(trace)
             msg = f'Something unexpected went wrong while running this command:\n```py\n{actual_trace}```'
 
