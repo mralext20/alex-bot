@@ -188,6 +188,7 @@ class Exec(Cog):
     @commands.command()
     @commands.is_owner()
     async def reloadutils(self,ctx):
+        """Reload the utils cog"""
         try:
             self.bot.unload_extension("cogs.utils")
             self.bot.load_extension("cogs.utils")
@@ -200,6 +201,7 @@ class Exec(Cog):
     @commands.command()
     @commands.is_owner()
     async def download(self, ctx, file):
+        """Attaches a stored file"""
         with open(file, 'rb') as f:
             try:
                 await ctx.send(file = discord.File(f, file))
@@ -209,6 +211,7 @@ class Exec(Cog):
     @commands.command()
     @commands.is_owner()
     async def upload(self, ctx):
+        """Upload a file"""
         attachments = ctx.message.attachments
         # TODO: allow this to wait_for a upload file from the original sender.
         if attachments is None:
