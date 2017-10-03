@@ -29,16 +29,19 @@ class Utils(Cog):
 
     @commands.command()
     async def ping(self, ctx):
+        """You know it"""
         await ctx.send(f"Pong! time is {ctx.bot.latency * 1000:.2f} ms")
 
     @commands.command()
     async def time(self,ctx):
+        """Displays the time in alaska"""
         time = datetime.datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")
         await ctx.send(f'the time in alaska is {time}')
 
 
     @commands.command()
     async def quote(self, ctx, msg:int, channel: discord.TextChannel=None):
+        """Quotes a message"""
         try:
             if channel is not None:
                 msg = await channel.get_message(msg)
