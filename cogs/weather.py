@@ -49,7 +49,7 @@ class Weather(Cog):
 
         if url is not None:
             embed = discord.Embed()
-            embed.set_image(url=f"{url}/daytempdew.png?t=   {int(time.time()/300)}")
+            embed.set_image(url=f"{url}/daytempdew.png?t={int(time.time()/300)}")
             await ctx.send(msg, embed=embed)
         else:
             await ctx.send(msg)
