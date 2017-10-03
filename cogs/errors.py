@@ -18,6 +18,9 @@ class CommandErrorHandler(Cog):
         if isinstance(error, commands.DisabledCommand):
             msg = f'{ctx.command} has been disabled.'
 
+        elif isinstance(error, commands.NotOwner):
+            msg = f'{ctx.command} is a owner only command.'
+
         elif isinstance(error, commands.NoPrivateMessage):
             msg = f'{ctx.command} can not be used in Private Messages.'
 
