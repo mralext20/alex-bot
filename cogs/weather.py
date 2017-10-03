@@ -16,10 +16,11 @@ async def get_data(url) -> str:
 
 
 class Weather(Cog):
-    """Lets you access the alext.duckdns.org/weewx/{,c/} weather station from discord"""
+
 
     @commands.command()
     async def weather(self, ctx, unit="c"):
+        """Lets you access the alext.duckdns.org/weewx/{,c/} weather station from discord"""
         if unit.lower() not in set("fck"):
             return await ctx.send("you idiot i only take f, c, or k for units.")
         if unit.lower() == "f":
