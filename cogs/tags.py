@@ -45,6 +45,7 @@ class Tags(Cog):
     @tags.command()
     @commands.guild_only()
     async def create(self, ctx, tag, *, content):
+        """Creates a tag"""
         try:
             assert len(tag) < len(content)
         except AssertionError:
@@ -58,6 +59,7 @@ class Tags(Cog):
     @tags.command()
     @commands.guild_only()
     async def remove(self, ctx, tag):
+        """Removes a tag"""
         if await remove(self.bot.tagsDB, tag, ctx.author.id, ctx.guild.id):
             await ctx.send(f"tag '{tag}' removed successfully.")
         else:
@@ -66,6 +68,7 @@ class Tags(Cog):
     @tags.command()
     @commands.guild_only()
     async def list(self, ctx):
+        """Lists all the tags for this guild"""
         tags = list(await list_tags(self.bot.tagsDB, ctx.guild.id))
         ret = ""
         for tag in tags:
