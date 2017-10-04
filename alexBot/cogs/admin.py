@@ -17,19 +17,19 @@ Features:
     - Quickly retry evaluations
 """
 
+import asyncio
 import io
 import logging
 import textwrap
 import traceback
 from contextlib import redirect_stdout
 
-import asyncio
 import aiohttp
 import discord
 from discord.ext import commands
 
-from cogs.cog import Cog
-from cogs.haste import haste
+from ..tools import Cog
+from .haste import haste
 
 log = logging.getLogger(__name__)
 
