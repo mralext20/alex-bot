@@ -16,14 +16,13 @@ class Utils(Cog):
     @commands.command(name='reload', hidden=True)
     @commands.is_owner()
     async def cog_reload(self, ctx, *, cog: str):
-        """Command which Reloads a Module.
-        Remember to use dot path. e.g: cogs.owner"""
-        if cog == "cogs.utils":
+        """Command which Reloads a Module."""
+        if cog == "utils":
             await ctx.send("im sorry, i cant reload myself for safety reasons.")
             return
         try:
-            self.bot.unload_extension(cog)
-            self.bot.load_extension(cog)
+            self.bot.unload_extension(f"alexBot.cogs.{cog}")
+            self.bot.load_extension(f"alexBot.cogs.{cog}")
         except Exception as e:
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
         else:

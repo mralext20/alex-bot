@@ -190,8 +190,8 @@ class Exec(Cog):
     async def reloadutils(self,ctx):
         """Reload the utils cog"""
         try:
-            self.bot.unload_extension("cogs.utils")
-            self.bot.load_extension("cogs.utils")
+            self.bot.unload_extension("alexBot.cogs.utils")
+            self.bot.load_extension("alexBot.cogs.utils")
         except Exception as e:
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
         else:
