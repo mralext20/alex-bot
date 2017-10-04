@@ -5,10 +5,10 @@ import os
 
 import motor.motor_asyncio
 from discord.ext import commands
-
+import aiohttp
 import config
 
-cogs = ["cogs.admin","cogs.errors","cogs.tags","cogs.utils","cogs.weather"]
+cogs = ["admin","errors","tags","utils","weather"]
 
 
 class Bot(commands.Bot):
@@ -16,10 +16,11 @@ class Bot(commands.Bot):
         super().__init__(
             command_prefix=('alex!' if os.uname().nodename == 'alexlaptop' else 'a!'),
             **kwargs)
+        self.session = aiohttp.ClientSession(loop=self.loop)
 
         for cog in cogs:
             try:
-                self.load_extension(cog)
+                self.load_extension(f"alexBot.cogs.{cog}")
             except Exception as e:
                 print(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 

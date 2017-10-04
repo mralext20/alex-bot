@@ -1,23 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from discord.ext import commands
-import discord
-from lxml import html
-import aiohttp
 import re
-from cogs.cog import Cog
 import time
 
-async def get_data(url) -> str:
-    async with aiohttp.ClientSession() as session:
-        weewx_req = await session.get(url)
-        weewx = await weewx_req.text()
-        return weewx
+import discord
+from discord.ext import commands
+from lxml import html
+
+from ..tools import Cog
+from ..tools import get_text
 
 
 class Weather(Cog):
-
-
     @commands.command()
     async def weather(self, ctx, unit="c"):
         """Lets you access the alext.duckdns.org/weewx/{,c/} weather station from discord"""
@@ -27,7 +21,7 @@ class Weather(Cog):
             url = "http://alext.duckdns.org/weewx"
         else:
             url = "http://alext.duckdns.org/weewx/c"
-        data = html.fromstring(await get_data(url))
+        data = html.fromstring(await get_text(ctx.bot.session ,url))
 
         temp = data.xpath('//*[@id="stats_group"]/div[1]/table/tbody/tr[1]/td[2]/text()')[0]
         wind = data.xpath('//*[@id="stats_group"]/div[1]/table/tbody/tr[8]/td[2]/text()')[0]

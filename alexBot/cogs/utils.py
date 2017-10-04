@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from discord.ext import commands
 import datetime
-from cogs.cog import Cog
+
 import discord
 import humanize
+from discord.ext import commands
+
+from ..tools import Cog
+
 
 class Utils(Cog):
     """The description for Utils goes here."""

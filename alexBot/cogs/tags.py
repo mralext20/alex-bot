@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-import discord
-from discord.ext import commands
-from cogs.cog import Cog
-import motor.motor_asyncio as motor
 import hashlib
+
+import discord
+import motor.motor_asyncio as motor
+from discord.ext import commands
+
+from ..tools import Cog
 
 motorCollection = motor.AsyncIOMotorCollection
 
