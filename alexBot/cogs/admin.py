@@ -234,7 +234,7 @@ class Exec(Cog):
             await ctx.send("ERROR: cant restart, im not running on a pi")
         pm2_id = os.environ["pm_id"]
         await ctx.send("shutting down....")
-        run_subprocess(f"pm2 restart {pm2_id}")
+        await run_subprocess(f"pm2 restart {pm2_id}")
         await ctx.send("sent restart to pm2!")
 
 
