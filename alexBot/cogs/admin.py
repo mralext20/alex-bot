@@ -1,13 +1,18 @@
-"""
-"""
-
-
 import discord
 from discord.ext import commands
 import inspect
+import os
+import asyncio
 
 from ..tools import Cog
 
+
+async def run_subprocess(cmd: str) -> str:
+    """Runs a subprocess and returns the output."""
+    process = await asyncio.create_subprocess_shell(
+        cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    results = await process.communicate()
+    return "".join(x.decode("utf-8") for x in results)
 
 class Exec(Cog):
     def __init__(self, *args, **kwargs):
@@ -105,6 +110,18 @@ class Exec(Cog):
             with open(attachment.filename, "wb") as f:
                 attachment.save(f)
             await ctx.send(f"saved as {attachment.filename}")
+
+    @commands.command()
+    @commands.is_owner()
+    async def restart(self,ctx):
+        try:
+            assert os.uname().nodename == "raspberrypi"
+        except AssertionError:
+            await ctx.send("ERROR: cant restart, im not running on a pi")
+        pm2_id = os.environ["pm_id"]
+        await ctx.send("shutting down....")
+        run_subprocess(f"pm2 restart {pm2_id}")
+        await ctx.send("sent restart to pm2!")
 
 
 
