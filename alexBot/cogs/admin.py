@@ -17,7 +17,6 @@ Features:
     - Quickly retry evaluations
 """
 
-import asyncio
 import io
 import logging
 import textwrap
@@ -27,12 +26,11 @@ from contextlib import redirect_stdout
 import aiohttp
 import discord
 from discord.ext import commands
-import inspect
 import os
 import asyncio
 
 from ..tools import Cog
-from .haste import haste
+from ..tools import haste
 
 log = logging.getLogger(__name__)
 
@@ -149,12 +147,9 @@ class Admin(Cog):
                 # too long
                 try:
                     url = await haste(ctx.bot.session, stream + repr(ret))
-                    await ctx.send(await ctx._('cmd.eval.long', url))
-                except KeyError:
-                    # even hastebin couldn't handle it
-                    await ctx.send(await ctx._('cmd.eval.huge'))
+                    await ctx.send(f'hastebin: {url}')
                 except aiohttp.ClientError:
-                    await ctx.send(await ctx._('cmd.eval.pastebin_down'))
+                    await ctx.send("oof")
 
 
     @commands.command(name='retry', hidden=True)
