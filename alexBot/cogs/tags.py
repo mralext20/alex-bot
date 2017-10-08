@@ -35,6 +35,14 @@ async def list_tags(collection: motorCollection, guild: int) -> list:
     tags = await cur.to_list(20)
     return tags
 
+async def remove(collection: motorCollection, tag:str, author:int, guild:int) -> bool:
+    deleted = await collection.delete_one({"NAME":tag, "AUTHOR": author, "GUILD": guild})
+    deleted = deleted.deleted_count
+    if deleted == 1:
+        return True
+    else:
+        return False
+
 
 class Tags(Cog):
     """The description for Tags goes here."""
