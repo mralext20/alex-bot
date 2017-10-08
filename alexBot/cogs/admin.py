@@ -269,5 +269,6 @@ class Admin(Cog):
         else:
             await ctx.send('**`SUCCESS`**')
 
+
 def setup(bot):
     bot.add_cog(Admin(bot))
