@@ -11,24 +11,6 @@ from ..tools import Cog
 
 class Utils(Cog):
     """The description for Utils goes here."""
-
-
-    @commands.command(name='reload', hidden=True)
-    @commands.is_owner()
-    async def cog_reload(self, ctx, *, cog: str):
-        """Command which Reloads a Module."""
-        if cog == "utils":
-            await ctx.send("im sorry, i cant reload myself for safety reasons.")
-            return
-        try:
-            self.bot.unload_extension(f"alexBot.cogs.{cog}")
-            self.bot.load_extension(f"alexBot.cogs.{cog}")
-        except Exception as e:
-            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
-        else:
-            await ctx.send('**`SUCCESS`**')
-
-
     @commands.command()
     async def ping(self, ctx):
         """You know it"""
@@ -82,6 +64,19 @@ class Utils(Cog):
         ret.set_footer(text=f"Quoted message is {age} old, from ")
 
         await ctx.send(embed=ret)
+
+
+    @commands.command()
+    @commands.is_owner()
+    async def reloadadmin(self,ctx):
+        """Reload the admin cog"""
+        try:
+            self.bot.unload_extension("alexBot.cogs.admin")
+            self.bot.load_extension("alexBot.cogs.admin")
+        except Exception as e:
+            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+        else:
+            await ctx.send('**`SUCCESS`**')
 
 
 def setup(bot):

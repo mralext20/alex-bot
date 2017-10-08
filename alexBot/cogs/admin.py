@@ -190,18 +190,6 @@ class Admin(Cog):
             result = await run_subprocess(cmd)
         await ctx.send(f'```{result}```')
 
-    @commands.command()
-    @commands.is_owner()
-    async def reloadutils(self,ctx):
-        """Reload the utils cog"""
-        try:
-            self.bot.unload_extension("alexBot.cogs.utils")
-            self.bot.load_extension("alexBot.cogs.utils")
-        except Exception as e:
-            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
-        else:
-            await ctx.send('**`SUCCESS`**')
-
 
     @commands.command()
     @commands.is_owner()
@@ -242,6 +230,20 @@ class Admin(Cog):
         await ctx.send("sent restart to pm2!")
 
 
+    @commands.command(name='reload', hidden=True)
+    @commands.is_owner()
+    async def cog_reload(self, ctx, *, cog: str):
+        """Command which Reloads a Module."""
+        if cog == "admin":
+            await ctx.send("im sorry, i cant reload myself for safety reasons.")
+            return
+        try:
+            self.bot.unload_extension(f"alexBot.cogs.{cog}")
+            self.bot.load_extension(f"alexBot.cogs.{cog}")
+        except Exception as e:
+            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+        else:
+            await ctx.send('**`SUCCESS`**')
 
 def setup(bot):
     bot.add_cog(Admin(bot))
