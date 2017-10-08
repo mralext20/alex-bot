@@ -66,7 +66,7 @@ def format_syntax_error(e: SyntaxError) -> str:
     return '```py\n{0.text}{1:>{0.offset}}\n{2}: {0}```'.format(e, '^', type(e).__name__)
 
 
-class Exec(Cog):
+class Admin(Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -156,6 +156,7 @@ class Exec(Cog):
                 except aiohttp.ClientError:
                     await ctx.send(await ctx._('cmd.eval.pastebin_down'))
 
+
     @commands.command(name='retry', hidden=True)
     @commands.is_owner()
     async def retry(self, ctx):
@@ -164,6 +165,7 @@ class Exec(Cog):
             return await ctx.send('No previous code.')
 
         await self.execute(ctx, self.previous_code)
+
 
     @commands.command(name='eval', aliases=['exec', 'debug'])
     @commands.is_owner()
@@ -178,6 +180,7 @@ class Exec(Cog):
         self.previous_code = code
 
         await self.execute(ctx, code)
+
 
     @commands.command(name='sh')
     @commands.is_owner()
@@ -210,6 +213,7 @@ class Exec(Cog):
             except FileNotFoundError:
                 await ctx.send(f"no such file: {file}")
 
+
     @commands.command()
     @commands.is_owner()
     async def upload(self, ctx):
@@ -240,4 +244,4 @@ class Exec(Cog):
 
 
 def setup(bot):
-    bot.add_cog(Exec(bot))
+    bot.add_cog(Admin(bot))
