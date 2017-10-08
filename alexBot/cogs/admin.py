@@ -230,6 +230,30 @@ class Admin(Cog):
         await ctx.send("sent restart to pm2!")
 
 
+    @commands.command()
+    @commands.is_owner()
+    async def load(self, ctx, cog):
+        """loads a extension."""
+        try:
+            self.bot.load_extension(f"alexBot.cogs.{cog}")
+        except Exception as e:
+            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+        else:
+            await ctx.send('**`SUCCESS`**')
+
+
+    @commands.command()
+    @commands.is_owner()
+    async def load(self, ctx, cog):
+        """unloads a extension."""
+        try:
+            self.bot.unload_extension(f"alexBot.cogs.{cog}")
+        except Exception as e:
+            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+        else:
+            await ctx.send('**`SUCCESS`**')
+
+
     @commands.command(name='reload', hidden=True)
     @commands.is_owner()
     async def cog_reload(self, ctx, *, cog: str):
