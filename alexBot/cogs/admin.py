@@ -292,9 +292,19 @@ class Admin(Cog):
     async def upload(self, ctx):
         """Upload a file"""
         attachments = ctx.message.attachments
-        # TODO: allow this to wait_for a upload file from the original sender.
+
         if not attachments:
-            return await ctx.send("please upload a file in the same message.")
+            await ctx.send("No attachment found! Please upload it in your next message.")
+
+            def check(msg_: discord.Message) -> bool:
+                return msg_.channel.id == ctx.channel.id and msg_.author.id == ctx.author.id and msg_.attachments
+
+            try:
+                msg = await self.bot.wait_for('message', check=check, timeout=60 * 10)
+            except asyncio.TimeoutError:
+                return await ctx.send('Stopped waiting for file upload, 10 minutes have passed.')
+
+            attachments = msg.attachments
 
         for attachment in attachments:
             with open(attachment.filename, "wb") as f:
