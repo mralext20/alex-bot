@@ -8,8 +8,10 @@ from discord.ext import commands
 import aiohttp
 import config
 
+import logging
 cogs = ["admin","errors","tags","utils","weather"]
 
+logging.basicConfig(level=logging.INFO)
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
@@ -17,6 +19,7 @@ class Bot(commands.Bot):
             command_prefix=('alex!' if os.uname().nodename == 'alexlaptop' else 'a!'),
             **kwargs)
         self.session = aiohttp.ClientSession(loop=self.loop)
+        self.logger = logging.getLogger("bot")
 
         for cog in cogs:
             try:
