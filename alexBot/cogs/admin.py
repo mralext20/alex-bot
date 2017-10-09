@@ -329,7 +329,7 @@ class Admin(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def load(self, ctx, cog):
+    async def unload(self, ctx, cog):
         """unloads a extension."""
         try:
             self.bot.unload_extension(f"alexBot.cogs.{cog}")
