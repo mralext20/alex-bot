@@ -293,9 +293,8 @@ class Admin(Cog):
         """Upload a file"""
         attachments = ctx.message.attachments
         # TODO: allow this to wait_for a upload file from the original sender.
-        if attachments is None:
-            ctx.send("please upload a file in the same message.")
-            return
+        if not attachments:
+            return await ctx.send("please upload a file in the same message.")
 
         for attachment in attachments:
             with open(attachment.filename, "wb") as f:
