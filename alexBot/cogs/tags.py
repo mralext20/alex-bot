@@ -9,12 +9,14 @@ from ..tools import Cog
 
 motorCollection = motor.AsyncIOMotorCollection
 
+
 async def query(collection: motorCollection, tag: str,guild: int) -> str:
     ret = await collection.find_one({"NAME": tag, "GUILD": guild})
     if ret is not None:
         return ret["CONTENT"]
     else:
         return "can not find that tag"
+
 
 async def append(collection: motorCollection, tag: str, content: str, author: int, guild:int ) -> bool:
     h = hashlib.sha256(f"{tag}{guild}".encode()).hexdigest()
@@ -34,6 +36,7 @@ async def list_tags(collection: motorCollection, guild: int) -> list:
     cur = collection.find({"GUILD": guild})
     tags = await cur.to_list(20)
     return tags
+
 
 async def remove(collection: motorCollection, tag:str, author:int, guild:int) -> bool:
     deleted = await collection.delete_one({"NAME":tag, "AUTHOR": author, "GUILD": guild})
