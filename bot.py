@@ -20,6 +20,7 @@ class Bot(commands.Bot):
             **kwargs)
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.logger = logging.getLogger("bot")
+        self.config = config
 
         for cog in cogs:
             try:
@@ -36,6 +37,8 @@ class Bot(commands.Bot):
         self.mongo = motor.motor_asyncio.AsyncIOMotorClient(config.mongo)
         self.db = self.mongo["alexbot"]
         self.tagsDB = self.db["tags"]
+        self.configs = self.db["configs"]
+        self.currency = self.db["currency"]
 
 
 bot = Bot()
