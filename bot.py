@@ -3,12 +3,13 @@
 
 import os
 
-import motor.motor_asyncio
+import asyncpg
 from discord.ext import commands
 import aiohttp
 import config
 
 import logging
+
 cogs = ["admin","errors","tags","utils","weather"]
 
 logging.basicConfig(level=logging.INFO)
@@ -34,11 +35,7 @@ class Bot(commands.Bot):
         print(f'Logged on as {self.user} (ID: {self.user.id})')
 
     async def db(self):
-        self.mongo = motor.motor_asyncio.AsyncIOMotorClient(config.mongo)
-        self.db = self.mongo["alexbot"]
-        self.tagsDB = self.db["tags"]
-        self.configs = self.db["configs"]
-        self.currency = self.db["currency"]
+        self.db = await asyncpg.create_pool(config.dsn, loop=self.loop)
 
 
 bot = Bot()
