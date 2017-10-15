@@ -73,6 +73,7 @@ class Admin(Cog):
         self.last_result = None
         self.previous_code = None
 
+    # TODO: replace with new eval from slice
     async def execute(self, ctx, code):
         log.info('Eval: %s', code)
 
