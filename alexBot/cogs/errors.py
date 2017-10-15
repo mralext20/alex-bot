@@ -46,7 +46,7 @@ class CommandErrorHandler(Cog):
         try:
             await ctx.send(msg)
         except discord.HTTPException:
-            pass  # /shrug
+            await ctx.send(f'error message too long')
 
 
 def setup(bot: commands.Bot):
