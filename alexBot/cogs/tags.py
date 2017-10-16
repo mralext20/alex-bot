@@ -96,6 +96,16 @@ class Tags(Cog):
 
     @tags.command()
     @commands.guild_only()
+    async def info(self, ctx, tag):
+        tag = await query(self.bot.pool, tag, ctx.guild.id)
+        author = self.bot.get_user(tag.author)
+        ret = discord.Embed()
+        ret.set_author(name=author.name, icon_url=author.avatar_url)
+        ret.add_field(name="Name", value=tag.tag, inline=True)
+        await ctx.send(embed=ret)
+
+    @tags.command()
+    @commands.guild_only()
     async def list(self, ctx):
         """Lists all the tags for this guild"""
         tags = list(await list_tags(self.bot.pool, ctx.guild.id))
