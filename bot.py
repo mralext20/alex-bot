@@ -3,15 +3,17 @@
 
 import os
 
-import motor.motor_asyncio
+import asyncpg
 from discord.ext import commands
 import aiohttp
 import config
 
 import logging
-cogs = ["admin","errors","tags","utils","weather"]
+
+cogs = ["admin", "errors","tags", "utils", "weather"]
 
 logging.basicConfig(level=logging.INFO)
+
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
@@ -28,17 +30,13 @@ class Bot(commands.Bot):
             except Exception as e:
                 print(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 
-        self.loop.create_task(self.db())
+        self.loop.create_task(self.pool())
 
     async def on_ready(self):
         print(f'Logged on as {self.user} (ID: {self.user.id})')
 
-    async def db(self):
-        self.mongo = motor.motor_asyncio.AsyncIOMotorClient(config.mongo)
-        self.db = self.mongo["alexbot"]
-        self.tagsDB = self.db["tags"]
-        self.configs = self.db["configs"]
-        self.currency = self.db["currency"]
+    async def pool(self):
+        self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
 
 
 bot = Bot()

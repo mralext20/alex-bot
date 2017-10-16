@@ -2,58 +2,77 @@
 import hashlib
 
 import discord
-import motor.motor_asyncio as motor
+from asyncpg.pool import Pool
+from asyncpg import UniqueViolationError
 from discord.ext import commands
+
+from collections import namedtuple
+from typing import List
+
 
 from ..tools import Cog
 
-motorCollection = motor.AsyncIOMotorCollection
+
+def get_hash(tag: str, guild: int) -> str:
+    return hashlib.sha256(f"{tag}{guild}".encode()).hexdigest()
 
 
-async def query(collection: motorCollection, tag: str,guild: int) -> str:
-    ret = await collection.find_one({"NAME": tag, "GUILD": guild})
+Tag = namedtuple('Tag', ["tag", "content", "author"])
+
+
+async def query(pool: Pool, tag: str, guild: int) -> Tag:
+    h = get_hash(tag, guild)
+    ret = await pool.fetchrow("""SELECT (content, author, guild, hash) 
+                                FROM tags WHERE hash=$1""", h)
     if ret is not None:
-        return ret["CONTENT"]
+        ret = ret[0]
+        return Tag(tag, ret[0], ret[1])
     else:
-        return "can not find that tag"
+        raise commands.BadArgument(f"{tag} not found")
 
 
-async def append(collection: motorCollection, tag: str, content: str, author: int, guild:int ) -> bool:
-    h = hashlib.sha256(f"{tag}{guild}".encode()).hexdigest()
-    if await collection.find_one({"HASH": h}):
-        return False
+async def append(pool: Pool, tag: str, content: str, author: int, guild: int) -> None:
+    """creates a tag. raises commands.BadArgument when fails."""
+    h = get_hash(tag, guild)
+    try:
+        await pool.execute("""INSERT INTO tags (tag, content, author, guild, hash) VALUES
+                              ($1,$2,$3,$4,$5)""", tag, content, author, guild, h)
+    except UniqueViolationError:
+        raise commands.BadArgument("Tag exists")
+
+
+async def list_tags(pool: Pool, guild: int, author: int = None) -> List[Tag]:
+    ret = []
+    if author is None:
+        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags 
+        WHERE guild=$1""", guild)
     else:
-        await collection.insert_one({"NAME"   : tag,
-                                     "CONTENT": content,
-                                     "AUTHOR" : author,
-                                     "GUILD"  : guild,
-                                     "HASH"   : h
-                                     })
-        return True
+        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags 
+        WHERE guild=$1 AND author=$2""", guild, author)
+
+    for record in tags:
+        record = record[0]
+        ret.append(Tag(record[0], record[1], record[2]))
+    return ret
 
 
-async def list_tags(collection: motorCollection, guild: int) -> list:
-    cur = collection.find({"GUILD": guild})
-    tags = await cur.to_list(20)
-    return tags
-
-
-async def remove(collection: motorCollection, tag:str, author:int, guild:int) -> bool:
-    deleted = await collection.delete_one({"NAME":tag, "AUTHOR": author, "GUILD": guild})
-    deleted = deleted.deleted_count
-    if deleted == 1:
-        return True
+async def remove(db: Pool, tag: str, author: int, guild: int) -> None:
+    h = get_hash(tag, guild)
+    ret = await db.execute("""DELETE FROM tags WHERE author=$1 AND hash=$2""", author, h)
+    if ret == "DELETE 1":
+        return
     else:
-        return False
+        raise commands.BadArgument("you are not the owner of that tag, or it does not exist.")
 
 
 class Tags(Cog):
-    """The description for Tags goes here."""
+    """commands relating to the tags functionality of the bot."""
 
     @commands.group(name="tag", invoke_without_command=True)
     @commands.guild_only()
     async def tags(self, ctx, tag):
-        await ctx.send(await query(self.bot.tagsDB, tag, ctx.guild.id))
+        tag = await query(self.bot.pool, tag, ctx.guild.id)
+        await ctx.send(tag.content)
 
     @tags.command()
     @commands.guild_only()
@@ -62,30 +81,30 @@ class Tags(Cog):
         try:
             assert len(tag) < len(content)
         except AssertionError:
-            await ctx.send(f"failed to add tag {tag} to the database. content needs to be shorter than your tag name. <:lumaslime:340673841858740224>")
+            await ctx.send(f"failed to add tag {tag} to the database. content needs to be shorter than your tag name."
+                           f" <:lumaslime:340673841858740224>")
             return
-        if await append(self.bot.tagsDB, tag, content, ctx.author.id, ctx.guild.id):
-            await ctx.send(f"tag {tag} was added to database.")
-        else:
-            await ctx.send(f"tag {tag} failed to be added \U0001f626")
+        await append(self.bot.pool, tag, content, ctx.author.id, ctx.guild.id)
+        await ctx.send(f"tag {tag} was added to database.")
 
     @tags.command()
     @commands.guild_only()
     async def remove(self, ctx, tag):
         """Removes a tag"""
-        if await remove(self.bot.tagsDB, tag, ctx.author.id, ctx.guild.id):
-            await ctx.send(f"tag '{tag}' removed successfully.")
-        else:
-            await ctx.send(f"tag was not removed. Are you the owner?")
+        await remove(self.bot.pool, tag, ctx.author.id, ctx.guild.id)
+        await ctx.send(f"tag '{tag}' removed successfully.")
 
     @tags.command()
     @commands.guild_only()
     async def list(self, ctx):
         """Lists all the tags for this guild"""
-        tags = list(await list_tags(self.bot.tagsDB, ctx.guild.id))
+        tags = list(await list_tags(self.bot.pool, ctx.guild.id))
         ret = ""
         for tag in tags:
-            ret = ret + f"{tag['NAME']}, created by <@{tag['AUTHOR']}>\n"
+            if len(ret) > 1000:
+                ret += "\n\n cut output due to length"
+                break
+            ret = ret + f"{tag.tag}, created by <@{tag.author}>\n"
         embed = discord.Embed()
         embed.description = ret
         await ctx.send(embed=embed)
