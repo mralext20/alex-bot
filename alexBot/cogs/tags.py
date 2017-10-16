@@ -71,7 +71,8 @@ class Tags(Cog):
     @commands.group(name="tag", invoke_without_command=True)
     @commands.guild_only()
     async def tags(self, ctx, tag):
-        await ctx.send((await query(self.bot.pool, tag, ctx.guild.id))[0])
+        tag = await query(self.bot.pool, tag, ctx.guild.id)
+        await ctx.send(tag.content)
 
     @tags.command()
     @commands.guild_only()
