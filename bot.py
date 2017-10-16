@@ -10,9 +10,10 @@ import config
 
 import logging
 
-cogs = ["admin","errors","tags","utils","weather"]
+cogs = ["admin", "errors","tags", "utils", "weather"]
 
 logging.basicConfig(level=logging.INFO)
+
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
@@ -29,13 +30,13 @@ class Bot(commands.Bot):
             except Exception as e:
                 print(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 
-        self.loop.create_task(self.db())
+        self.loop.create_task(self.pool())
 
     async def on_ready(self):
         print(f'Logged on as {self.user} (ID: {self.user.id})')
 
-    async def db(self):
-        self.db = await asyncpg.create_pool(config.dsn, loop=self.loop)
+    async def pool(self):
+        self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
 
 
 bot = Bot()
