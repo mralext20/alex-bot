@@ -13,10 +13,11 @@ def get_hash(tag:str, guild:int) -> str:
     return hashlib.sha256(f"{tag}{guild}".encode()).hexdigest()
 
 async def query(pool:Pool, tag: str, guild:int):
-    ret = await pool.execute("""SELECT (content, author, guild, hash) 
-                                FROM tags WHERE GUILD=$1 AND TAG=$2""", guild, tag)
+    h = get_hash(tag, guild)
+    ret = await pool.fetchrow("""SELECT (content, author, guild, hash) 
+                                FROM tags WHERE hash=$1""", h)
     if ret is not None:
-        return ret
+        return ret[0]
     else:
         raise commands.BadArgument(f"{tag} not found")
 
@@ -43,10 +44,11 @@ async def list_tags(pool:Pool, guild: int, author:int=None) -> list:
 
 async def remove(db: Pool, tag: str, author: int, guild: int) -> None:
     h = get_hash(tag,guild)
-    if await db.fetchrow("""SELECT * FROM tags WHERE author=$1 AND hash=$2""", author, h):
-        await db.execute("""DROP FROM tags WHERE author=$1 AND hash=$2""", author, h)
+    ret = await db.execute("""DELETE FROM tags WHERE author=$1 AND hash=$2""", author, h)
+    if ret == "DELETE 1":
+        return
     else:
-        raise commands.MissingPermissions("you are not the owner of that tag")
+        raise commands.BadArgument("you are not the owner of that tag, or it does not exist.")
 
 
 class Tags(Cog):
@@ -55,7 +57,7 @@ class Tags(Cog):
     @commands.group(name="tag", invoke_without_command=True)
     @commands.guild_only()
     async def tags(self, ctx, tag):
-        await ctx.send(await query(self.bot.pool, tag, ctx.guild.id))
+        await ctx.send((await query(self.bot.pool, tag, ctx.guild.id))[0])
 
     @tags.command()
     @commands.guild_only()
@@ -75,10 +77,8 @@ class Tags(Cog):
     @commands.guild_only()
     async def remove(self, ctx, tag):
         """Removes a tag"""
-        if await remove(self.bot.pool, tag, ctx.author.id, ctx.guild.id):
-            await ctx.send(f"tag '{tag}' removed successfully.")
-        else:
-            await ctx.send(f"tag was not removed. Are you the owner?")
+        await remove(self.bot.pool, tag, ctx.author.id, ctx.guild.id)
+        await ctx.send(f"tag '{tag}' removed successfully.")
 
     @tags.command()
     @commands.guild_only()
