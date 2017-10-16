@@ -6,18 +6,27 @@ from asyncpg.pool import Pool
 from asyncpg import UniqueViolationError
 from discord.ext import commands
 
+from collections import namedtuple
+from typing import List
+
+
 from ..tools import Cog
 
 
-def get_hash(tag:str, guild:int) -> str:
+def get_hash(tag: str, guild: int) -> str:
     return hashlib.sha256(f"{tag}{guild}".encode()).hexdigest()
 
-async def query(pool:Pool, tag: str, guild:int):
+
+Tag = namedtuple('Tag', ["tag", "content", "author"])
+
+
+async def query(pool: Pool, tag: str, guild: int) -> Tag:
     h = get_hash(tag, guild)
     ret = await pool.fetchrow("""SELECT (content, author, guild, hash) 
                                 FROM tags WHERE hash=$1""", h)
     if ret is not None:
-        return ret[0]
+        ret = ret[0]
+        return Tag(tag, ret[0], ret[1])
     else:
         raise commands.BadArgument(f"{tag} not found")
 
@@ -27,23 +36,28 @@ async def append(pool: Pool, tag: str, content: str, author: int, guild: int) ->
     h = get_hash(tag, guild)
     try:
         await pool.execute("""INSERT INTO tags (tag, content, author, guild, hash) VALUES
-                              ($1,$2,$3,$4,$5)""",tag,content,author,guild,h)
+                              ($1,$2,$3,$4,$5)""", tag, content, author, guild, h)
     except UniqueViolationError:
         raise commands.BadArgument("Tag exists")
 
 
-async def list_tags(pool:Pool, guild: int, author:int=None) -> list:
+async def list_tags(pool: Pool, guild: int, author: int = None) -> List[Tag]:
+    ret = []
     if author is None:
-        ret = await pool.fetch("""SELECT (tag, content, author) FROM tags 
-        WHERE guild=$1""",guild)
+        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags 
+        WHERE guild=$1""", guild)
     else:
-        ret = await pool.fetch("""SELECT (tag, content, author) FROM tags 
+        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags 
         WHERE guild=$1 AND author=$2""", guild, author)
+
+    for record in tags:
+        record = record[0]
+        ret.append(Tag(record[0], record[1], record[2]))
     return ret
 
 
 async def remove(db: Pool, tag: str, author: int, guild: int) -> None:
-    h = get_hash(tag,guild)
+    h = get_hash(tag, guild)
     ret = await db.execute("""DELETE FROM tags WHERE author=$1 AND hash=$2""", author, h)
     if ret == "DELETE 1":
         return
@@ -72,7 +86,6 @@ class Tags(Cog):
         await append(self.bot.pool, tag, content, ctx.author.id, ctx.guild.id)
         await ctx.send(f"tag {tag} was added to database.")
 
-
     @tags.command()
     @commands.guild_only()
     async def remove(self, ctx, tag):
@@ -84,10 +97,13 @@ class Tags(Cog):
     @commands.guild_only()
     async def list(self, ctx):
         """Lists all the tags for this guild"""
-        tags = list(await list_tags(self.bot.tagsDB, ctx.guild.id))
+        tags = list(await list_tags(self.bot.pool, ctx.guild.id))
         ret = ""
         for tag in tags:
-            ret = ret + f"{tag['NAME']}, created by <@{tag['AUTHOR']}>\n"
+            if len(ret) > 1000:
+                ret += "\n\n cut output due to length"
+                break
+            ret = ret + f"{tag.tag}, created by <@{tag.author}>\n"
         embed = discord.Embed()
         embed.description = ret
         await ctx.send(embed=embed)
