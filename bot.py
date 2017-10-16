@@ -23,6 +23,7 @@ class Bot(commands.Bot):
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.logger = logging.getLogger("bot")
         self.config = config
+        self.pool = None
 
         for cog in cogs:
             try:
@@ -30,12 +31,12 @@ class Bot(commands.Bot):
             except Exception as e:
                 print(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 
-        self.loop.create_task(self.pool())
+        self.loop.create_task(self._pool())
 
     async def on_ready(self):
         print(f'Logged on as {self.user} (ID: {self.user.id})')
 
-    async def pool(self):
+    async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
 
 
