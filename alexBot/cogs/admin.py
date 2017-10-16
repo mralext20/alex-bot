@@ -91,7 +91,7 @@ class Admin(Cog):
             'guild': ctx.guild,
             'channel': ctx.channel,
             'me': ctx.message.author,
-            'db': self.bot.db,
+            'pool': self.bot.pool,
 
             # modules
             'discord': discord,
@@ -190,7 +190,7 @@ class Admin(Cog):
             'guild': ctx.guild,
             'channel': ctx.channel,
             'author': ctx.author,
-            'db': self.bot.db,
+            'pool': self.bot.pool,
             '_': None,
         }
 
