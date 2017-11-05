@@ -10,7 +10,7 @@ import config
 
 import logging
 
-cogs = ["admin", "errors", "tags", "utils", "weather"]
+cogs = ["admin", "errors", "tags", "utils", "weather", "fun"]
 
 logging.basicConfig(level=logging.INFO)
 

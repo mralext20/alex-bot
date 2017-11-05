@@ -1,4 +1,5 @@
 import aiohttp
+import json
 
 
 class Cog:
@@ -9,8 +10,13 @@ class Cog:
 
 async def get_text(session:aiohttp.ClientSession, url) -> str:
     async with session.get(url) as content:
-        text = await content.text()
-        return text
+        return await content.text()
+
+
+
+async def get_json(session:aiohttp.ClientSession, url) -> dict:
+    async with session.get(url) as content:
+        return await content.json()
 
 
 async def haste(session: aiohttp.ClientSession, text: str, extension:str="py") -> str:
