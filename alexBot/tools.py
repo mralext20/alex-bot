@@ -13,7 +13,6 @@ async def get_text(session:aiohttp.ClientSession, url) -> str:
         return await content.text()
 
 
-
 async def get_json(session:aiohttp.ClientSession, url) -> dict:
     async with session.get(url) as content:
         return await content.json()
