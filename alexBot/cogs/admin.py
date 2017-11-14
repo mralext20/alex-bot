@@ -276,7 +276,11 @@ class Admin(Cog):
         """Run a subprocess using shell."""
         async with ctx.typing():
             result = await run_subprocess(cmd)
-        await ctx.send(f'```{result}```')
+        try:
+            await ctx.send(f'```{result}```')
+        except discord.HTTPException:
+            res = await haste(self.bot.session,result,"sh")
+            await ctx.send(f"return TOO BIG!: {res}")
 
 
     @commands.command()
