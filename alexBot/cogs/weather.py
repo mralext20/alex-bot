@@ -16,7 +16,7 @@ class Weather(Cog):
     async def weather(self, ctx, unit="c"):
         """Lets you access the alext.duckdns.org/weewx/{,c/} weather station from discord"""
         if unit.lower() not in set("fck"):
-            return await ctx.send("you idiot i only take f, c, or k for units.")
+            return await ctx.send("the only units i understand are [F, K, C].")
         if unit.lower() == "f":
             url = "http://alext.duckdns.org/weewx"
         else:
