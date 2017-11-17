@@ -3,12 +3,7 @@ from ..tools import Cog
 from discord.ext import commands
 import discord
 from datetime import datetime
-
-
-# bots which when going not offline -> offline we send the owner a dm
-MONITORED_BOTS = {
-    288369203046645761: 69198249432449024,  # Mousey, FrostLuma
-}
+import config
 
 
 class Memework(Cog):
@@ -52,7 +47,7 @@ class Memework(Cog):
                                     f"**{channel}**")
 
     async def on_member_update(self, before: Member, after: Member):
-        if before.id not in MONITORED_BOTS:
+        if before.id not in config.monitored_bots:
             return
 
         if before.status is discord.Status.offline:
@@ -70,7 +65,7 @@ class Memework(Cog):
             return
 
         now = datetime.utcnow().strftime('%H:%M')
-        owner = self.bot.get_user(MONITORED_BOTS[member.id])
+        owner = self.bot.get_user(config.monitored_bots[member.id])
 
         await owner.send(f'`[{now}]` \N{WARNING SIGN} `{before} {before.id}` just went offline')
 
