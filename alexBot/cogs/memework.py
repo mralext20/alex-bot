@@ -5,6 +5,12 @@ import discord
 from datetime import datetime
 
 
+# bots which when going not offline -> offline we send the owner a dm
+MONITORED_BOTS = {
+    288369203046645761: 69198249432449024,  # Mousey, FrostLuma
+}
+
+
 class Memework(Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,6 +50,29 @@ class Memework(Cog):
         await self.rowboat_log.send(f"`[{datetime.utcnow().strftime('%H:%m:%S')}]`"
                                     f"\U0001f6e0 {ctx.author} (`{ctx.author.id}`) Archived "
                                     f"**{channel}**")
+
+    async def on_member_update(self, before: Member, after: Member):
+        if before.id not in MONITORED_BOTS:
+            return
+
+        if before.status is discord.Status.offline:
+            return
+
+        if after.status is not discord.Status.offline:
+            return
+
+        # see if this guild has the lowest ID of all mutual guilds we share with the bot
+        # this is due to presence updates being dispatched once per guild, we don't want to dm more than once
+        guilds = sorted(self.bot.guilds, key=lambda x: x.id)
+        lowest_mutual = discord.utils.find(lambda x: x.get_member(before.id) is not None, guilds)
+
+        if not lowest_mutual == before.guild:
+            return
+
+        now = datetime.utcnow().strftime('%H:%M')
+        owner = self.bot.get_user(MONITORED_BOTS[member.id])
+
+        await owner.send(f'`[{now}]` \N{WARNING SIGN} `{before} {before.id}` just went offline')
 
 
 def setup(bot):
