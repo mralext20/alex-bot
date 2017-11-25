@@ -7,10 +7,11 @@ import asyncpg
 from discord.ext import commands
 import aiohttp
 import config
+from pathlib import Path
 
 import logging
 
-cogs = ["admin", "errors", "tags", "utils", "weather", "fun"]
+cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
 
 logging.basicConfig(level=logging.INFO)
 
