@@ -9,21 +9,6 @@ from discord.ext import commands
 from ..tools import Cog
 from ..tools import haste
 
-class SourceEntity(commands.Converter):
-    async def convert(self, ctx, arg):
-        cmd = ctx.bot.get_command(arg)
-        if cmd is not None:
-            return cmd.callback
-
-        cog = ctx.bot.get_cog(arg)
-        if cog is not None:
-            return cog.__class__
-
-        module = ctx.bot.extensions.get(arg)
-        if module is not None:
-            return module
-
-        raise commands.BadArgument(f'{arg} is neither a command, a cog, nor an extension.')
 
 
 class Utils(Cog):
@@ -94,19 +79,6 @@ class Utils(Cog):
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
         else:
             await ctx.send('**`SUCCESS`**')
-
-
-    @commands.command()
-    async def source(self, ctx, *, entity: SourceEntity):
-        """Posts the source code of a command, cog or extension."""
-        code = inspect.getsource(entity)
-        code = textwrap.dedent(code).replace('​`', '\u200b​`')
-
-        if len(code) > 1990:
-            ret = haste(self.bot.session, code)
-            return await ctx.send(f'hastebin: <{ret}>')
-
-        return await ctx.send(f'​`​`​`py\n{code}\n​`​`​`')
 
 
 def setup(bot):
