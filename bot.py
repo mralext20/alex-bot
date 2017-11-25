@@ -5,6 +5,7 @@ import os
 
 import asyncpg
 from discord.ext import commands
+import discord
 import aiohttp
 import config
 from pathlib import Path
@@ -39,6 +40,12 @@ class Bot(commands.Bot):
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
+
+    async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
+        else:
+            await self.process_commands(message)
 
 
 bot = Bot()
