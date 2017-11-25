@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import asyncio
+import logging
 import os
-
-import asyncpg
-from discord.ext import commands
-import discord
-import aiohttp
-import config
 from pathlib import Path
 
-import logging
+import aiohttp
+import asyncpg
+import discord
+from discord.ext import commands
+
+import config
+from alexBot.channel_logging import setup_logging
 
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
-
-logging.basicConfig(level=logging.INFO,
-                    format='[%(levelname)7s] [%(name)s] %(message)s')
 
 log = logging.getLogger(__name__)
 
@@ -73,8 +72,21 @@ class Bot(commands.Bot):
                  author.id, content, ','.join(checks) or '(none)')
 
 
-bot = Bot()
 
-# write general commands here
+loop = asyncio.get_event_loop()
 
-bot.run(config.token)
+webhooks = {}
+session = aiohttp.ClientSession(loop=loop)
+
+for name in config.logging:
+    level = getattr(logging, name.upper(), None)
+    if level is None:
+        continue
+
+    url = config.logging[name]
+    webhooks[level] = discord.Webhook.from_url(url, adapter=discord.AsyncWebhookAdapter(session))
+
+with setup_logging(webhooks=webhooks):
+    bot = Bot()
+    bot.run(config.token)
+
