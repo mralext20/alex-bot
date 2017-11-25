@@ -15,8 +15,13 @@ class Utils(Cog):
     @commands.command()
     async def ping(self, ctx):
         """You know it"""
-        start =
-        await ctx.send(f"Pong! time is {ctx.bot.latency * 1000:.2f} ms")
+        start = await ctx.send("Po..")
+        assert isinstance(start, discord.Message)
+        a = start.created_at
+        now = datetime.datetime.utcnow()
+        ping = now - a
+
+        await start.edit(content=f"Pong! WS: {ctx.bot.latency * 1000:.2f} ms, rest: {ping.microseconds / 1000:.2f} ms")
 
     @commands.command()
     async def time(self,ctx):
