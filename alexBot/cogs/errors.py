@@ -1,9 +1,12 @@
 import traceback
+import logging
 
 import discord
 from discord.ext import commands
 
 from ..tools import Cog
+
+log = logging.getLogger(__name__)
 
 
 class CommandErrorHandler(Cog):
@@ -26,6 +29,8 @@ class CommandErrorHandler(Cog):
 
         elif isinstance(error, commands.BadArgument):
             msg = f'Bad argument! {error} See {ctx.prefix}help {ctx.command} for help!'
+            log.warning(f"bad argument on {ctx.command}: {error}")
+
 
         elif isinstance(error, commands.MissingRequiredArgument):
             msg = f'Parameter {error.param} is required but missing! See {ctx.prefix}help {ctx.command} for help!'
@@ -41,7 +46,9 @@ class CommandErrorHandler(Cog):
         if msg is None:
             trace = traceback.format_exception(type(error), error, error.__traceback__, limit=5)
             actual_trace = '\n'.join(trace)
-            msg = f'Something unexpected went wrong while running this command:\n```py\n{actual_trace}```'
+            msg = f'congrats, you broke something teribly. contact <@{self.bot.owner_id}> please'
+            log.error(f"{ctx.author.id} broke bot running {ctx.command} with args {ctx.args} : {ctx.kwargs}\n"
+                      f":{actual_trace}")
 
         try:
             await ctx.send(msg)
