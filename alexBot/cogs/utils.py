@@ -7,7 +7,6 @@ import discord
 from discord.ext import commands
 
 from ..tools import Cog
-from ..tools import haste
 
 
 
@@ -16,6 +15,7 @@ class Utils(Cog):
     @commands.command()
     async def ping(self, ctx):
         """You know it"""
+        start =
         await ctx.send(f"Pong! time is {ctx.bot.latency * 1000:.2f} ms")
 
     @commands.command()
