@@ -14,7 +14,10 @@ import logging
 
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)7s] [%(name)s] %(message)s')
+
+log = logging.getLogger(__name__)
 
 
 class Bot(commands.Bot):
@@ -30,22 +33,44 @@ class Bot(commands.Bot):
         for cog in cogs:
             try:
                 self.load_extension(f"alexBot.cogs.{cog}")
+                log.info(f'loaded {cog}')
             except Exception as e:
-                print(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
+                log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 
         self.loop.create_task(self._pool())
 
     async def on_ready(self):
-        print(f'Logged on as {self.user} (ID: {self.user.id})')
+        log.info(f'Logged on as {self.user} (ID: {self.user.id})')
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
+
+    def clean_content(self, content):
+        content = content.replace('`', '\'')
+        content = content.replace('@', '@\u200b')
+        content = content.replace('&', '&\u200b')
+        content = content.replace('<#', '<#\u200b')
+        return content
 
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
         else:
             await self.process_commands(message)
+
+    async def on_command(self, ctx):
+        # thanks dogbot ur a good
+        content = ctx.message.content
+        content = self.clean_content(content)
+
+        author = ctx.message.author
+        guild = ctx.guild
+        checks = [c.__qualname__.split('.')[0] for c in ctx.command.checks]
+        location = '[DM]' if isinstance(ctx.channel, discord.DMChannel) else \
+            f'[Guild {guild.name} {guild.id}]'
+
+        log.info('%s [cmd] %s(%d) "%s" checks=%s', location, author,
+                 author.id, content, ','.join(checks) or '(none)')
 
 
 bot = Bot()
