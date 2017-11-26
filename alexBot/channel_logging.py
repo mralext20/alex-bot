@@ -37,7 +37,7 @@ def setup_logging(level=logging.DEBUG, *, webhooks=None, silenced=None):
             logger.setLevel(logging.INFO)
 
         formatter = logging.Formatter(
-            '[%(levelname)7s] [%(name)s] %(message)s'
+            '[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S'
         )
 
         def add_handler(handler):
