@@ -6,8 +6,9 @@ from ..tools import get_json
 
 
 import discord
+import logging
 
-
+log = logging.getLogger(__name__)
 
 class Fun(Cog):
 
@@ -20,7 +21,10 @@ class Fun(Cog):
 
     @commands.command()
     async def dog(self,ctx):
-        dog = await get_json(self.bot.session, 'https://random.dog/woof.json')
+        dog = None
+        while dog is None or dog['url'][-3:].lower() == 'mp4':
+            dog = await get_json(self.bot.session, 'https://random.dog/woof.json')
+            log.debug(dog['url'])
         ret = discord.Embed()
         ret.set_image(url=dog['url'])
         await ctx.send(embed=ret)
