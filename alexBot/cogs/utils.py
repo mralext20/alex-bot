@@ -3,11 +3,12 @@
 import datetime
 import humanize
 
+
 import discord
 from discord.ext import commands
 
 from ..tools import Cog
-
+DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
@@ -26,8 +27,9 @@ class Utils(Cog):
     @commands.command()
     async def time(self,ctx):
         """Displays the time in alaska"""
-        time = datetime.datetime.now().strftime("%a, %e %b %Y %H:%M:%S (%-I:%M %p)")
-        await ctx.send(f'the time in alaska is {time}')
+        time = datetime.datetime.now()
+        bostonTime = time + datetime.timedelta(hours=4)
+        await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}\n\nhowever, Alex is in Boston, where it is {bostonTime.strftime(DATEFORMAT)}')
 
 
     @commands.command()
