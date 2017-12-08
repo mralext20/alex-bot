@@ -333,6 +333,15 @@ class Admin(Cog):
 
     @commands.command()
     @commands.is_owner()
+    async def die(self,ctx):
+        await ctx.send("my time has come, my death. farewell!")
+        del self.bot.loop
+
+
+
+
+    @commands.command()
+    @commands.is_owner()
     async def load(self, ctx, cog):
         """loads a extension."""
         try:
