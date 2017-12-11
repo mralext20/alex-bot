@@ -1,9 +1,7 @@
 from discord.ext import commands
 
 from tools import Cog
-from tools import getGuildConfig
-
-
+from tools import get_guild_config
 
 
 class Configs(Cog):
@@ -16,7 +14,8 @@ class Configs(Cog):
     @config.command()
     async def get(self, ctx, key):
         """gets the value of a key"""
-        #await getGuildConfigKey(pool, ctx.guild.id, key):
+        cfg = await get_guild_config(self.bot.pool, ctx.guild.id)
+        await ctx.send(cfg[str(key)])
         pass
     @config.command()
     async def set(self, ctx, key, value):
@@ -26,8 +25,8 @@ class Configs(Cog):
     @config.command()
     async def list(self,ctx):
         """lists the available config keys"""
-        cfg = await getGuildConfig(self.bot.pool, ctx.guild.id)
-        ret = f'your guild config:  ```json\n{cfg[0]}```'
+        cfg = await get_guild_config(self.bot.pool, ctx.guild.id)
+        ret = f'your guild config:  ```json\n{cfg}```'
         await ctx.send(ret)
 
 

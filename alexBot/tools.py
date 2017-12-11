@@ -5,9 +5,9 @@ import json
 
 log = logging.getLogger(__name__)
 
-configKeys = """{
-    "money": false
-}"""
+configKeys = {
+    "money": False
+}
 
 
 class Cog:
@@ -38,13 +38,15 @@ async def haste(session: aiohttp.ClientSession, text: str, extension: str = "py"
         return ret
 
 
-async def createGuildConfig(pool: Pool, guildid: int) -> dict:
-    await pool.execute("""INSERT INTO configs (id, data, type) VALUES ($1, $2, 'guild')""", guildid, configKeys)
-    return getGuildConfig(pool,guildid)
+async def create_guild_config(pool: Pool, guild_id: int) -> dict:
+    cfg = json.dumps(configKeys)
+    await pool.execute("""INSERT INTO configs (id, data, type) VALUES ($1, $2, 'guild')""", guild_id, cfg)
+    return await get_guild_config(pool, guild_id)
 
 
-async def getGuildConfig(pool: Pool, guildid: int) -> dict:
-    ret = await pool.fetchrow("""SELECT data FROM configs WHERE id=$1 AND type='guild'""", guildid)
+async def get_guild_config(pool: Pool, guild_id: int) -> dict:
+    ret = await pool.fetchrow("""SELECT data FROM configs WHERE id=$1 AND type='guild'""", guild_id)
     if ret is None:
-        return await createGuildConfig(pool, guildid)
+        return await create_guild_config(pool, guild_id)
+    ret = json.loads(ret[0])
     return ret
