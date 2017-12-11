@@ -27,9 +27,9 @@ class Fun(Cog):
 
 
     async def on_message(self, message):
-        # TODO: convert to decorator, such that @in_guild(GUILD_ID) works
-        if message.guild.id != 212076640589709315:
+        if message.guild is None:
             return
+
         ayygen = ('ayy' + 'y' * x for x in range(20))
         if message.content in ayygen:
             await message.channel.send("lmao")

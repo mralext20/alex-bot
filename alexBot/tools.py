@@ -1,5 +1,4 @@
 import aiohttp
-from asyncpg.pool import Pool
 import logging
 import json
 
@@ -8,7 +7,8 @@ from discord.ext import commands
 log = logging.getLogger(__name__)
 
 configKeys = {
-    "money": False
+    "money": False,
+    "ayy": False
 }
 
 
@@ -54,11 +54,12 @@ async def get_guild_config(bot, guild_id: int) -> dict:
         ret = await bot.pool.fetchrow("""SELECT data FROM configs WHERE id=$1 AND type='guild'""", guild_id)
         if ret is None:
             ret = await create_guild_config(bot, guild_id)
-        ret = json.loads(ret[0])
+        ret = json.loads(ret['data'])
     finally:
         ret = {**configKeys, **ret}
         bot.configs[guild_id] = ret
     return ret
+
 
 async def update_guild_key(bot, guild_id:int, key: str, value):
     """updates the `key` to be `value`.
@@ -69,9 +70,8 @@ async def update_guild_key(bot, guild_id:int, key: str, value):
     await bot.pool.execute("""UPDATE configs SET data=$1 WHERE id=$2""",cfg, guild_id)
 
 
-
 class BoolConverter(commands.Converter):
-    async def convert(self, ctx, argument):
+    async def convert(self,  ctx, argument):
         if argument[0].lower() == "f":
             return False
         elif argument[0].lower() == "t":

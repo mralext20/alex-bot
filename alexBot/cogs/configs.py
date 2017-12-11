@@ -1,5 +1,7 @@
 from discord.ext import commands
 
+import discord
+
 from ..tools import Cog
 from ..tools import get_guild_config
 from ..tools import BoolConverter
@@ -7,7 +9,7 @@ from ..tools import update_guild_key
 
 
 class Configs(Cog):
-    """handels guild config settings"""
+    """handles guild config settings"""
     @commands.group(name="config", invoke_without_command=True)
     async def config(self, ctx: commands.Context):
         """how you configure your guild"""
@@ -37,6 +39,10 @@ class Configs(Cog):
             value = await BoolConverter.convert(self, ctx, value)
 
         await update_guild_key(self.bot, ctx.guild.id, key, value)
+        try:
+            await ctx.message.add_reaction('\U00002705')
+        except discord.HTTPException:
+            await ctx.send('\U00002705')
 
 
 
