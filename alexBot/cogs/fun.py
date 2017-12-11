@@ -27,13 +27,11 @@ class Fun(Cog):
 
 
     async def on_message(self, message):
-        if message.guild is None:
+        if self.bot.prefix is 'alex' or message.guild is None:
             return
-
         ayygen = ('ayy' + 'y' * x for x in range(20))
         if message.content in ayygen:
             await message.channel.send("lmao")
-
 
 
 def setup(bot):
