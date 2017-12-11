@@ -28,6 +28,7 @@ class Bot(commands.Bot):
         self.logger = logging.getLogger("bot")
         self.config = config
         self.pool = None
+        self.configs = {}
 
         for cog in cogs:
             try:

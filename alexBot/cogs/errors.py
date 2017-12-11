@@ -46,7 +46,7 @@ class CommandErrorHandler(Cog):
         if msg is None:
             trace = traceback.format_exception(type(error), error, error.__traceback__, limit=5)
             actual_trace = '\n'.join(trace)
-            msg = f'congrats, you broke something teribly. contact <@{self.bot.owner_id}> please'
+            msg = f'congrats, you broke something teribly. contact <@108429628560924672> please'
             log.error(f"{ctx.author.id} broke bot running {ctx.command} with args {ctx.args} : {ctx.kwargs}\n"
                       f":{actual_trace}")
 

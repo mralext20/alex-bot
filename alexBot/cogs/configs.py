@@ -1,7 +1,9 @@
 from discord.ext import commands
 
-from tools import Cog
-from tools import get_guild_config
+from ..tools import Cog
+from ..tools import get_guild_config
+from ..tools import BoolConverter
+from ..tools import update_guild_key
 
 
 class Configs(Cog):
@@ -14,18 +16,34 @@ class Configs(Cog):
     @config.command()
     async def get(self, ctx, key):
         """gets the value of a key"""
-        cfg = await get_guild_config(self.bot.pool, ctx.guild.id)
+        cfg = await get_guild_config(self.bot, ctx.guild.id)
+        try:
+            cfg[key]
+        except KeyError:
+            raise commands.BadArgument(f'the key {key} does not exist')
         await ctx.send(cfg[str(key)])
         pass
+
+
     @config.command()
-    async def set(self, ctx, key, value):
+    async def set(self, ctx:commands.Context, key, value):
         """sets the value of a key"""
-        pass
+        cfg = await get_guild_config(self.bot, ctx.guild.id)
+        try:
+            old = cfg[key]
+        except KeyError:
+            raise commands.BadArgument(f'the key {key} does not exist!')
+        if type(old) == bool:
+            value = await BoolConverter.convert(self, ctx, value)
+
+        await update_guild_key(self.bot, ctx.guild.id, key, value)
+
+
 
     @config.command()
     async def list(self,ctx):
         """lists the available config keys"""
-        cfg = await get_guild_config(self.bot.pool, ctx.guild.id)
+        cfg = await get_guild_config(self.bot, ctx.guild.id)
         ret = f'your guild config:  ```json\n{cfg}```'
         await ctx.send(ret)
 
