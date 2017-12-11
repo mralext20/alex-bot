@@ -29,7 +29,7 @@ class Utils(Cog):
         """Displays the time in alaska"""
         time = datetime.datetime.now()
         bostonTime = time + datetime.timedelta(hours=4)
-        await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}\n\nhowever, Alex is in Boston, where it is {bostonTime.strftime(DATEFORMAT)}')
+        await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
 
     @commands.command()
@@ -77,7 +77,7 @@ class Utils(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reloadadmin(self,ctx):
+    async def reloadadmin(self, ctx):
         """Reload the admin cog"""
         try:
             self.bot.unload_extension("alexBot.cogs.admin")
