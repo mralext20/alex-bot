@@ -3,6 +3,7 @@ from discord.ext import commands
 
 from ..tools import Cog
 from ..tools import get_json
+from ..tools import get_guild_config
 
 
 import discord
@@ -31,7 +32,9 @@ class Fun(Cog):
 
 
     async def on_message(self, message):
-        if self.bot.prefix is 'alex' or message.guild is None:
+        if self.bot.location == 'laptop' or message.guild is None:
+            return
+        if (await get_guild_config(self.bot, message.guild.id))['ayy'] is False:
             return
         ayygen = ('ayy' + 'y' * x for x in range(20))
         if message.content in ayygen:

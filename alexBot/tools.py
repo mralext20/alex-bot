@@ -41,20 +41,24 @@ async def haste(session: aiohttp.ClientSession, text: str, extension: str = "py"
 
 
 async def create_guild_config(bot, guild_id: int) -> dict:
+    log.debug(f'creating a guild config for {guild_id}')
     cfg = json.dumps(configKeys)
     await bot.pool.execute("""INSERT INTO configs (id, data, type) VALUES ($1, $2, 'guild')""", guild_id, cfg)
-    return await get_guild_config(bot, guild_id)
+    return configKeys
 
 
 async def get_guild_config(bot, guild_id: int) -> dict:
+    log.debug(f'fetching guild cfg for {guild_id}')
     ret = {}
     try:
         ret = bot.configs[guild_id]
+
     except KeyError:
         ret = await bot.pool.fetchrow("""SELECT data FROM configs WHERE id=$1 AND type='guild'""", guild_id)
         if ret is None:
             ret = await create_guild_config(bot, guild_id)
-        ret = json.loads(ret['data'])
+        else:
+            ret = json.loads(ret['data'])
     finally:
         ret = {**configKeys, **ret}
         bot.configs[guild_id] = ret
