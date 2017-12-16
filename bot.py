@@ -29,6 +29,7 @@ class Bot(commands.Bot):
         self.config = config
         self.pool = None
         self.configs = {}
+        self.wallets = {}
         self.location = ('laptop' if os.uname().nodename == 'alexlaptop' else 'pi')
 
         for cog in cogs:
