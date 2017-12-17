@@ -1,6 +1,6 @@
 import aiohttp
 import logging
-import discord
+import decimal
 import json
 
 
@@ -12,6 +12,9 @@ configKeys = {
     "money": False,
     "ayy": False
 }
+
+ZERO = decimal.Decimal(0)
+INF = decimal.Decimal('inf')
 
 
 class Cog:
@@ -39,6 +42,21 @@ class TransactionError(commands.UserInputError):
 class BotError(commands.errors.BadArgument):
     """NO BOTS ALLOWED."""
     pass
+
+
+class CoinConverter(commands.Converter):
+    async def convert(self, ctx, argument) -> decimal.Decimal:
+        ba = commands.BadArgument
+        value = decimal.Decimal(argument)
+        if value <= ZERO:
+            raise ba("You can't input values lower or equal to 0.")
+        elif value >= INF:
+            raise ba("You can't input values lower of equal to infinity.")
+
+        value = round(value, 2)
+
+        return value
+
 
 
 async def get_text(session: aiohttp.ClientSession, url) -> str:
@@ -114,7 +132,8 @@ async def get_wallet(bot, user_id:int) -> float:
         bot.configs[user_id] = ret
     return float(ret)
 
-async def update_wallet(bot, user_id:int, amount:float):
+async def update_wallet(bot, user_id:int, amount):
+    """changes a wallet directly."""
     bot.wallets[user_id] = amount
     try:
         ret = await bot.pool.execute("""UPDATE bank SET amount=$1 WHERE owner=$2""", amount, user_id)
