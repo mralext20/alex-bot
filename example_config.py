@@ -1,12 +1,14 @@
-from random import choice
+from random import uniform
 
 token = ""
 
 dsn = 'dbname="alexbot" user="postgres" password="password"'
 
-money = {'CHANCE': .20, #chance a message will get a money
-         'PER_MESSAGE': choice(range(100, 300)) / 100, # amount of money a message gets
-         "REACTION": "\N{MONEY-MOUTH FACE}", # the reaction that bot will use to say 'you got money!'
+money = {
+    'enabled': False,
+    'CHANCE': .20,
+    'PER_MESSAGE': uniform(1,3),
+    'REACTION': "\N{MONEY-MOUTH FACE}"
 }
 
 logging = {

@@ -3,7 +3,7 @@
 from discord.ext import commands
 import discord
 from ..tools import Cog
-from random import choice
+import random
 import logging
 import asyncio
 
@@ -60,7 +60,7 @@ class Money(Cog):
         except (AssertionError, AttributeError):
             # not in guild
             return
-        chance = choice(range(0, 100)) / 100 # get this message's percent chance
+        chance = random.random() # get this message's percent chance
         if chance < self.bot.config.money['CHANCE']:
             log.info(f'gave {message.author} money')
             await message.add_reaction(self.bot.config.money['REACTION'])
