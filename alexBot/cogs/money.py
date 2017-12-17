@@ -11,6 +11,7 @@ from ..tools import get_wallet
 from ..tools import get_guild_config
 from ..tools import update_wallet
 from ..tools import TransactionError
+from ..tools import BotError
 
 log = logging.getLogger(__name__)
 
@@ -62,9 +63,12 @@ class Money(Cog):
             return
         chance = random.random() # get this message's percent chance
         if chance < self.bot.config.money['CHANCE']:
+            try:
+                old = await get_wallet(self.bot, message.author.id)
+            except BotError:
+                return
             log.info(f'gave {message.author} money')
             await message.add_reaction(self.bot.config.money['REACTION'])
-            old = await get_wallet(self.bot, message.author.id)
             await update_wallet(self.bot, message.author.id, old + self.bot.config.money['PER_MESSAGE'])
             await asyncio.sleep(5)
             await message.remove_reaction(self.bot.config.money['REACTION'], self.bot.user)
