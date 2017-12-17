@@ -74,6 +74,14 @@ class Utils(Cog):
 
         await ctx.send(embed=ret)
 
+    @commands.command(name='info', aliases='source about git'.split())
+    async def info(self, ctx):
+        ret = discord.Embed()
+        ret.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
+        ret.add_field(name='Support Server', value='[link](https://discord.gg/jMwPFqp)')
+        ret.add_field(name='Source Code', value='[github](https://github.com/mralext20/alex-bot/)')
+        ret.add_field(name='Guilds', value=str(len(self.bot.guilds)))
+        await ctx.send(embed=ret)
 
     @commands.command()
     @commands.is_owner()
