@@ -1,7 +1,8 @@
 import aiohttp
 import logging
+import discord
 import json
-import asyncpg
+
 
 from discord.ext import commands
 
@@ -29,6 +30,15 @@ class BoolConverter(commands.Converter):
         else:
             raise commands.BadArgument(f'can not convert {argument} to True or False')
 
+
+class TransactionError(commands.UserInputError):
+    """raised when there is a transaction error."""
+    pass
+
+
+class BotError(commands.errors.BadArgument):
+    """NO BOTS ALLOWED."""
+    pass
 
 
 async def get_text(session: aiohttp.ClientSession, url) -> str:
@@ -60,7 +70,6 @@ async def create_guild_config(bot, guild_id: int) -> dict:
 
 
 async def get_guild_config(bot, guild_id: int) -> dict:
-    log.info(f'fetching guild cfg for {guild_id}')
     ret = {}
     try:
         ret = bot.configs[guild_id]
@@ -79,7 +88,7 @@ async def get_guild_config(bot, guild_id: int) -> dict:
 
 async def update_guild_key(bot, guild_id:int, key: str, value):
     """updates the `key` to be `value`.
-    note: this method is extreamly dumb,
+    note: this method is extremely dumb,
     as it does no error checking to ensure that you are giving it the right value for a key."""
     bot.configs[guild_id][key] = value
     cfg = json.dumps(bot.configs[guild_id])
@@ -88,6 +97,9 @@ async def update_guild_key(bot, guild_id:int, key: str, value):
 
 async def get_wallet(bot, user_id:int) -> float:
     log.info(f'getting wallet for user: {user_id}')
+    target = bot.get_user(user_id)
+    if target.bot:
+        raise BotError
     ret = 0
     try:
         ret = bot.wallets[user_id]
@@ -96,15 +108,16 @@ async def get_wallet(bot, user_id:int) -> float:
         if ret is None:
             ret = 0
             await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""",user_id, ret)
+        else:
+            ret = ret['amount']
     finally:
         bot.configs[user_id] = ret
-    return ret
+    return float(ret)
 
 async def update_wallet(bot, user_id:int, amount:float):
     bot.wallets[user_id] = amount
     try:
         ret = await bot.pool.execute("""UPDATE bank SET amount=$1 WHERE owner=$2""", amount, user_id)
-        log.info(f'update_wallet: ret = {ret}')
         assert ret == "UPDATE 1"
     except AssertionError:
         await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""", user_id, amount)
