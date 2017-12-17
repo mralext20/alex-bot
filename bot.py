@@ -16,7 +16,7 @@ from alexBot.channel_logging import setup_logging
 
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
 
-if config.money['enabled'] == False:
+if not config.money['enabled']:
     cogs.remove('money')
 
 log = logging.getLogger(__name__)
