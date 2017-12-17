@@ -1,6 +1,8 @@
 import aiohttp
 import logging
+import discord
 import json
+
 
 from discord.ext import commands
 
@@ -17,6 +19,26 @@ class Cog:
 
     def __init__(self, bot):
         self.bot = bot
+
+
+class BoolConverter(commands.Converter):
+    async def convert(self,  ctx, argument):
+        if argument[0].lower() == "f":
+            return False
+        elif argument[0].lower() == "t":
+            return True
+        else:
+            raise commands.BadArgument(f'can not convert {argument} to True or False')
+
+
+class TransactionError(commands.UserInputError):
+    """raised when there is a transaction error."""
+    pass
+
+
+class BotError(commands.errors.BadArgument):
+    """NO BOTS ALLOWED."""
+    pass
 
 
 async def get_text(session: aiohttp.ClientSession, url) -> str:
@@ -36,19 +58,18 @@ async def haste(session: aiohttp.ClientSession, text: str, extension: str = "py"
     async with session.post('https://hastebin.com/documents', data=text) as resp:
         resp_json = await resp.json()
         ret = f"https://hastebin.com/{resp_json['key']}.{extension}"
-        log.debug(f"hasted, return was {ret}")
+        log.info(f"hasted, return was {ret}")
         return ret
 
 
 async def create_guild_config(bot, guild_id: int) -> dict:
-    log.debug(f'creating a guild config for {guild_id}')
+    log.info(f'creating a guild config for {guild_id}')
     cfg = json.dumps(configKeys)
     await bot.pool.execute("""INSERT INTO configs (id, data, type) VALUES ($1, $2, 'guild')""", guild_id, cfg)
     return configKeys
 
 
 async def get_guild_config(bot, guild_id: int) -> dict:
-    log.debug(f'fetching guild cfg for {guild_id}')
     ret = {}
     try:
         ret = bot.configs[guild_id]
@@ -67,18 +88,36 @@ async def get_guild_config(bot, guild_id: int) -> dict:
 
 async def update_guild_key(bot, guild_id:int, key: str, value):
     """updates the `key` to be `value`.
-    note: this method is extreamly dumb,
+    note: this method is extremely dumb,
     as it does no error checking to ensure that you are giving it the right value for a key."""
     bot.configs[guild_id][key] = value
     cfg = json.dumps(bot.configs[guild_id])
     await bot.pool.execute("""UPDATE configs SET data=$1 WHERE id=$2""",cfg, guild_id)
 
 
-class BoolConverter(commands.Converter):
-    async def convert(self,  ctx, argument):
-        if argument[0].lower() == "f":
-            return False
-        elif argument[0].lower() == "t":
-            return True
+async def get_wallet(bot, user_id:int) -> float:
+    log.info(f'getting wallet for user: {user_id}')
+    target = bot.get_user(user_id)
+    if target.bot:
+        raise BotError
+    ret = 0
+    try:
+        ret = bot.wallets[user_id]
+    except KeyError:
+        ret = await bot.pool.fetchrow("""SELECT amount FROM bank WHERE owner=$1""", user_id)
+        if ret is None:
+            ret = 0
+            await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""",user_id, ret)
         else:
-            raise commands.BadArgument(f'can not convert {argument} to True or False')
+            ret = ret['amount']
+    finally:
+        bot.configs[user_id] = ret
+    return float(ret)
+
+async def update_wallet(bot, user_id:int, amount:float):
+    bot.wallets[user_id] = amount
+    try:
+        ret = await bot.pool.execute("""UPDATE bank SET amount=$1 WHERE owner=$2""", amount, user_id)
+        assert ret == "UPDATE 1"
+    except AssertionError:
+        await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""", user_id, amount)
