@@ -12,6 +12,7 @@ from ..tools import get_guild_config
 from ..tools import update_wallet
 from ..tools import TransactionError
 from ..tools import BotError
+from ..tools import CoinConverter
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ class Money(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def write(self, ctx, target: discord.Member, amount):
+    async def write(self, ctx, target: discord.Member, amount:CoinConverter):
         """sets the amount that a user has. owner only."""
         old = await get_wallet(self.bot, target.id)
         await update_wallet(self.bot, target.id, amount)
@@ -40,7 +41,7 @@ class Money(Cog):
 
 
     @commands.command()
-    async def transfer(self, ctx, target:discord.Member, amount:float):
+    async def transfer(self, ctx, target:discord.Member, amount:CoinConverter):
         """transfers an amount of money from your wallet to the target's wallet."""
         author_wallet = await get_wallet(self.bot, ctx.author.id)
         target_wallet = await get_wallet(self.bot, target.id)
