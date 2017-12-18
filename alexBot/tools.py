@@ -129,7 +129,7 @@ async def get_wallet(bot, user_id:int) -> float:
         else:
             ret = ret['amount']
     finally:
-        bot.configs[user_id] = ret
+        bot.wallets[user_id] = ret
     return float(ret)
 
 async def update_wallet(bot, user_id:int, amount):
