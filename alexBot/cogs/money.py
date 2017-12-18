@@ -23,6 +23,7 @@ class Money(Cog):
         super().__init__(*args, **kwargs)
 
         self.lock = False
+        self.money_cooldown = []
 
     @commands.command()
     @commands.is_owner()
@@ -41,7 +42,7 @@ class Money(Cog):
 
 
     @commands.command()
-    async def transfer(self, ctx, target:discord.Member, amount:CoinConverter):
+    async def transfer(self, ctx, target:discord.Member, amount: CoinConverter):
         """transfers an amount of money from your wallet to the target's wallet."""
         author_wallet = await get_wallet(self.bot, ctx.author.id)
         target_wallet = await get_wallet(self.bot, target.id)
@@ -62,6 +63,9 @@ class Money(Cog):
         except (AssertionError, AttributeError):
             # not in guild
             return
+        if message.author.id in self.money_cooldown:
+            # user recently got money
+            return
         chance = random.random() # get this message's percent chance
         if chance < self.bot.config.money['CHANCE']:
             try:
@@ -70,9 +74,12 @@ class Money(Cog):
                 return
             log.info(f'gave {message.author} money')
             await message.add_reaction(self.bot.config.money['REACTION'])
+            self.money_cooldown.append(message.author.id)
             await update_wallet(self.bot, message.author.id, old + self.bot.config.money['PER_MESSAGE'])
             await asyncio.sleep(5)
             await message.remove_reaction(self.bot.config.money['REACTION'], self.bot.user)
+            await asyncio.sleep(300)
+            self.money_cooldown.remove(message.author.id)
             return
 
 
