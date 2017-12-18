@@ -10,7 +10,8 @@ log = logging.getLogger(__name__)
 
 configKeys = {
     "money": False,
-    "ayy": False
+    "ayy": False,
+    "hide_coins": False
 }
 
 ZERO = decimal.Decimal(0)
