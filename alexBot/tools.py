@@ -18,7 +18,7 @@ INF = decimal.Decimal('inf')
 
 
 class Cog:
-    """ The Cog baseclass that all cogs should inherit from. """
+    """ The Cog base class that all cogs should inherit from. """
 
     def __init__(self, bot):
         self.bot = bot
