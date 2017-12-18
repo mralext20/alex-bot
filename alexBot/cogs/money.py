@@ -73,11 +73,13 @@ class Money(Cog):
             except BotError:
                 return
             log.info(f'gave {message.author} money')
-            await message.add_reaction(self.bot.config.money['REACTION'])
+            if not gcfg['hide_coins']:
+                await message.add_reaction(self.bot.config.money['REACTION'])
             self.money_cooldown.append(message.author.id)
             await update_wallet(self.bot, message.author.id, old + self.bot.config.money['PER_MESSAGE'])
             await asyncio.sleep(5)
-            await message.remove_reaction(self.bot.config.money['REACTION'], self.bot.user)
+            if not gcfg['hide_coins']:
+                await message.remove_reaction(self.bot.config.money['REACTION'], self.bot.user)
             await asyncio.sleep(300)
             self.money_cooldown.remove(message.author.id)
             return
