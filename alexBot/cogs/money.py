@@ -85,5 +85,21 @@ class Money(Cog):
             return
 
 
+    @commands.command()
+    async def top(self, ctx):
+        """returns a set of memebers and their wallets, based on who has the most"""
+        ret = ""
+        members = await self.bot.pool.fetch("""SELECT * FROM bank SORT ORDER BY amount DESC LIMIT 5""")
+        # list constructor
+        members = [(self.bot.get_user(r['owner']).mention, r['amount']) for r in members]
+        c = 1
+        for i in members:
+            ret += f'{c}: {i[0]} has {i[1]}\n'
+            c += 1
+        emb = discord.Embed()
+        emb.description = ret
+        await ctx.send(embed=emb)
+
+
 def setup(bot):
     bot.add_cog(Money(bot))
