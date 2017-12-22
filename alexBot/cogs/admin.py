@@ -335,7 +335,7 @@ class Admin(Cog):
     @commands.is_owner()
     async def die(self,ctx):
         await ctx.send("my time has come, my death. farewell!")
-        del self.bot.loop
+        raise KeyboardInterrupt()
 
 
 
