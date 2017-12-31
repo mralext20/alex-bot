@@ -10,3 +10,5 @@ websockets==3.4
 yarl==0.12.0
 lxml==3.8.0
 motor==1.1
+
+humanize==0.5.1
