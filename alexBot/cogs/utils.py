@@ -25,15 +25,13 @@ class Utils(Cog):
         await start.edit(content=f"Pong! WS: {ctx.bot.latency * 1000:.2f} ms, rest: {ping.microseconds / 1000:.2f} ms")
 
     @commands.command()
-    async def time(self,ctx):
+    async def time(self, ctx):
         """Displays the time in alaska"""
         time = datetime.datetime.now()
-        bostonTime = time + datetime.timedelta(hours=4)
         await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
-
     @commands.command()
-    async def quote(self, ctx, msg:int, channel: discord.TextChannel=None):
+    async def quote(self, ctx, msg: int, channel: discord.TextChannel=None):
         """Quotes a message"""
         try:
             if channel is not None:
@@ -75,10 +73,10 @@ class Utils(Cog):
         await ctx.send(embed=ret)
 
     @commands.command()
-    async def difference(self, ctx, object_one:int, object_two:int=None):
-        """compares the creation of two discord IDs. interprets a mising second arg as the current ID."""
+    async def difference(self, ctx, object_one: int, object_two: int=None):
+        """compares the creation of two discord IDs. interprets a missing second arg as the current ID."""
         one = discord.utils.snowflake_time(object_one)
-        if object_two==None:
+        if object_two is None:
             object_two = ctx.message.id
         two = discord.utils.snowflake_time(object_two)
         if one > two:
@@ -89,7 +87,6 @@ class Utils(Cog):
         one = humanize.naturaldate(one)
         two = humanize.naturaldate(two)
         await ctx.send(f'time difference from {one} to {two} is {diff}.')
-
 
     @commands.command(name='info', aliases='source about git'.split())
     async def info(self, ctx):
@@ -115,5 +112,3 @@ class Utils(Cog):
 
 def setup(bot):
     bot.add_cog(Utils(bot))
-
-

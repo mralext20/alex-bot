@@ -130,7 +130,7 @@ class Admin(Cog):
             # something went wrong
             try:
                 await ctx.message.add_reaction('\N{EXCLAMATION QUESTION MARK}')
-            except:
+            except:  # noqa: E722
                 pass
             stream = stdout.getvalue()
             await ctx.send('```py\n{}{}\n```'.format(stream, traceback.format_exc()))
@@ -140,7 +140,7 @@ class Admin(Cog):
 
             try:
                 await ctx.message.add_reaction('\N{HUNDRED POINTS SYMBOL}')
-            except:
+            except:  # noqa: E722
                 # couldn't add the reaction, ignore
                 log.warning('Failed to add reaction to eval message, ignoring.')
 
@@ -155,7 +155,6 @@ class Admin(Cog):
                 except aiohttp.ClientError:
                     await ctx.send("oof")
 
-
     @commands.command(name='retry', hidden=True)
     @commands.is_owner()
     async def retry(self, ctx):
@@ -164,7 +163,6 @@ class Admin(Cog):
             return await ctx.send('No previous code.')
 
         await self.execute(ctx, self.previous_code)
-
 
     @commands.command(name='eval', aliases=['exec', 'debug'])
     @commands.is_owner()
@@ -279,9 +277,8 @@ class Admin(Cog):
         try:
             await ctx.send(f'```{result}```')
         except discord.HTTPException:
-            res = await haste(self.bot.session,result,"sh")
+            res = await haste(self.bot.session, result, "sh")
             await ctx.send(f"return TOO BIG!: {res}")
-
 
     @commands.command()
     @commands.is_owner()
@@ -289,10 +286,9 @@ class Admin(Cog):
         """Attaches a stored file"""
         with open(file, 'rb') as f:
             try:
-                await ctx.send(file = discord.File(f, file))
+                await ctx.send(file=discord.File(f, file))
             except FileNotFoundError:
                 await ctx.send(f"no such file: {file}")
-
 
     @commands.command()
     @commands.is_owner()
@@ -329,14 +325,12 @@ class Admin(Cog):
         await run_subprocess(f"pm2 restart {pm2_id}")
         await ctx.send("sent restart to pm2!")
 
-
     @commands.command()
     @commands.is_owner()
     async def die(self, ctx):
         await ctx.send("my time has come, my death. farewell!")
         self.bot.pool.terminate()
         await self.bot.logout()
-
 
     @commands.command()
     @commands.is_owner()
@@ -349,7 +343,6 @@ class Admin(Cog):
         else:
             await ctx.send('**`SUCCESS`**')
 
-
     @commands.command()
     @commands.is_owner()
     async def unload(self, ctx, cog):
@@ -360,7 +353,6 @@ class Admin(Cog):
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
         else:
             await ctx.send('**`SUCCESS`**')
-
 
     @commands.command(name='reload', hidden=True)
     @commands.is_owner()

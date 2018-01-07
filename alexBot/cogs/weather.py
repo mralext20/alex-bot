@@ -21,7 +21,7 @@ class Weather(Cog):
             url = "http://alext.duckdns.org/weewx"
         else:
             url = "http://alext.duckdns.org/weewx/c"
-        data = html.fromstring(await get_text(ctx.bot.session ,url))
+        data = html.fromstring(await get_text(self.bot.session, url))
 
         temp = data.xpath('//*[@id="stats_group"]/div[1]/table/tbody/tr[1]/td[2]/text()')[0]
         wind = data.xpath('//*[@id="stats_group"]/div[1]/table/tbody/tr[8]/td[2]/text()')[0]

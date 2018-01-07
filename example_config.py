@@ -7,7 +7,7 @@ dsn = 'dbname="alexbot" user="postgres" password="password"'
 money = {
     'enabled': False,
     'CHANCE': .20,
-    'PER_MESSAGE': uniform(1,3),
+    'PER_MESSAGE': uniform(1, 3),
     'REACTION': "\N{MONEY-MOUTH FACE}"
 }
 

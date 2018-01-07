@@ -22,7 +22,7 @@ Tag = namedtuple('Tag', ["tag", "content", "author"])
 
 async def query(pool: Pool, tag: str, guild: int) -> Tag:
     h = get_hash(tag, guild)
-    ret = await pool.fetchrow("""SELECT (content, author, guild, hash) 
+    ret = await pool.fetchrow("""SELECT (content, author, guild, hash)
                                 FROM tags WHERE hash=$1""", h)
     if ret is not None:
         ret = ret[0]
@@ -44,10 +44,10 @@ async def append(pool: Pool, tag: str, content: str, author: int, guild: int) ->
 async def list_tags(pool: Pool, guild: int, author: int = None) -> List[Tag]:
     ret = []
     if author is None:
-        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags 
+        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags
         WHERE guild=$1""", guild)
     else:
-        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags 
+        tags = await pool.fetch("""SELECT (tag, content, author) FROM tags
         WHERE guild=$1 AND author=$2""", guild, author)
 
     for record in tags:
