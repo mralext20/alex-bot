@@ -320,12 +320,11 @@ class Admin(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def restart(self,ctx):
+    async def restart(self, ctx):
         try:
-            assert os.uname().nodename == "raspberrypi"
-        except AssertionError:
-            await ctx.send("ERROR: cant restart, im not running on a pi")
-        pm2_id = os.environ["pm_id"]
+            pm2_id = os.environ["pm_id"]
+        except KeyError:
+            await ctx.send("ERROR: cant restart, not running in PM2")
         await ctx.send("shutting down....")
         await run_subprocess(f"pm2 restart {pm2_id}")
         await ctx.send("sent restart to pm2!")
@@ -333,11 +332,10 @@ class Admin(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def die(self,ctx):
+    async def die(self, ctx):
         await ctx.send("my time has come, my death. farewell!")
-        raise KeyboardInterrupt()
-
-
+        self.bot.pool.terminate()
+        await self.bot.logout()
 
 
     @commands.command()
