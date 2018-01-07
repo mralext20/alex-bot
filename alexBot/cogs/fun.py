@@ -30,14 +30,13 @@ class Fun(Cog):
         ret.set_image(url=dog['url'])
         await ctx.send(embed=ret)
 
-
     async def on_message(self, message):
         if self.bot.location == 'laptop' or message.guild is None:
             return
         if (await get_guild_config(self.bot, message.guild.id))['ayy'] is False:
             return
         ayygen = ('ayy' + 'y' * x for x in range(20))
-        if message.content in ayygen:
+        if message.content.lower() in ayygen:
             await message.channel.send("lmao")
 
 
