@@ -11,17 +11,17 @@ import logging
 
 log = logging.getLogger(__name__)
 
-class Fun(Cog):
 
+class Fun(Cog):
     @commands.command()
     async def cat(self, ctx):
-        cat = await get_json(self.bot.session,'http://random.cat/meow')
+        cat = await get_json(self.bot.session, 'http://random.cat/meow')
         ret = discord.Embed()
         ret.set_image(url=cat['file'])
         await ctx.send(embed=ret)
 
     @commands.command()
-    async def dog(self,ctx):
+    async def dog(self, ctx):
         dog = None
         while dog is None or dog['url'][-3:].lower() == 'mp4':
             dog = await get_json(self.bot.session, 'https://random.dog/woof.json')

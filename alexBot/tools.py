@@ -59,7 +59,6 @@ class CoinConverter(commands.Converter):
         return value
 
 
-
 async def get_text(session: aiohttp.ClientSession, url) -> str:
     log.debug(f"fetched url: {url}")
     async with session.get(url) as content:
@@ -105,16 +104,16 @@ async def get_guild_config(bot, guild_id: int) -> dict:
     return ret
 
 
-async def update_guild_key(bot, guild_id:int, key: str, value):
+async def update_guild_key(bot, guild_id: int, key: str, value):
     """updates the `key` to be `value`.
     note: this method is extremely dumb,
     as it does no error checking to ensure that you are giving it the right value for a key."""
     bot.configs[guild_id][key] = value
     cfg = json.dumps(bot.configs[guild_id])
-    await bot.pool.execute("""UPDATE configs SET data=$1 WHERE id=$2""",cfg, guild_id)
+    await bot.pool.execute("""UPDATE configs SET data=$1 WHERE id=$2""", cfg, guild_id)
 
 
-async def get_wallet(bot, user_id:int) -> float:
+async def get_wallet(bot, user_id: int) -> float:
     log.info(f'getting wallet for user: {user_id}')
     target = bot.get_user(user_id)
     if target.bot:
@@ -126,14 +125,15 @@ async def get_wallet(bot, user_id:int) -> float:
         ret = await bot.pool.fetchrow("""SELECT amount FROM bank WHERE owner=$1""", user_id)
         if ret is None:
             ret = 0
-            await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""",user_id, ret)
+            await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""", user_id, ret)
         else:
             ret = ret['amount']
     finally:
         bot.wallets[user_id] = ret
     return float(ret)
 
-async def update_wallet(bot, user_id:int, amount):
+
+async def update_wallet(bot, user_id: int, amount):
     """changes a wallet directly."""
     bot.wallets[user_id] = amount
     try:

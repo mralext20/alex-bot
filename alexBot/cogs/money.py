@@ -27,22 +27,21 @@ class Money(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def write(self, ctx, target: discord.Member, amount:CoinConverter):
+    async def write(self, ctx, target: discord.Member, amount: CoinConverter):
         """sets the amount that a user has. owner only."""
         old = await get_wallet(self.bot, target.id)
         await update_wallet(self.bot, target.id, amount)
         await ctx.send(f"set {target}'s wallet to {amount}, was {old}")
 
     @commands.command()
-    async def wallet(self, ctx:commands.Context, target:discord.Member=None):
+    async def wallet(self, ctx, target: discord.Member=None):
         if target is None:
             target = ctx.author
-        wallet = await get_wallet(self.bot,target.id)
+        wallet = await get_wallet(self.bot, target.id)
         await ctx.send(f"wallet for {target} is {wallet:.2f}")
 
-
     @commands.command()
-    async def transfer(self, ctx, target:discord.Member, amount: CoinConverter):
+    async def transfer(self, ctx, target: discord.Member, amount: CoinConverter):
         """transfers an amount of money from your wallet to the target's wallet."""
         author_wallet = await get_wallet(self.bot, ctx.author.id)
         target_wallet = await get_wallet(self.bot, target.id)
@@ -52,21 +51,20 @@ class Money(Cog):
             raise TransactionError("you don't have enough funds for that")
         await update_wallet(self.bot, ctx.author.id, author_wallet-amount)
         await update_wallet(self.bot, target.id, target_wallet+amount)
-        # TODO: make a modify_wallet func that takes a float and applies that value to the target_wallet when you do that also use it on line #67
+        # TODO: atomic wallet transfers -> also line 67
         await ctx.send(f"sent {amount} to {target.display_name}")
 
-
-    async def on_message(self, message:discord.Message):
+    async def on_message(self, message: discord.Message):
         try:
             gcfg = await get_guild_config(self.bot, message.guild.id)
-            assert gcfg['money'] == True
+            assert gcfg['money'] is True
         except (AssertionError, AttributeError):
             # not in guild
             return
         if message.author.id in self.money_cooldown:
             # user recently got money
             return
-        chance = random.random() # get this message's percent chance
+        chance = random.random()  # get this message's percent chance
         if chance < self.bot.config.money['CHANCE']:
             try:
                 old = await get_wallet(self.bot, message.author.id)
@@ -83,7 +81,6 @@ class Money(Cog):
             await asyncio.sleep(300)
             self.money_cooldown.remove(message.author.id)
             return
-
 
     @commands.command()
     async def top(self, ctx):

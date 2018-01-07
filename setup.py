@@ -6,6 +6,7 @@ def leave(str):
     print(str)
     exit(1)
 
+
 try:
     assert sys.version_info[0] == 3 and sys.version_info[1] > 5
 except AssertionError:

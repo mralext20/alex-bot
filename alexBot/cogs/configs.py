@@ -1,5 +1,4 @@
 from discord.ext import commands
-
 import discord
 
 from ..tools import Cog
@@ -26,9 +25,8 @@ class Configs(Cog):
         await ctx.send(cfg[str(key)])
         pass
 
-
     @config.command()
-    async def set(self, ctx:commands.Context, key, value):
+    async def set(self, ctx: commands.Context, key, value):
         """sets the value of a key"""
         cfg = await get_guild_config(self.bot, ctx.guild.id)
         try:
@@ -44,10 +42,8 @@ class Configs(Cog):
         except discord.HTTPException:
             await ctx.send('\U00002705')
 
-
-
     @config.command()
-    async def list(self,ctx):
+    async def list(self, ctx):
         """lists the available config keys"""
         cfg = await get_guild_config(self.bot, ctx.guild.id)
         ret = f'your guild config:  ```json\n{cfg}```'

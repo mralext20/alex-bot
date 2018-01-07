@@ -78,7 +78,6 @@ class Bot(commands.Bot):
                  author.id, content, ','.join(checks) or '(none)')
 
 
-
 loop = asyncio.get_event_loop()
 
 webhooks = {}
@@ -95,4 +94,3 @@ for name in config.logging:
 with setup_logging(webhooks=webhooks):
     bot = Bot()
     bot.run(config.token)
-
