@@ -57,9 +57,9 @@ jobs:
             PGHOST: localhost
             PGPORT: 5432
         
-      # run tests!
-      est-reports
-          destination: test-reports
+
+
+
 
   "build and install 3.7":
     docker:
