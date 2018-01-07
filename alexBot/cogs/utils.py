@@ -74,6 +74,23 @@ class Utils(Cog):
 
         await ctx.send(embed=ret)
 
+    @commands.command()
+    async def difference(self, ctx, object_one:int, object_two:int=None):
+        """compares the creation of two discord IDs. interprets a mising second arg as the current ID."""
+        one = discord.utils.snowflake_time(object_one)
+        if object_two==None:
+            object_two = ctx.message.id
+        two = discord.utils.snowflake_time(object_two)
+        if one > two:
+            diff = two - one
+        else:
+            diff = one - two
+        diff = humanize.naturaldelta(diff)
+        one = humanize.naturaldate(one)
+        two = humanize.naturaldate(two)
+        await ctx.send(f'time difference from {one} to {two} is {diff}.')
+
+
     @commands.command(name='info', aliases='source about git'.split())
     async def info(self, ctx):
         ret = discord.Embed()
