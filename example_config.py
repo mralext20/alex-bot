@@ -15,4 +15,9 @@ logging = {
     'info': 'webhook url here',
     'warning': 'webhook here too',
     'error': 'webhook url here three',
+
+}
+#  bots who's owner gets a dm whenever they go offline
+monitored_bots = {
+    288369203046645761: 69198249432449024,  # Mousey, FrostLuma
 }
