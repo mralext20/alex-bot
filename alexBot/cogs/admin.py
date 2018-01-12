@@ -35,6 +35,13 @@ from ..tools import haste
 
 log = logging.getLogger(__name__)
 
+PRESENCES = {
+    'playing': 0,
+    'streaming': 1,
+    'listening': 2,
+    'watching': 3
+}
+
 
 def strip_code_markup(content: str) -> str:
     """ Strips code markup from a string. """
@@ -368,6 +375,16 @@ class Admin(Cog):
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
         else:
             await ctx.send('**`SUCCESS`**')
+
+    @commands.command(name="changepresence")
+    @commands.is_owner()
+    async def change_presence(self, ctx, game_type: str, *, name: str):
+        if game_type not in PRESENCES:
+            raise commands.UserInputError(f'expected one of {PRESENCES.keys()}')
+        game_type = PRESENCES[game_type]
+        game = discord.Game(name=name, type=game_type)
+
+        await self.bot.change_presence(game)
 
 
 def setup(bot):
