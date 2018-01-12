@@ -8,8 +8,10 @@ from ..tools import get_guild_config
 
 import discord
 import logging
+import re
 
 log = logging.getLogger(__name__)
+ayygen = re.compile('[aA][yY][Yy][yY]*')
 
 
 class Fun(Cog):
@@ -35,8 +37,8 @@ class Fun(Cog):
             return
         if (await get_guild_config(self.bot, message.guild.id))['ayy'] is False:
             return
-        ayygen = ('ayy' + 'y' * x for x in range(1997))
-        if message.content.lower() in ayygen:
+
+        if ayygen.fullmatch(message.content):
             await message.channel.send("lmao")
 
 
