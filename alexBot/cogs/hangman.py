@@ -55,8 +55,8 @@ class Hangman(Cog):
             )
             phrase = list(phrase_message.content.upper())
 
-            if len(phrase) > 140:
-                await game_master.send('That phrase is too long, 140 letters maximum.')
+            if len(phrase) > 420:
+                await game_master.send('That phrase is too long, 420 letters maximum.')
                 await status_aborted()
                 return
 
