@@ -10,7 +10,7 @@ from discord.ext import commands
 from ..tools import Cog
 
 
-PHRASE_REGEX = re.compile(r'[0-9A-Za-z ]+')
+PHRASE_REGEX = re.compile(r'[0-9A-Za-z -\/!,.]')
 
 
 async def receive_phrase(ctx, *, dm_from: discord.User) -> List[str]:
