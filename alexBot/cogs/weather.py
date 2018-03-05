@@ -70,7 +70,7 @@ class Weather(Cog):
             await ctx.send(msg)
 
     @commands.command()
-    async def metar(self, ctx, station:str):
+    async def metar(self, ctx, station: str):
         station = station.upper()
         try:
             if len(station) == 3:
