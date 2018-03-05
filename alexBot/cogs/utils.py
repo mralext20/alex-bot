@@ -109,6 +109,10 @@ class Utils(Cog):
         else:
             await ctx.send('**`SUCCESS`**')
 
+    @commands.command()
+    async def invite(self, ctx):
+        await ctx.send(f"<{discord.utils.oauth_url(self.bot.user.id)}>")
+
 
 def setup(bot):
     bot.add_cog(Utils(bot))
