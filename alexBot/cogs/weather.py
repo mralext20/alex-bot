@@ -78,7 +78,7 @@ class Weather(Cog):
         else:
             color = discord.Color.default()
         embed.colour = color
-        embed.set_footer(text=f"METAR from {icao} from {humanize.naturaldelta(report_time-now)} ago")
+        embed.set_footer(text=f"METAR from {station} from {humanize.naturaldelta(report_time-now)} ago")
 
         try:
             city = data["Info"]["City"]
