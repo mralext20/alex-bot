@@ -16,22 +16,6 @@ from ..tools import get_json
 
 
 class Weather(Cog):
-    def __init__(self, bot):
-        with open('alexBot/airports.json') as f:
-            self.airports = json.load(f)  # load airports json
-            assert isinstance(self.airports, dict)
-            self.airports.pop("__COMMENT")  # pop the __COMMENT key
-        self.icao = [key for key in self.airports]  # format for icao loopup
-
-        # format for iata  to icao conversion and lookup
-        self.iata = {}
-        for icao in self.icao:
-            icao = self.airports[icao]
-            if icao['iata'] != '':
-                self.iata[icao['iata']] = icao['icao']
-
-        self.bot = bot
-
     @commands.command()
     async def weather(self, ctx, unit="c"):
         """Lets you access the alext.duckdns.org/weewx/{,c/} weather station from discord"""
@@ -71,19 +55,9 @@ class Weather(Cog):
 
     @commands.command()
     async def metar(self, ctx, station: str):
+        """Returns the METAR report for a station. acccepts ICAO stations. uses avwx.rest as a data source."""
         station = station.upper()
-        try:
-            if len(station) == 3:
-                assert(station in self.iata)
-                icao = self.iata[station]
-            elif len(station) == 4:
-                assert(station in self.icao)
-                icao = station
-            else:
-                raise commands.errors.BadArgument("Only accepts 3 or 4 letter station codes")
-        except AssertionError:
-            raise commands.errors.BadArgument("your station code is wrong, friendo")
-        data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{icao}?options=info,speech,translate')
+        data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}?options=info,speech,translate')
         if 'Error' in data:
             raise commands.errors.BadArgument(data['Error'])
 
@@ -106,7 +80,30 @@ class Weather(Cog):
         embed.colour = color
         embed.set_footer(text=f"METAR from {icao} from {humanize.naturaldelta(report_time-now)} ago")
 
-        embed.title = data['Info']['Name']
+        try:
+            city = data["Info"]["City"]
+        except KeyError:
+            city = None
+        try:
+            state = data["Info"]["State"]
+        except KeyError:
+            state = ""
+        try:
+            country = data["Info"]["Country"]
+        except KeyError:
+            country = ""
+        try:
+            embed.title = data['Info']['Name']
+        except KeyError:
+            embed.title = station
+
+        if city is not None:
+            embed.title += f", {city}"
+        if state is not None:
+            embed.title += f", {state}"
+        if country is not None:
+            embed.title += f", {country}"
+
         embed.add_field(name="Raw", value=data['Raw-Report'])
         embed.add_field(name="Readable", value=data['Speech'])
         embed.add_field(name="Clouds", value=data['Translations']['Clouds'])
