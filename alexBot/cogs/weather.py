@@ -79,23 +79,26 @@ class Weather(Cog):
             color = discord.Color.default()
         embed.colour = color
         embed.set_footer(text=f"METAR from {station} from {humanize.naturaldelta(report_time-now)} ago")
-
-        try:
-            city = data["Info"]["City"]
-        except KeyError:
+        info = data['Info']
+        if info['City'] == '':
             city = None
-        try:
-            state = data["Info"]["State"]
-        except KeyError:
-            state = ""
-        try:
-            country = data["Info"]["Country"]
-        except KeyError:
-            country = ""
-        try:
-            embed.title = data['Info']['Name']
-        except KeyError:
+        else:
+            city = info['City']
+
+        if info['State'] == '':
+            state = None
+        else:
+            state = info['State']
+
+        if info['Country'] == '':
+            country = None
+        else:
+            country = info['Country']
+
+        if info['Name'] == '':
             embed.title = station
+        else:
+            embed.title = info['Name']
 
         if city is not None:
             embed.title += f", {city}"
