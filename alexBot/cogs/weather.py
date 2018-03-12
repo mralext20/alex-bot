@@ -80,25 +80,32 @@ class Weather(Cog):
         embed.colour = color
         embed.set_footer(text=f"METAR from {station} from {humanize.naturaldelta(report_time-now)} ago")
         info = data['Info']
-        if info['City'] == '':
+        try:
+            if info['City'] == '':
+                city = None
+            else:
+                city = info['City']
+
+            if info['State'] == '':
+                state = None
+            else:
+                state = info['State']
+
+            if info['Country'] == '':
+                    country = None
+            else:
+                country = info['Country']
+        except KeyError:
             city = None
-        else:
-            city = info['City']
-
-        if info['State'] == '':
             state = None
-        else:
-            state = info['State']
-
-        if info['Country'] == '':
             country = None
-        else:
-            country = info['Country']
-
-        if info['Name'] == '':
+        try:
+            if info['Name'] == '':
+                embed.title = station
+            else:
+                embed.title = info['Name']
+        except KeyError:
             embed.title = station
-        else:
-            embed.title = info['Name']
 
         if city is not None:
             embed.title += f", {city}"
