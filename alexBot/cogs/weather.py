@@ -121,6 +121,7 @@ class Weather(Cog):
         embed.add_field(name="Altimeter", value=data['Translations']['Altimeter'], inline=True)
         embed.add_field(name="Temperature", value=data['Translations']['Temperature'], inline=True)
         embed.add_field(name="Flight Rule", value=data['Flight-Rules'], inline=True)
+        embed.add_field(name="Visability", value=data['Translations']['Visibility'], inline=True)
         embed.timestamp = report_time
 
         await ctx.send(embed=embed)
