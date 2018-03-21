@@ -5,8 +5,6 @@ import discord
 from discord.ext import commands
 
 from ..tools import Cog
-from ..tools import TransactionError
-from ..tools import BotError
 
 log = logging.getLogger(__name__)
 
@@ -33,11 +31,6 @@ class CommandErrorHandler(Cog):
         elif isinstance(error, commands.BadArgument):
             msg = f'Bad argument! {error} See {ctx.prefix}help {ctx.command} for help!'
             log.warning(f"bad argument on {ctx.command}: {error}")
-        elif isinstance(error, TransactionError):
-            msg = f"{error}"
-
-        elif isinstance(error, BotError):
-            msg = f'no bots allowed'
 
         elif isinstance(error, commands.MissingRequiredArgument):
             msg = f'Parameter {error.param} is required but missing! See {ctx.prefix}help {ctx.command} for help!'
@@ -56,7 +49,7 @@ class CommandErrorHandler(Cog):
             if alex in ctx.guild.memebers:
                 msg = f"you broke something. lemme call Alex to look at it. {alex.mention}"
             else:
-                msg = f"you have managed to break somthing. {alex.mention} isnt in this server, " \
+                msg = f"you have managed to break something. {alex.mention} isn't in this server, " \
                       f"so you'll need to bug him. join the server in `a!about`."
             log.error(f"{ctx.author.id} broke bot running {ctx.command} with args {ctx.args} : {ctx.kwargs}\n"
                       f":{actual_trace}")

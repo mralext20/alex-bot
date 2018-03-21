@@ -1,21 +1,14 @@
-import aiohttp
-import logging
-import decimal
 import json
+from logging import getLogger
 
-
+import aiohttp
 from discord.ext import commands
 
-log = logging.getLogger(__name__)
+log = getLogger(__name__)
 
 configKeys = {
-    "money": False,
     "ayy": False,
-    "hide_coins": False
 }
-
-ZERO = decimal.Decimal(0)
-INF = decimal.Decimal('inf')
 
 
 class Cog:
@@ -32,30 +25,6 @@ class BoolConverter(commands.Converter):
             return True
         else:
             raise commands.BadArgument(f'can not convert {argument} to True or False')
-
-
-class TransactionError(commands.UserInputError):
-    """raised when there is a transaction error."""
-    pass
-
-
-class BotError(commands.errors.BadArgument):
-    """NO BOTS ALLOWED."""
-    pass
-
-
-class CoinConverter(commands.Converter):
-    async def convert(self, ctx, argument) -> decimal.Decimal:
-        ba = commands.BadArgument
-        value = decimal.Decimal(argument)
-        if value <= ZERO:
-            raise ba("You can't input values lower or equal to 0.")
-        elif value >= INF:
-            raise ba("You can't input values lower of equal to infinity.")
-
-        value = round(value, 2)
-
-        return value
 
 
 async def get_text(session: aiohttp.ClientSession, url) -> str:
@@ -110,33 +79,3 @@ async def update_guild_key(bot, guild_id: int, key: str, value):
     bot.configs[guild_id][key] = value
     cfg = json.dumps(bot.configs[guild_id])
     await bot.pool.execute("""UPDATE configs SET data=$1 WHERE id=$2""", cfg, guild_id)
-
-
-async def get_wallet(bot, user_id: int) -> float:
-    log.info(f'getting wallet for user: {user_id}')
-    target = bot.get_user(user_id)
-    if target.bot:
-        raise BotError
-    ret = 0
-    try:
-        ret = bot.wallets[user_id]
-    except KeyError:
-        ret = await bot.pool.fetchrow("""SELECT amount FROM bank WHERE owner=$1""", user_id)
-        if ret is None:
-            ret = 0
-            await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""", user_id, ret)
-        else:
-            ret = ret['amount']
-    finally:
-        bot.wallets[user_id] = ret
-    return float(ret)
-
-
-async def update_wallet(bot, user_id: int, amount):
-    """changes a wallet directly."""
-    bot.wallets[user_id] = amount
-    try:
-        ret = await bot.pool.execute("""UPDATE bank SET amount=$1 WHERE owner=$2""", amount, user_id)
-        assert ret == "UPDATE 1"
-    except AssertionError:
-        await bot.pool.execute("""INSERT INTO bank (owner, amount) VALUES ($1, $2)""", user_id, amount)

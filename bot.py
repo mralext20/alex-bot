@@ -16,9 +16,6 @@ from alexBot.channel_logging import setup_logging
 
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
 
-if not config.money['enabled']:
-    cogs.remove('money')
-
 log = logging.getLogger(__name__)
 
 
@@ -46,7 +43,7 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         log.info(f'Logged on as {self.user} (ID: {self.user.id})')
-        self.owner = await (self.application_info()).owner
+        self.owner = (await self.application_info()).owner
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
