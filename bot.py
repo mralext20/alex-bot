@@ -25,8 +25,7 @@ log = logging.getLogger(__name__)
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(
-            command_prefix=('alex!' if os.uname().nodename == 'alexlaptop' else 'a!'),
-            **kwargs)
+            command_prefix=('alex!' if os.uname().nodename == 'alexlaptop' else 'a!'), **kwargs)
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.logger = logging.getLogger("bot")
         self.config = config
@@ -34,6 +33,7 @@ class Bot(commands.Bot):
         self.configs = {}
         self.wallets = {}
         self.location = ('laptop' if os.uname().nodename == 'alexlaptop' else 'pi')
+        self.owner = None
 
         for cog in cogs:
             try:
@@ -46,6 +46,7 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         log.info(f'Logged on as {self.user} (ID: {self.user.id})')
+        self.owner = await (self.application_info()).owner
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)

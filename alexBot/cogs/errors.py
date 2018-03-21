@@ -19,6 +19,7 @@ class CommandErrorHandler(Cog):
             return
 
         msg = None
+        alex = self.bot.owner
 
         if isinstance(error, commands.DisabledCommand):
             msg = f'{ctx.command} has been disabled.'
@@ -52,7 +53,11 @@ class CommandErrorHandler(Cog):
         if msg is None:
             trace = traceback.format_exception(type(error), error, error.__traceback__, limit=5)
             actual_trace = '\n'.join(trace)
-            msg = f'congrats, you broke something terribly. contact <@108429628560924672> please'
+            if alex in ctx.guild.memebers:
+                msg = f"you broke something. lemme call Alex to look at it. {alex.mention}"
+            else:
+                msg = f"you have managed to break somthing. {alex.mention} isnt in this server, " \
+                      f"so you'll need to bug him. join the server in `a!about`."
             log.error(f"{ctx.author.id} broke bot running {ctx.command} with args {ctx.args} : {ctx.kwargs}\n"
                       f":{actual_trace}")
 
