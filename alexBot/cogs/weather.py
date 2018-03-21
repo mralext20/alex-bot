@@ -4,6 +4,7 @@ import re
 import time
 from datetime import datetime
 
+import aiohttp
 import discord
 import humanize
 from discord.ext import commands
@@ -56,7 +57,12 @@ class Weather(Cog):
     async def metar(self, ctx, station: str):
         """Returns the METAR report for a station. acccepts ICAO stations. uses avwx.rest as a data source."""
         station = station.upper()
-        data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}?options=info,speech,translate')
+        try:
+            data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
+                                                    f'?options=info,speech,translate')
+        except aiohttp.ClientResponseError:
+            return await ctx.send(f"something happened. try again?")
+
         if 'Error' in data:
             raise commands.errors.BadArgument(data['Error'])
 
