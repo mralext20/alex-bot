@@ -2,17 +2,16 @@
 
 import re
 import time
+from datetime import datetime
 
 import discord
+import humanize
 from discord.ext import commands
 from lxml import html
-from datetime import datetime
-import json
-import humanize
 
 from ..tools import Cog
-from ..tools import get_text
 from ..tools import get_json
+from ..tools import get_text
 
 
 class Weather(Cog):
