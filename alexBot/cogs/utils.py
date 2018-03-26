@@ -13,7 +13,7 @@ DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 class Utils(Cog):
     """The description for Utils goes here."""
-    @commands.command()
+    @commands.command(aliases=['p'])
     async def ping(self, ctx):
         """You know it"""
         start = await ctx.send("Po..")
@@ -38,9 +38,12 @@ class Utils(Cog):
                 msg = await channel.get_message(msg)
             else:
                 msg = await ctx.channel.get_message(msg)
-        except discord.errors.NotFound:
-            await ctx.send("cant find that message. \N{SLIGHTLY FROWNING FACE}")
+        except (discord.errors.NotFound, discord.errors.HTTPException):
+            return await ctx.send("cant find that message. \N{SLIGHTLY FROWNING FACE}")
         assert isinstance(msg, discord.Message)
+
+        if channel is not None and channel.nsfw and not ctx.channel.nsfw:
+            return await ctx.send("Cant send message from NSFW channel in SFW channel")
 
         ret = discord.Embed(color=discord.Color.blurple())
 
