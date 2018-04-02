@@ -9,7 +9,23 @@ ayygen = re.compile('[aA][yY][Yy][yY]*')
 
 
 class Fun(Cog):
-    """contains the on message for ayy"""
+    @commands.command()
+    async def cat(self, ctx):
+        cat = await get_json(self.bot.session, 'http://random.cat/meow')
+        ret = discord.Embed()
+        ret.set_image(url=cat['file'])
+        await ctx.send(embed=ret)
+
+    @commands.command()
+    async def dog(self, ctx):
+        dog = None
+        while dog is None or dog['url'][-3:].lower() == 'mp4':
+            dog = await get_json(self.bot.session, 'https://random.dog/woof.json')
+            log.debug(dog['url'])
+        ret = discord.Embed()
+        ret.set_image(url=dog['url'])
+        await ctx.send(embed=ret)
+
     async def on_message(self, message):
         if self.bot.location == 'laptop' or message.guild is None:
             return
