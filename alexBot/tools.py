@@ -28,13 +28,13 @@ class BoolConverter(commands.Converter):
 
 
 async def get_text(session: aiohttp.ClientSession, url) -> str:
-    log.debug(f"fetched url: {url}")
+    # log.debug(f"fetched url: {url}")
     async with session.get(url) as content:
         return await content.text()
 
 
 async def get_json(session: aiohttp.ClientSession, url) -> dict:
-    log.debug(f"fetched json: {url}")
+    # log.debug(f"fetched json: {url}")
     async with session.get(url) as content:
         return await content.json()
 

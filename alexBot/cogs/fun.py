@@ -1,8 +1,10 @@
 import logging
 import re
-
+from discord.ext import commands
 from ..tools import Cog
 from ..tools import get_guild_config
+from ..tools import get_json
+import discord
 
 log = logging.getLogger(__name__)
 ayygen = re.compile('[aA][yY][Yy][yY]*')
