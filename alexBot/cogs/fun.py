@@ -11,7 +11,7 @@ ayygen = re.compile('[aA][yY][Yy][yY]*')
 class Fun(Cog):
     @commands.command()
     async def cat(self, ctx):
-        cat = await get_json(self.bot.session, 'http://random.cat/meow')
+        cat = await get_json(self.bot.session, 'http://aws.random.cat/meow')
         ret = discord.Embed()
         ret.set_image(url=cat['file'])
         await ctx.send(embed=ret)
