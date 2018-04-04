@@ -121,12 +121,25 @@ class Weather(Cog):
 
         embed.add_field(name="Raw", value=data['Raw-Report'])
         embed.add_field(name="Readable", value=data['Speech'])
-        embed.add_field(name="Clouds", value=data['Translations']['Clouds'])
-        embed.add_field(name="Wind", value=data['Translations']['Wind'])
-        embed.add_field(name="Altimeter", value=data['Translations']['Altimeter'], inline=True)
-        embed.add_field(name="Temperature", value=data['Translations']['Temperature'], inline=True)
-        embed.add_field(name="Flight Rule", value=data['Flight-Rules'], inline=True)
-        embed.add_field(name="Visibility", value=data['Translations']['Visibility'], inline=True)
+
+        if data['Translations']['Clouds'] == "":
+            embed.add_field(name="Clouds", value=data['Translations']['Clouds'])
+
+        if data['Translations']['Wind'] == "":
+            embed.add_field(name="Wind", value=data['Translations']['Wind'])
+
+        if data['Translations']['Altimeter'] == "":
+            embed.add_field(name="Altimeter", value=data['Translations']['Altimeter'], inline=True)
+
+        if data['Translations']['Temperature'] == "":
+            embed.add_field(name="Temperature", value=data['Translations']['Temperature'], inline=True)
+
+        if data['Flight-Rules'] == "":
+            embed.add_field(name="Flight Rule", value=data['Flight-Rules'], inline=True)
+
+        if data['Translations']['Visibility'] == "":
+            embed.add_field(name="Visibility", value=data['Translations']['Visibility'], inline=True)
+
         embed.timestamp = report_time
 
         await ctx.send(embed=embed)
