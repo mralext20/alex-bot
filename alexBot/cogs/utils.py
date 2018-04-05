@@ -31,13 +31,19 @@ class Utils(Cog):
         await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
     @commands.command()
-    async def quote(self, ctx, msg: int, channel: discord.TextChannel=None):
-        """Quotes a message"""
+    async def quote(self, ctx, msg, channel: discord.TextChannel=None):
+        """Quotes a message. msg can be message ID or the output of shift clicking the 'copy id' button in the UI."""
+        if '-' in msg:
+            try:
+                channel, msg = [int(i) for i in msg.split('-')]
+                channel = self.bot.get_channel(channel)
+            except ValueError or discord.errors.NotFound:
+                raise commands.BadArgument("your input was not a message id")
         try:
-            if channel is not None:
-                msg = await channel.get_message(msg)
-            else:
+            if channel is None:
                 msg = await ctx.channel.get_message(msg)
+            else:
+                msg = await channel.get_message(msg)
         except (discord.errors.NotFound, discord.errors.HTTPException):
             return await ctx.send("cant find that message. \N{SLIGHTLY FROWNING FACE}")
         assert isinstance(msg, discord.Message)
