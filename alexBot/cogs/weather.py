@@ -54,8 +54,9 @@ class Weather(Cog):
             await ctx.send(msg)
 
     @commands.command()
-    async def metar(self, ctx, station: str):
+    async def metar(self, ctx: commands.Context, station: str):
         """Returns the METAR report for a station. acccepts ICAO stations. uses avwx.rest as a data source."""
+        await ctx.trigger_typing()
         station = station.upper()
         try:
             data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
@@ -122,22 +123,22 @@ class Weather(Cog):
         embed.add_field(name="Raw", value=data['Raw-Report'])
         embed.add_field(name="Readable", value=data['Speech'])
 
-        if data['Translations']['Clouds'] == "":
+        if data['Translations']['Clouds'] != "":
             embed.add_field(name="Clouds", value=data['Translations']['Clouds'])
 
-        if data['Translations']['Wind'] == "":
+        if data['Translations']['Wind'] != "":
             embed.add_field(name="Wind", value=data['Translations']['Wind'])
 
-        if data['Translations']['Altimeter'] == "":
+        if data['Translations']['Altimeter'] != "":
             embed.add_field(name="Altimeter", value=data['Translations']['Altimeter'], inline=True)
 
-        if data['Translations']['Temperature'] == "":
+        if data['Translations']['Temperature'] != "":
             embed.add_field(name="Temperature", value=data['Translations']['Temperature'], inline=True)
 
-        if data['Flight-Rules'] == "":
+        if data['Flight-Rules'] != "":
             embed.add_field(name="Flight Rule", value=data['Flight-Rules'], inline=True)
 
-        if data['Translations']['Visibility'] == "":
+        if data['Translations']['Visibility'] != "":
             embed.add_field(name="Visibility", value=data['Translations']['Visibility'], inline=True)
 
         embed.timestamp = report_time
