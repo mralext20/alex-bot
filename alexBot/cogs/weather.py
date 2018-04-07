@@ -83,8 +83,10 @@ class Weather(Cog):
             color = discord.Color.magenta()
         else:
             color = discord.Color.default()
+        embed.set_footer(text=f"report {humanize.naturaldelta(report_time-now)} old, "
+                         f"please only use this data for planning purposes only.")
+
         embed.colour = color
-        embed.set_footer(text=f"METAR from {station} from {humanize.naturaldelta(report_time-now)} ago")
         info = data['Info']
         try:
             if info['City'] == '':
@@ -119,6 +121,8 @@ class Weather(Cog):
             embed.title += f", {state}"
         if country is not None:
             embed.title += f", {country}"
+
+        embed.title = f"{embed.title} ({station})"
 
         embed.add_field(name="Raw", value=data['Raw-Report'])
         embed.add_field(name="Readable", value=data['Speech'])
