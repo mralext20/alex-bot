@@ -31,7 +31,7 @@ class Bot(commands.Bot):
         self.wallets = {}
         self.location = ('laptop' if os.uname().nodename == 'alexlaptop' else 'pi')
         self.owner = None
-
+        logging.getLogger('discord.gateway').setLevel(logging.DEBUG)
         for cog in cogs:
             try:
                 self.load_extension(f"alexBot.cogs.{cog}")
