@@ -108,11 +108,11 @@ class Utils(Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reloadadmin(self, ctx):
+    async def reloaddebug(self, ctx):
         """Reload the admin cog"""
         try:
-            self.bot.unload_extension("alexBot.cogs.admin")
-            self.bot.load_extension("alexBot.cogs.admin")
+            self.bot.unload_extension("alexBot.cogs.debug")
+            self.bot.load_extension("alexBot.cogs.debug")
         except Exception as e:
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
         else:

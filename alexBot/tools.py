@@ -1,4 +1,6 @@
+import asyncio
 import json
+import time
 from logging import getLogger
 
 import aiohttp
@@ -13,18 +15,76 @@ configKeys = {
 
 class Cog:
     """ The Cog base class that all cogs should inherit from. """
+
     def __init__(self, bot):
         self.bot = bot
 
 
 class BoolConverter(commands.Converter):
-    async def convert(self,  ctx, argument):
+    async def convert(self, ctx, argument):
         if argument[0].lower() == "f":
             return False
         elif argument[0].lower() == "t":
             return True
         else:
             raise commands.BadArgument(f'can not convert {argument} to True or False')
+
+
+class Timer:
+    """Context manager which measures execution time of the indented block."""
+
+    def __init__(self):
+        self.start = None
+        self.end = None
+
+    def __enter__(self):
+        self.start = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end = time.perf_counter()
+
+    async def __aenter__(self):
+        return self.__enter__()
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        return self.__exit__(exc_type, exc_val, exc_tb)
+
+    def __str__(self):
+        return f'{self.duration:.3f}ms'
+
+    @property
+    def duration(self):
+        """float: Elapsed duration in ms. Can be used while the Timer is running."""
+
+        if self.start is None:
+            return 0
+
+        end = self.end if self.end is not None else time.perf_counter()
+        return (end - self.start) * 1000
+
+
+async def shell(command):
+    """
+    Runs a subprocess shell and returns the output.
+
+    Parameters
+    ----------
+    command : str
+        The command to run.
+
+    Returns
+    -------
+    str
+        Combined output of stdout and stderr of the program.
+    """
+
+    process = await asyncio.create_subprocess_shell(
+        command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
+    results = await process.communicate()
+
+    return ''.join(x.decode('utf-8') for x in results)
 
 
 async def get_text(session: aiohttp.ClientSession, url) -> str:
