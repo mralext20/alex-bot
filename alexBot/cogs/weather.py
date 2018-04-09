@@ -84,7 +84,7 @@ class Weather(Cog):
         else:
             color = discord.Color.default()
         embed.set_footer(text=f"report {humanize.naturaldelta(report_time-now)} old, "
-                         f"please only use this data for planning purposes only.")
+                         f"please only use this data for planning purposes.")
 
         embed.colour = color
         info = data['Info']
