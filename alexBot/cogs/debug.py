@@ -46,6 +46,9 @@ class Debug(Cog):
         # list of actively running eval sessions to allow cancelling them
         self.active = set()
 
+        # last result
+        self.last = None
+
     async def __local_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
@@ -133,6 +136,7 @@ class Debug(Cog):
             'pool': self.bot.pool,
             'loop': self.bot.loop,
             'session': self.bot.session,
+            '_': self.last,
         }
 
         def compile_code(insert_return=False):
@@ -209,6 +213,8 @@ class Debug(Cog):
                 result = repr(result)
 
             output.append(f'ret value\n---------\n{result}')
+
+        self.last = result
 
         formatted = '\n'.join(output)
         await ctx.send(f'```py\n{formatted}```')
