@@ -139,7 +139,7 @@ class Debug(Cog):
             '_': self.last,
         }
 
-        def compile_code(insert_return=False):
+        def compile_code(insert_return: bool=False):
             _code = f'return {code}' if insert_return else code
 
             _code = textwrap.indent(_code, '    ')
@@ -161,7 +161,7 @@ class Debug(Cog):
 
         if not compiled:
             try:
-                compile_code(code)
+                compile_code(insert_return=False)
             except SyntaxError as e:
                 if e.text is None:
                     return await ctx.send(f'```py\n{e.__class__.__name__}: {e}```')
