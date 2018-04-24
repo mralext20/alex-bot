@@ -89,12 +89,9 @@ class Utils(Cog):
             object_two = ctx.message.id
         two = discord.utils.snowflake_time(object_two)
         if one > two:
-            diff = two - one
-        else:
             diff = one - two
-        diff = humanize.naturaldelta(diff)
-        one = humanize.naturaldate(one)
-        two = humanize.naturaldate(two)
+        else:
+            diff = two - one
         await ctx.send(f'time difference from {one} to {two} is {diff}.')
 
     @commands.command(name='info', aliases='source about git'.split())
