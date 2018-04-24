@@ -49,7 +49,7 @@ class CommandErrorHandler(Cog):
             msg = f"you have managed to break something. if {alex.mention} isnt in this server, " \
                   f"so you'll have to join the server in `a!about`."
             log.error(f"{ctx.author.id} broke bot running {ctx.command.cog_name}.{ctx.command.qualified_name} with args"
-                      f" {ctx.args[2:-1]}\n\n"
+                      f" {ctx.args[2:-1]}\nquotable: {ctx.channel.id or 'DM'}-{ctx.message.id or None}\n"
                       f":{actual_trace}")
 
         try:
