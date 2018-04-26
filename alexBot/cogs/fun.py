@@ -29,7 +29,7 @@ class Fun(Cog):
         await ctx.send(embed=ret)
 
     async def on_message(self, message):
-        if self.bot.location == 'laptop' or message.guild is None:
+        if self.bot.location == 'dev' or message.guild is None:
             return
         if (await get_guild_config(self.bot, message.guild.id))['ayy'] is False:
             return

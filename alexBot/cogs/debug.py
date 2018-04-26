@@ -267,7 +267,7 @@ class Debug(Cog):
     @commands.command()
     @commands.is_owner()
     async def reload(self, ctx, cog):
-        """Reload the admin cog"""
+        """Reload a cog"""
         try:
             self.bot.unload_extension(f"alexBot.cogs.{cog}")
             self.bot.load_extension(f"alexBot.cogs.{cog}")

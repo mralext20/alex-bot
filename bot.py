@@ -3,7 +3,6 @@
 
 import asyncio
 import logging
-import os
 from pathlib import Path
 
 import aiohttp
@@ -22,14 +21,14 @@ log = logging.getLogger(__name__)
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(
-            command_prefix=('alex!' if os.uname().nodename == 'alexlaptop' else 'a!'), **kwargs)
+            command_prefix=config.prefix, **kwargs)
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.logger = logging.getLogger("bot")
         self.config = config
         self.pool = None
         self.configs = {}
         self.wallets = {}
-        self.location = ('laptop' if os.uname().nodename == 'alexlaptop' else 'pi')
+        self.location = config.location
         self.owner = None
         logging.getLogger('discord.gateway').setLevel(logging.ERROR)
         for cog in cogs:
@@ -38,17 +37,18 @@ class Bot(commands.Bot):
                 log.info(f'loaded {cog}')
             except Exception as e:
                 log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
-
         self.loop.create_task(self._pool())
 
     async def on_ready(self):
         log.info(f'Logged on as {self.user} (ID: {self.user.id})')
         self.owner = (await self.application_info()).owner
+        log.info(f'owner is {self.owner} ({self.owner.id}')
 
     async def _pool(self):
-        self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
+        self.pool = await asyncpg.create_pool(**config.dsn, loop=self.loop)
 
-    def clean_content(self, content):
+    @staticmethod
+    def clean_content(content):
         content = content.replace('`', '\'')
         content = content.replace('@', '@\u200b')
         content = content.replace('&', '&\u200b')

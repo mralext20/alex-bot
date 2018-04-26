@@ -1,15 +1,17 @@
-from random import uniform
+# config file. copy to `config.py` and fill in your details.
 
 token = ""
 
-dsn = 'dbname="alexbot" user="postgres" password="password"'
-
-money = {
-    'enabled': False,
-    'CHANCE': .20,
-    'PER_MESSAGE': uniform(1, 3),
-    'REACTION': "\N{MONEY-MOUTH FACE}"
+dsn = {
+    "host": "localhost",
+    "user": "alexander",
+    "password": "",
+    "database": "alexbot"
 }
+
+prefix = "a!"
+
+location = "prod or dev"
 
 logging = {
     'info': 'webhook url here',
