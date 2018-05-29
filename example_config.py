@@ -1,13 +1,10 @@
 # config file. copy to `config.py` and fill in your details.
 
+import os
+
 token = ""
 
-dsn = {
-    "host": "localhost",
-    "user": "alexander",
-    "password": "",
-    "database": "alexbot"
-}
+dsn = os.environ.get('POSTGRES_URI')
 
 prefix = "a!"
 

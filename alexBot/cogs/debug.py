@@ -50,7 +50,10 @@ class Debug(Cog):
         self.last = None
 
     async def __local_check(self, ctx):
-        return await self.bot.is_owner(ctx.author)
+        try:
+            return await self.bot.is_owner(ctx.author)
+        except:
+            raise commands.NotOwner
 
     def __unload(self):
         self._cancel_sessions()

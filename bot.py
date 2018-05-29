@@ -3,6 +3,7 @@
 
 import asyncio
 import logging
+import time
 from pathlib import Path
 
 import aiohttp
@@ -16,6 +17,8 @@ from alexBot.channel_logging import setup_logging
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
 
 log = logging.getLogger(__name__)
+
+time.sleep(2)  # wait for postgres docker to come up
 
 
 class Bot(commands.Bot):
@@ -45,7 +48,7 @@ class Bot(commands.Bot):
         log.info(f'owner is {self.owner} ({self.owner.id}')
 
     async def _pool(self):
-        self.pool = await asyncpg.create_pool(**config.dsn, loop=self.loop)
+        self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
 
     @staticmethod
     def clean_content(content):
