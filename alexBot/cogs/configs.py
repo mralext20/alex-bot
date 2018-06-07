@@ -43,6 +43,7 @@ class Configs(Cog):
             await ctx.send('\U00002705')
 
     @config.command()
+    @commands.has_permissions(manage_server=True)
     async def list(self, ctx):
         """lists the available config keys"""
         cfg = await get_guild_config(self.bot, ctx.guild.id)
