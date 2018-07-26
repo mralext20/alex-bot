@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 from logging import getLogger
-
+import config
 import aiohttp
 from discord.ext import commands
 
@@ -88,13 +88,15 @@ async def shell(command):
 
 
 async def get_text(session: aiohttp.ClientSession, url) -> str:
-    # log.debug(f"fetched url: {url}")
+    if config.location == 'dev':
+        log.debug(f"fetched url: {url}")
     async with session.get(url) as content:
         return await content.text()
 
 
 async def get_json(session: aiohttp.ClientSession, url) -> dict:
-    # log.debug(f"fetched json: {url}")
+    if config.location == 'dev':
+        log.debug(f"fetched json: {url}")
     async with session.get(url) as content:
         return await content.json()
 

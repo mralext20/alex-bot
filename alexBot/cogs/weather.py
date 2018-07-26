@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import re
 import time
+import urllib.parse
 from datetime import datetime
 
 import aiohttp
@@ -14,6 +16,7 @@ from ..tools import Cog
 from ..tools import get_json
 from ..tools import get_text
 
+log = logging.getLogger(__name__)
 
 class Weather(Cog):
     @commands.command()
@@ -54,23 +57,62 @@ class Weather(Cog):
             await ctx.send(msg)
 
     @commands.command()
-    async def metar(self, ctx: commands.Context, station: str):
-        """Returns the METAR report for a station. acccepts ICAO stations. uses avwx.rest as a data source."""
+    async def metar(self, ctx: commands.Context, arg1: str, *, arg2: str=None):
+        """
+        if only one arg is given, that station's metar is returned.
+        if two args are uses, the first must be one of raw, readable, metar, or metar-readable.
+        the metar type requires a metar to be put after the argument.
+        """
         await ctx.trigger_typing()
+        if arg2 is None:
+            station = arg1
+            display_type = 'normal'
+        else:
+            station = arg2
+            try:
+                assert station is not None
+            except AssertionError:
+                await ctx.send('you need to provide a station...')
+            try:
+                assert arg1.lower() in ['raw', 'readable', 'metar', 'metar-readable']
+            except AssertionError:
+                return await ctx.send("arg1 must be one of raw, readable, metar, metar-readable,"
+                                      "otherwise provide just the station")
+            display_type = arg1.lower()
         station = station.upper()
-        try:
-            data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
-                                                    f'?options=info,speech,translate')
-        except aiohttp.ClientResponseError:
-            return await ctx.send(f"something happened. try again?")
+
+        if 'metar' in display_type:
+            try:
+                data = await get_json(self.bot.session, f'https://avwx.rest/api/parse/metar?report='
+                                                        f'{urllib.parse.quote(station)}'
+                                                        f'&options=info,speech,translate')
+            except aiohttp.ClientResponseError:
+                return await ctx.send(f"something happened. try again?")
+        else:
+            try:
+                data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
+                                                        f'?options=info,speech,translate')
+            except aiohttp.ClientResponseError:
+                return await ctx.send(f"something happened. try again?")
 
         if 'Error' in data:
             raise commands.errors.BadArgument(data['Error'])
 
+        # handle raw and readable types
+        if display_type == 'raw':
+            return await ctx.send(data['Raw-Report'])
+        elif 'readable' in display_type:
+            return await ctx.send(data['Speech'])
+
         embed = discord.Embed()
-        now = datetime.utcnow()
-        report_time = datetime.strptime(data['Time'], "%d%H%MZ")
-        report_time = report_time.replace(year=now.year, month=now.month)  # this will fail around end of month / year
+
+        if 'metar' not in display_type:
+            now = datetime.utcnow()
+            report_time = datetime.strptime(data['Time'], "%d%H%MZ")
+            report_time = report_time.replace(year=now.year, month=now.month)  # this will fail around end of month/year
+            embed.set_footer(text=f"report {humanize.naturaldelta(report_time-now)} old, "
+                                  f"please only use this data for planning purposes.")
+
         color = data['Flight-Rules']
 
         if color == "VFR":
@@ -83,8 +125,6 @@ class Weather(Cog):
             color = discord.Color.magenta()
         else:
             color = discord.Color.default()
-        embed.set_footer(text=f"report {humanize.naturaldelta(report_time-now)} old, "
-                         f"please only use this data for planning purposes.")
 
         embed.colour = color
         info = data['Info']
@@ -100,7 +140,7 @@ class Weather(Cog):
                 state = info['State']
 
             if info['Country'] == '':
-                    country = None
+                country = None
             else:
                 country = info['Country']
         except KeyError:
@@ -122,9 +162,9 @@ class Weather(Cog):
         if country is not None:
             embed.title += f", {country}"
 
-        embed.title = f"{embed.title} ({station})"
-
-        embed.add_field(name="Raw", value=data['Raw-Report'])
+        embed.title = f"{embed.title} ({station.split()[0]})"
+        if 'metar' in display_type:
+            embed.add_field(name="Raw", value=station)
         embed.add_field(name="Readable", value=data['Speech'])
 
         if data['Translations']['Clouds'] != "":
@@ -145,7 +185,8 @@ class Weather(Cog):
         if data['Translations']['Visibility'] != "":
             embed.add_field(name="Visibility", value=data['Translations']['Visibility'], inline=True)
 
-        embed.timestamp = report_time
+        if 'metar' not in display_type:
+            embed.timestamp = report_time
 
         await ctx.send(embed=embed)
 
