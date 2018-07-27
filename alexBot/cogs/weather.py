@@ -165,6 +165,8 @@ class Weather(Cog):
         embed.title = f"{embed.title} ({station.split()[0]})"
         if 'metar' in display_type:
             embed.add_field(name="Raw", value=station)
+        else:
+            embed.add_field(name="Raw", value=data['Raw-Report'])
         embed.add_field(name="Readable", value=data['Speech'])
 
         if data['Translations']['Clouds'] != "":
@@ -187,8 +189,11 @@ class Weather(Cog):
 
         if 'metar' not in display_type:
             embed.timestamp = report_time
-
-        await ctx.send(embed=embed)
+        if display_type is None:
+            await ctx.send("Check out new readable and raw only displays! see a!help metar for details,"
+                           " or join my server (a!about) and ask for help there.", embed=embed)
+        else:
+            await ctx.send(embed=embed)
 
 
 def setup(bot):
