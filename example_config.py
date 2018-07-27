@@ -4,6 +4,8 @@ import os
 
 token = ""
 
+cat_token = os.environ.get('THECATAPI_KEY')
+
 dsn = os.environ.get('POSTGRES_URI')
 
 prefix = "a!"

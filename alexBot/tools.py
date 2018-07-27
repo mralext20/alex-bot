@@ -4,6 +4,7 @@ import time
 from logging import getLogger
 import config
 import aiohttp
+import xmltodict
 from discord.ext import commands
 
 log = getLogger(__name__)
@@ -99,6 +100,13 @@ async def get_json(session: aiohttp.ClientSession, url) -> dict:
         log.debug(f"fetched json: {url}")
     async with session.get(url) as content:
         return await content.json()
+
+
+async def get_xml(session: aiohttp.ClientSession, url) -> dict:
+    if config.location == 'dev':
+        log.debug(f"fetched xml: {url}")
+    async with session.get(url) as content:
+        return xmltodict.parse(await content.text())
 
 
 async def haste(session: aiohttp.ClientSession, text: str, extension: str = "py") -> str:
