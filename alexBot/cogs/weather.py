@@ -189,11 +189,7 @@ class Weather(Cog):
 
         if 'metar' not in display_type:
             embed.timestamp = report_time
-        if display_type is 'normal':
-            await ctx.send("Check out new readable and raw only displays! see a!help metar for details,"
-                           " or join my server (a!about) and ask for help there.", embed=embed)
-        else:
-            await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
