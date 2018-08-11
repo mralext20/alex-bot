@@ -11,3 +11,4 @@ yarl
 lxml
 asyncpg
 humanize
+xmltodict
