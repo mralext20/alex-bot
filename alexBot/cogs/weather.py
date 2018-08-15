@@ -12,7 +12,7 @@ import humanize
 from discord.ext import commands
 from lxml import html
 
-from ..tools import Cog
+from ..tools import Cog, get_xml
 from ..tools import get_json
 from ..tools import get_text
 
@@ -80,19 +80,17 @@ class Weather(Cog):
                                       "otherwise provide just the station")
             display_type = arg1.lower()
         station = station.upper()
+        try:
+            if 'metar' in display_type:
 
-        if 'metar' in display_type:
-            try:
                 data = await get_json(self.bot.session, f'https://avwx.rest/api/parse/metar?report='
                                                         f'{urllib.parse.quote(station)}'
                                                         f'&options=info,speech,translate')
-            except aiohttp.ClientResponseError:
-                return await ctx.send(f"something happened. try again?")
-        else:
-            try:
+            else:
+
                 data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
                                                         f'?options=info,speech,translate')
-            except aiohttp.ClientResponseError:
+        except aiohttp.ClientResponseError:
                 return await ctx.send(f"something happened. try again?")
 
         if 'Error' in data:
@@ -113,8 +111,21 @@ class Weather(Cog):
             embed.set_footer(text=f"report {humanize.naturaldelta(report_time-now)} old, "
                                   f"please only use this data for planning purposes.")
 
-        color = data['Flight-Rules']
+        info = data['Info']
+        magdec = ""
+        if data['Wind-Direction'] != 'VRB' and 'metar' not in display_type:
+            magdec = await get_xml(ctx.bot.session, f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
+                                                    f"?lat1={info['Latitude']}&lon1={info['Longitude']}&resultFormat=xml")
 
+            magdec = float(magdec['maggridresult']['result']['declination']['#text'])
+
+            magdec = magdec + int(data['Wind-Direction'])  # add the magdec to the direction of the wind
+            if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
+                magdec = magdec - 360
+            elif magdec < 0:  # same as above, but for less than 0 condition.
+                magdec = magdec + 360
+
+        color = data['Flight-Rules']
         if color == "VFR":
             color = discord.Color.green()
         elif color == "MVFR":
@@ -127,7 +138,7 @@ class Weather(Cog):
             color = discord.Color.default()
 
         embed.colour = color
-        info = data['Info']
+
         try:
             if info['City'] == '':
                 city = None
@@ -173,7 +184,15 @@ class Weather(Cog):
             embed.add_field(name="Clouds", value=data['Translations']['Clouds'])
 
         if data['Translations']['Wind'] != "":
-            embed.add_field(name="Wind", value=data['Translations']['Wind'])
+            if magdec != "":
+                if data['Wind-Gust'] is not '':
+                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']}G{data['Wind-Gust']}"
+                                                       f"(True) {magdec:0f}@{data['Wind-Speed']}G{data['Wind-Gust']}"
+                                                       f" (with Variation")
+                else:
+                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']} (True) {magdec:.0f}@{data['Wind-Speed']} (with variation)")
+            else:
+                embed.add_field(name="Wind",value=data['Translations']['Wind'])
 
         if data['Translations']['Altimeter'] != "":
             embed.add_field(name="Altimeter", value=data['Translations']['Altimeter'], inline=True)
