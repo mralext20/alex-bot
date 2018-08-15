@@ -114,16 +114,20 @@ class Weather(Cog):
         info = data['Info']
         magdec = ""
         if data['Wind-Direction'] != 'VRB' and 'metar' not in display_type:
-            magdec = await get_xml(ctx.bot.session, f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
-                                                    f"?lat1={info['Latitude']}&lon1={info['Longitude']}&resultFormat=xml")
+            try:
+                magdec = await get_xml(ctx.bot.session,
+                                       f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
+                                       f"?lat1={info['Latitude']}&lon1={info['Longitude']}&resultFormat=xml")
 
-            magdec = float(magdec['maggridresult']['result']['declination']['#text'])
+                magdec = float(magdec['maggridresult']['result']['declination']['#text'])
 
-            magdec = magdec + int(data['Wind-Direction'])  # add the magdec to the direction of the wind
-            if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
-                magdec = magdec - 360
-            elif magdec < 0:  # same as above, but for less than 0 condition.
-                magdec = magdec + 360
+                magdec = magdec + int(data['Wind-Direction'])  # add the magdec to the direction of the wind
+                if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
+                    magdec = magdec - 360
+                elif magdec < 0:  # same as above, but for less than 0 condition.
+                    magdec = magdec + 360
+            except KeyError:
+                magdec = ""
 
         color = data['Flight-Rules']
         if color == "VFR":
