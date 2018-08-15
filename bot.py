@@ -43,9 +43,9 @@ class Bot(commands.Bot):
         self.loop.create_task(self._pool())
 
     async def on_ready(self):
-        log.info(f'Logged on as {self.user} (ID: {self.user.id})')
+        log.info(f'Logged on as {self.user} ({self.user.id})')
         self.owner = (await self.application_info()).owner
-        log.info(f'owner is {self.owner} ({self.owner.id}')
+        log.info(f'owner is {self.owner} ({self.owner.id})')
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
