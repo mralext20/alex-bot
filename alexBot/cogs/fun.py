@@ -13,12 +13,12 @@ ayygen = re.compile('[aA][yY][Yy][yY]*')
 class Fun(Cog):
     @commands.command()
     async def cat(self, ctx):
-        cat = await get_xml(self.bot.session, f"https://thecatapi.com/api/images/get?format=xml"
-                                              f"&api_key={self.bot.config.cat_token}")
-        cat = cat['response']['data']['images']['image']
+        cat = await get_json(self.bot.session, f"https://thecatapi.com/api/images/get?format=json"
+                                               f"&api_key={self.bot.config.cat_token}")
+        cat = cat[0]
         embed = discord.Embed()
         embed.set_image(url=cat['url'])
-        embed.url = cat['source_url']
+        embed.url = 'http://thecatapi.com'
         embed.title = "cat provided by the cat API"
         await ctx.send(embed=embed)
 
