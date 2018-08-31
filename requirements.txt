@@ -6,9 +6,9 @@ git+https://github.com/Rapptz/discord.py@rewrite
 idna
 multidict
 urllib3
-websockets
 yarl
 lxml
 asyncpg
 humanize
 xmltodict
+mcstatus

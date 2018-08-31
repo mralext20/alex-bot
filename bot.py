@@ -26,6 +26,7 @@ class Bot(commands.Bot):
         super().__init__(
             command_prefix=config.prefix, **kwargs)
         self.session = aiohttp.ClientSession(loop=self.loop)
+        self.loop.create_task(self._pool())
         self.logger = logging.getLogger("bot")
         self.config = config
         self.pool = None
@@ -34,13 +35,9 @@ class Bot(commands.Bot):
         self.location = config.location
         self.owner = None
         logging.getLogger('discord.gateway').setLevel(logging.ERROR)
-        for cog in cogs:
-            try:
-                self.load_extension(f"alexBot.cogs.{cog}")
-                log.info(f'loaded {cog}')
-            except Exception as e:
-                log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
-        self.loop.create_task(self._pool())
+        self.loop.create_task(self.cogSetup())
+        self.minecraft = True
+
 
     async def on_ready(self):
         log.info(f'Logged on as {self.user} ({self.user.id})')
@@ -49,6 +46,18 @@ class Bot(commands.Bot):
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
+
+
+    async def cogSetup(self):
+        while self.pool is None:
+            log.info('waiting for postgres connection...')
+            await asyncio.sleep(.5)
+        for cog in cogs:
+            try:
+                self.load_extension(f"alexBot.cogs.{cog}")
+                log.info(f'loaded {cog}')
+            except Exception as e:
+                log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 
     @staticmethod
     def clean_content(content):

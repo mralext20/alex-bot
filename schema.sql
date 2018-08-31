@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS bank (owner BIGINT PRIMARY KEY,
                                  amount NUMERIC(15, 2) NOT NULL);
 
 
+CREATE TABLE IF NOT EXISTS minecraft (channel BIGINT PRIMARY KEY NOT NULL,
+                                      server TEXT NOT NULL);
+
+
 INSERT INTO tags (hash, tag, guild, content, author) VALUES
             ('1ca25c85001011127a3db6712b5e425b4ad4672c9754535b81e72f99c784112e',
             'hello world',
