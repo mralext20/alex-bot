@@ -183,32 +183,34 @@ class Weather(Cog):
         else:
             embed.add_field(name="Raw", value=data['Raw-Report'])
         embed.add_field(name="Readable", value=data['Speech'])
+        translations = data['Translate']
+        if translations['Cloud-List'] != "":
+            embed.add_field(name="Clouds", value=translations['Cloud-List'])
 
-        if data['Translations']['Clouds'] != "":
-            embed.add_field(name="Clouds", value=data['Translations']['Clouds'])
-
-        if data['Translations']['Wind'] != "":
+        if translations['Wind'] != "":
             if magdec != "":
                 if data['Wind-Gust'] is not '':
-                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']}G{data['Wind-Gust']}"
+                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']}"
+                                                       f"G{data['Wind-Gust']}"
                                                        f"(True) {magdec:0f}@{data['Wind-Speed']}G{data['Wind-Gust']}"
                                                        f" (with Variation")
                 else:
-                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']} (True) {magdec:.0f}@{data['Wind-Speed']} (with variation)")
+                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']} (True) "
+                                                       f"{magdec:.0f}@{data['Wind-Speed']} (with variation)")
             else:
-                embed.add_field(name="Wind",value=data['Translations']['Wind'])
+                embed.add_field(name="Wind", value=translations['Wind'])
 
-        if data['Translations']['Altimeter'] != "":
-            embed.add_field(name="Altimeter", value=data['Translations']['Altimeter'], inline=True)
+        if translations['Altimeter'] != "":
+            embed.add_field(name="Altimeter", value=translations['Altimeter'], inline=True)
 
-        if data['Translations']['Temperature'] != "":
-            embed.add_field(name="Temperature", value=data['Translations']['Temperature'], inline=True)
+        if translations['Temperature'] != "":
+            embed.add_field(name="Temperature", value=translations['Temperature'], inline=True)
 
         if data['Flight-Rules'] != "":
             embed.add_field(name="Flight Rule", value=data['Flight-Rules'], inline=True)
 
-        if data['Translations']['Visibility'] != "":
-            embed.add_field(name="Visibility", value=data['Translations']['Visibility'], inline=True)
+        if translations['Visibility'] != "":
+            embed.add_field(name="Visibility", value=translations['Visibility'], inline=True)
 
         if 'metar' not in display_type:
             embed.timestamp = report_time
