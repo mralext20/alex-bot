@@ -101,7 +101,7 @@ class Utils(Cog):
         ret.add_field(name='Support Server', value='[link](https://discord.gg/jMwPFqp)')
         ret.add_field(name='Source Code', value='[github](https://gitlab.com/mralext20/alex-bot)')
         ret.add_field(name='Servers', value=str(len(self.bot.guilds)))
-        ret.add_field(name='Members', value=str(len(self.bot.members)))
+        ret.add_field(name='Members', value=str(len(list(self.bot.get_all_members()))))
         await ctx.send(embed=ret)
 
     @commands.command()
