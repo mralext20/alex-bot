@@ -49,7 +49,7 @@ class MinecraftMonitor(Cog):
                         msg = f"Members in minecraft are {', '.join(state)}"
                     else:
                         msg = "everyone has left minecraft."
-                    await self.bot.get_channel(channel).send(msg)
+                    await self.bot.get_channel(channel).send(self.bot.clean_content(msg))
                     self.lastStates[server] = state
             log.debug('done checking minecraft')
 
