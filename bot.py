@@ -60,11 +60,23 @@ class Bot(commands.Bot):
                 log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 
     @staticmethod
-    def clean_content(content):
+    def clean_mentions(content):
         content = content.replace('`', '\'')
         content = content.replace('@', '@\u200b')
         content = content.replace('&', '&\u200b')
         content = content.replace('<#', '<#\u200b')
+        return content
+
+    @staticmethod
+    def clean_formatting(content):
+        content = content.replace('_', '\\_')
+        content = content.replace('*', '\\*')
+        content = content.replace('`', '\\`')
+        return content
+
+    def clean_clean(self, content):
+        content = self.clean_mentions(content)
+        content = self.clean_formatting(content)
         return content
 
     async def on_message(self, message: discord.Message):
@@ -76,7 +88,7 @@ class Bot(commands.Bot):
     async def on_command(self, ctx):
         # thanks dogbot ur a good
         content = ctx.message.content
-        content = self.clean_content(content)
+        content = self.clean_mentions(content)
 
         author = ctx.message.author
         guild = ctx.guild
