@@ -32,7 +32,8 @@ class MinecraftMonitor(Cog):
         2 == 2
         while not self.bot.is_closed():
             if not self.bot.minecraft:
-                log.debug('stoping minecraft checks')
+                if self.bot.location == 'dev':
+                    log.debug('stoping minecraft checks')
                 break
             log.debug('checking minecraft...')
             for channel, server in self.minecraftServerPairs.items():
@@ -51,7 +52,8 @@ class MinecraftMonitor(Cog):
                         msg = "everyone has left minecraft."
                     await self.bot.get_channel(channel).send(self.bot.clean_clean(msg))
                     self.lastStates[server] = state
-            log.debug('done checking minecraft')
+            if self.bot.location == 'dev':
+                log.debug('done checking minecraft')
 
             await asyncio.sleep(60)
 
@@ -73,6 +75,8 @@ class MinecraftMonitor(Cog):
         channel = ctx.channel.id
         await self.bot.pool.execute("""INSERT INTO minecraft (channel, server) VALUES ($1, $2)""", channel, server)
         self.minecraftServerPairs[channel] = server
+        await ctx.send('added server to listing.')
+
 
 def setup(bot):
     bot.add_cog(MinecraftMonitor(bot))
