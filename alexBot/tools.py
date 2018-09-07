@@ -95,10 +95,11 @@ async def get_text(session: aiohttp.ClientSession, url) -> str:
         return await content.text()
 
 
-async def get_json(session: aiohttp.ClientSession, url) -> dict:
+async def get_json(session: aiohttp.ClientSession, url, body=None) -> dict:
     if config.location == 'dev':
-        log.debug(f"fetched json: {url}")
-    async with session.get(url) as content:
+        log.debug(f"fetched json: {url}, body: {body}")
+
+    async with session.get(url, data=body) as content:
         return await content.json()
 
 
