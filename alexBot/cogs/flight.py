@@ -10,7 +10,7 @@ from alexBot.tools import Cog, get_json, get_xml
 
 class Flight(Cog):
     @commands.command()
-    async def metar(self, ctx: commands.Context, arg1: str, *, arg2: str=None):
+    async def metar(self, ctx: commands.Context, arg1: str, *, arg2: str = None):
         """
         if only one arg is given, that station's metar is returned.
         if two args are uses, the first must be one of raw, readable, metar, or metar-readable.
@@ -46,8 +46,19 @@ class Flight(Cog):
         except aiohttp.ClientResponseError:
                 return await ctx.send(f"something happened. try again?")
 
-        if 'Error' in data:
-            raise commands.errors.BadArgument(data['Error'])
+        if 'error' in data or 'Error' in data:
+            try:
+                e = data['help']
+            except KeyError:
+                try:
+                    e = data['Help']
+                except KeyError:
+                    try:
+                        e = data['error']
+                    except KeyError:
+                        e = data['Error']
+
+            raise commands.errors.BadArgument(e)
 
         # handle raw and readable types
         if display_type == 'raw':
@@ -168,7 +179,6 @@ class Flight(Cog):
         if 'metar' not in display_type:
             embed.timestamp = report_time
         await ctx.send(embed=embed)
-
 
 
 def setup(bot):
