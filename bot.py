@@ -38,7 +38,6 @@ class Bot(commands.Bot):
         self.loop.create_task(self.cogSetup())
         self.minecraft = True
 
-
     async def on_ready(self):
         log.info(f'Logged on as {self.user} ({self.user.id})')
         self.owner = (await self.application_info()).owner
@@ -46,7 +45,6 @@ class Bot(commands.Bot):
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
-
 
     async def cogSetup(self):
         while self.pool is None:

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import logging
 
-from ..tools import Cog
-import discord
 from discord.ext import commands
 from mcstatus import MinecraftServer
 
-import logging
+from ..tools import Cog
 
 log = logging.getLogger(__name__)
 

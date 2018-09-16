@@ -3,17 +3,12 @@
 import logging
 import re
 import time
-import urllib.parse
-from datetime import datetime
 
-import aiohttp
 import discord
-import humanize
 from discord.ext import commands
 from lxml import html
 
-from ..tools import Cog, get_xml
-from ..tools import get_json
+from ..tools import Cog
 from ..tools import get_text
 
 log = logging.getLogger(__name__)
