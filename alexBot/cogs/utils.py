@@ -81,9 +81,9 @@ class Utils(Cog):
 
         await ctx.send(embed=ret)
 
-    @commands.command()
+    @commands.command(aliases=['diff'])
     async def difference(self, ctx, object_one: int, object_two: int=None):
-        """compares the creation of two discord IDs. interprets a missing second arg as the current ID."""
+        """Compares the creation time of two IDs. default to comparing to the current time."""
         one = discord.utils.snowflake_time(object_one)
         if object_two is None:
             object_two = ctx.message.id
