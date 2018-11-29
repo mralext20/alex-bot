@@ -12,3 +12,4 @@ asyncpg
 humanize
 xmltodict
 mcstatus
+jishaku
