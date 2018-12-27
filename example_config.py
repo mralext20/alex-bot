@@ -12,6 +12,8 @@ prefix = "a!"
 
 location = "prod or dev"
 
+government_is_working = True
+
 logging = {
     'info': 'webhook url here',
     'warning': 'webhook here too',

@@ -77,7 +77,7 @@ class Flight(Cog):
 
         info = data['Info']
         magdec = ""
-        if data['Wind-Direction'] not in  ['VRB', ''] and 'metar' not in display_type:
+        if data['Wind-Direction'] not in  ['VRB', ''] and 'metar' not in display_type and self.bot.config.government_is_working:
             try:
                 magdec = await get_xml(ctx.bot.session,
                                        f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
