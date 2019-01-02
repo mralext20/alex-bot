@@ -10,41 +10,20 @@ from alexBot.tools import Cog, get_json, get_xml
 
 class Flight(Cog):
     @commands.command()
-    async def metar(self, ctx: commands.Context, arg1: str, *, arg2: str = None):
+    async def metar(self, ctx: commands.Context, *, stations):
         """
-        if only one arg is given, that station's metar is returned.
-        if two args are uses, the first must be one of raw, readable, metar, or metar-readable.
-        the metar type requires a metar to be put after the argument.
+        returns the METAR for a given station or set of stations. also works with cord pairs (40.38,-73.46)
         """
         await ctx.trigger_typing()
-        if arg2 is None:
-            station = arg1
-            display_type = 'normal'
-        else:
-            station = arg2
-            try:
-                assert station is not None
-            except AssertionError:
-                await ctx.send('you need to provide a station...')
-            try:
-                assert arg1.lower() in ['raw', 'readable', 'metar', 'metar-readable']
-            except AssertionError:
-                return await ctx.send("arg1 must be one of raw, readable, metar, metar-readable,"
-                                      "otherwise provide just the station")
-            display_type = arg1.lower()
-        station = station.upper()
+
+        station = stations.upper()
+
         try:
-            if 'metar' in display_type:
-
-                data = await get_json(self.bot.session, f'https://avwx.rest/api/parse/metar?'
-                                                        f'options=info,speech,translate', body=station)
-            else:
-
-                data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
-                                                        f'?options=info,speech,translate'
-                                                        f'&onfail=cache')
+            data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
+            f'?options=info,speech,translate'
+            f'&onfail=cache')
         except aiohttp.ClientResponseError:
-                return await ctx.send(f"something happened. try again?")
+            return await ctx.send(f"something happened. try again?")
 
         if 'error' in data or 'Error' in data:
             try:
@@ -60,24 +39,17 @@ class Flight(Cog):
 
             raise commands.errors.BadArgument(e)
 
-        # handle raw and readable types
-        if display_type == 'raw':
-            return await ctx.send(data['Raw-Report'])
-        elif 'readable' in display_type:
-            return await ctx.send(data['Speech'])
-
         embed = discord.Embed()
 
-        if 'metar' not in display_type:
-            now = datetime.utcnow()
-            report_time = datetime.strptime(data['Time'], "%d%H%MZ")
-            report_time = report_time.replace(year=now.year, month=now.month)  # this will fail around end of month/year
-            embed.set_footer(text=f"report {humanize.naturaldelta(report_time-now)} old, "
-                                  f"please only use this data for planning purposes.")
+        now = datetime.utcnow()
+        report_time = datetime.strptime(data['Time'], "%d%H%MZ")
+        report_time = report_time.replace(year=now.year, month=now.month)  # this will fail around end of month/year
+        embed.set_footer(text=f"report {humanize.naturaldelta(report_time - now)} old, "
+        f"please only use this data for planning purposes.")
 
         info = data['Info']
         magdec = ""
-        if data['Wind-Direction'] not in  ['VRB', ''] and 'metar' not in display_type and self.bot.config.government_is_working:
+        if data['Wind-Direction'] not in ['VRB', ''] and self.bot.config.government_is_working:
             try:
                 magdec = await get_xml(ctx.bot.session,
                                        f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
@@ -142,10 +114,8 @@ class Flight(Cog):
             embed.title += f", {country}"
 
         embed.title = f"{embed.title} ({station.split()[0]})"
-        if 'metar' in display_type:
-            embed.add_field(name="Raw", value=station)
-        else:
-            embed.add_field(name="Raw", value=data['Raw-Report'])
+
+        embed.add_field(name="Raw", value=data['Raw-Report'])
         embed.add_field(name="Readable", value=data['Speech'])
         translations = data['Translate']
         if translations['Cloud-List'] != "":
@@ -155,12 +125,12 @@ class Flight(Cog):
             if magdec != "":
                 if data['Wind-Gust'] is not '':
                     embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']}"
-                                                       f"G{data['Wind-Gust']}"
-                                                       f"(True) {magdec:0f}@{data['Wind-Speed']}G{data['Wind-Gust']}"
-                                                       f" (with Variation")
+                    f"G{data['Wind-Gust']}"
+                    f"(True) {magdec:0f}@{data['Wind-Speed']}G{data['Wind-Gust']}"
+                    f" (with Variation")
                 else:
                     embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']} (True) "
-                                                       f"{magdec:.0f}@{data['Wind-Speed']} (with variation)")
+                    f"{magdec:.0f}@{data['Wind-Speed']} (with variation)")
             else:
                 embed.add_field(name="Wind", value=translations['Wind'])
 
@@ -176,9 +146,13 @@ class Flight(Cog):
         if translations['Visibility'] != "":
             embed.add_field(name="Visibility", value=translations['Visibility'], inline=True)
 
-        if 'metar' not in display_type:
-            embed.timestamp = report_time
-        await ctx.send(embed=embed)
+        embed.timestamp = report_time
+        if color == discord.Color.red() or color == discord.Color.magenta():
+            await ctx.send('you might want to reconsider flying.', embed=embed)
+        else:
+            await ctx.send(embed=embed)
+
+
 
 
 def setup(bot):
