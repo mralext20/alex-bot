@@ -34,6 +34,7 @@ class Fun(Cog):
         ret.set_image(url=dog['url'])
         await ctx.send(embed=ret)
 
+    @commands.Cog.listener()
     async def on_message(self, message):
         if self.bot.location == 'dev' or message.guild is None:
             return

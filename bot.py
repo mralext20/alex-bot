@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 time.sleep(2)  # wait for postgres docker to come up
 
 
+
+
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(

@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 class Memework(Cog):
+    @discord.ext.commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         if before.id not in self.bot.config.monitored_bots:
             return

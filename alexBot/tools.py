@@ -14,7 +14,7 @@ configKeys = {
 }
 
 
-class Cog:
+class Cog(commands.Cog):
     """ The Cog base class that all cogs should inherit from. """
 
     def __init__(self, bot):
