@@ -14,6 +14,8 @@ from discord.ext import commands
 import config
 from alexBot.channel_logging import setup_logging
 
+from alexBot.tools import metar_only_in_vasa
+
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
 
 log = logging.getLogger(__name__)
@@ -44,6 +46,7 @@ class Bot(commands.Bot):
         log.info(f'Logged on as {self.user} ({self.user.id})')
         self.owner = (await self.application_info()).owner
         log.info(f'owner is {self.owner} ({self.owner.id})')
+        self.add_check(metar_only_in_vasa)
 
     async def _pool(self):
         self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)

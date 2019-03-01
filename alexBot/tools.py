@@ -150,3 +150,7 @@ async def update_guild_key(bot, guild_id: int, key: str, value):
     bot.configs[guild_id][key] = value
     cfg = json.dumps(bot.configs[guild_id])
     await bot.pool.execute("""UPDATE configs SET data=$1 WHERE id=$2""", cfg, guild_id)
+
+
+def metar_only_in_vasa(ctx: commands.Context):
+    return not (ctx.guild.id == 377567755743789064 and ctx.command not in ['help', 'metar'])
