@@ -120,10 +120,6 @@ class Utils(Cog):
     async def invite(self, ctx):
         await ctx.send(f"<{discord.utils.oauth_url(self.bot.user.id)}>")
 
-    @commands.command()
-    async def donate(self, ctx):
-        await ctx.send("thanks for the thought! heres a paypal link: <https://paypal.me/mralext20>")
-
 
 def setup(bot):
     bot.add_cog(Utils(bot))
