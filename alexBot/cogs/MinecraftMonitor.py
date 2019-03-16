@@ -28,13 +28,13 @@ class MinecraftMonitor(Cog):
 
     async def monitor(self):
         await asyncio.sleep(5)
-        2 == 2
         while not self.bot.is_closed():
             if not self.bot.minecraft:
                 if self.bot.location == 'dev':
                     log.debug('stoping minecraft checks')
                 break
-            log.debug('checking minecraft...')
+            if self.bot.location == 'dev':
+                log.debug('checking minecraft...')
             for channel, server in self.minecraftServerPairs.items():
                 state = await self.bot.loop.run_in_executor(None, self.fetch_players, server)
                 if state is None:
