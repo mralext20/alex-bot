@@ -13,3 +13,4 @@ humanize
 xmltodict
 mcstatus
 jishaku
+youtube_dl
