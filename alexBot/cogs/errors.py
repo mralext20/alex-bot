@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 class CommandErrorHandler(Cog):
-
+    @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         """The event triggered when an error is raised while invoking a command."""
         if isinstance(error, commands.CommandNotFound):
