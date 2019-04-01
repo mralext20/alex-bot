@@ -42,14 +42,14 @@ class Flight(Cog):
         embed = discord.Embed()
 
         now = datetime.utcnow()
-        report_time = datetime.strptime(data['Time'], "%d%H%MZ")
+        report_time = datetime.strptime(data['time']['dt'], "%Y-%m-%dT%H:%M:%SZ")
         report_time = report_time.replace(year=now.year, month=now.month)  # this will fail around end of month/year
         embed.set_footer(text=f"report {humanize.naturaldelta(report_time - now)} old, "
         f"please only use this data for planning purposes.")
 
-        info = data['Info']
+        info = data['info']
         magdec = ""
-        if data['Wind-Direction'] not in ['VRB', ''] and self.bot.config.government_is_working:
+        if data['wind_direction'] not in ['VRB', ''] and self.bot.config.government_is_working:
             try:
                 magdec = await get_xml(ctx.bot.session,
                                        f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
@@ -57,7 +57,7 @@ class Flight(Cog):
 
                 magdec = float(magdec['maggridresult']['result']['declination']['#text'])
 
-                magdec = magdec + int(data['Wind-Direction'])  # add the magdec to the direction of the wind
+                magdec = magdec + int(data['wind_direction'])  # add the magdec to the direction of the wind
                 if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
                     magdec = magdec - 360
                 elif magdec < 0:  # same as above, but for less than 0 condition.
@@ -65,7 +65,7 @@ class Flight(Cog):
             except KeyError:
                 magdec = ""
 
-        color = data['Flight-Rules']
+        color = data['flight_rules']
         if color == "VFR":
             color = discord.Color.green()
         elif color == "MVFR":
@@ -80,20 +80,20 @@ class Flight(Cog):
         embed.colour = color
 
         try:
-            if info['City'] == '':
+            if info['city'] == '':
                 city = None
             else:
-                city = info['City']
+                city = info['city']
 
-            if info['State'] == '':
+            if info['state'] == '':
                 state = None
             else:
-                state = info['State']
+                state = info['state']
 
-            if info['Country'] == '':
+            if info['country'] == '':
                 country = None
             else:
-                country = info['Country']
+                country = info['country']
         except KeyError:
             city = None
             state = None
@@ -102,7 +102,7 @@ class Flight(Cog):
             if info['Name'] == '':
                 embed.title = station
             else:
-                embed.title = info['Name']
+                embed.title = info['name']
         except KeyError:
             embed.title = station
 
@@ -115,36 +115,36 @@ class Flight(Cog):
 
         embed.title = f"{embed.title} ({station.split()[0]})"
 
-        embed.add_field(name="Raw", value=data['Raw-Report'])
-        embed.add_field(name="Readable", value=data['Speech'])
-        translations = data['Translate']
-        if translations['Cloud-List'] != "":
-            embed.add_field(name="Clouds", value=translations['Cloud-List'])
+        embed.add_field(name="Raw", value=data['raw'])
+        embed.add_field(name="Readable", value=data['speech'])
+        translations = data['translate']
+        if translations['clouds'] != "":
+            embed.add_field(name="Clouds", value=translations['clouds'])
 
-        if translations['Wind'] != "":
+        if translations['wind'] != "":
             if magdec != "":
-                if data['Wind-Gust'] is not '':
-                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']}"
-                    f"G{data['Wind-Gust']}"
-                    f"(True) {magdec:0f}@{data['Wind-Speed']}G{data['Wind-Gust']}"
+                if data['wind_gust'] is not '':
+                    embed.add_field(name="Wind", value=f"{data['wind_direction']}@{data['wind_seed']}"
+                    f"G{data['wind_gust']}"
+                    f"(True) {magdec:0f}@{data['wind_speed']}G{data['wind_gust']}"
                     f" (with Variation")
                 else:
-                    embed.add_field(name="Wind", value=f"{data['Wind-Direction']}@{data['Wind-Speed']} (True) "
-                    f"{magdec:.0f}@{data['Wind-Speed']} (with variation)")
+                    embed.add_field(name="Wind", value=f"{data['wind_direction']}@{data['wind_speed']} (True) "
+                    f"{magdec:.0f}@{data['wind_speed']} (with variation)")
             else:
-                embed.add_field(name="Wind", value=translations['Wind'])
+                embed.add_field(name="Wind", value=translations['wind'])
 
-        if translations['Altimeter'] != "":
-            embed.add_field(name="Altimeter", value=translations['Altimeter'], inline=True)
+        if translations['altimeter'] != "":
+            embed.add_field(name="Altimeter", value=translations['altimeter'], inline=True)
 
-        if translations['Temperature'] != "":
-            embed.add_field(name="Temperature", value=translations['Temperature'], inline=True)
+        if translations['temperature'] != "":
+            embed.add_field(name="Temperature", value=translations['temperature'], inline=True)
 
-        if data['Flight-Rules'] != "":
-            embed.add_field(name="Flight Rule", value=data['Flight-Rules'], inline=True)
+        if data['flight_rules'] != "":
+            embed.add_field(name="Flight Rule", value=data['flight_rules'], inline=True)
 
-        if translations['Visibility'] != "":
-            embed.add_field(name="Visibility", value=translations['Visibility'], inline=True)
+        if translations['visibility'] != "":
+            embed.add_field(name="Visibility", value=translations['visibility'], inline=True)
 
         embed.timestamp = report_time
         if color == discord.Color.red() or color == discord.Color.magenta():
