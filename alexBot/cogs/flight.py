@@ -22,6 +22,8 @@ class Flight(Cog):
             data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
             f'?options=info,speech,translate'
             f'&onfail=cache')
+            if data is None:
+                raise commands.BadArgument('It Appears that station doesnt have METAR data available.')
         except aiohttp.ClientResponseError:
             return await ctx.send(f"something happened. try again?")
 
@@ -151,8 +153,6 @@ class Flight(Cog):
             await ctx.send('you might want to reconsider flying.', embed=embed)
         else:
             await ctx.send(embed=embed)
-
-
 
 
 def setup(bot):
