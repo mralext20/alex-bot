@@ -117,11 +117,12 @@ class Flight(Cog):
 
         embed.title = f"{embed.title} ({station.split()[0]})"
 
-        embed.add_field(name="Raw", value=data['raw'])
-        embed.add_field(name="Readable", value=data['speech'])
+        embed.add_field(name="Raw", value=data['raw'], inline=False)
+        embed.add_field(name="Readable", value=data['speech'], inline=False)
         translations = data['translate']
+        translations['clouds'] = translations['clouds'].replace(', ', '\n')
         if translations['clouds'] != "":
-            embed.add_field(name="Clouds", value=translations['clouds'])
+            embed.add_field(name="Clouds", value=translations['clouds'], inline=False)
 
         if translations['wind'] != "":
             if magdec != "":
@@ -134,19 +135,19 @@ class Flight(Cog):
                     embed.add_field(name="Wind", value=f"{data['wind_direction']}@{data['wind_speed']} (True) "
                     f"{magdec:.0f}@{data['wind_speed']} (with variation)")
             else:
-                embed.add_field(name="Wind", value=translations['wind'])
+                embed.add_field(name="Wind", value=translations['wind'], inline=False)
 
         if translations['altimeter'] != "":
-            embed.add_field(name="Altimeter", value=translations['altimeter'], inline=True)
+            embed.add_field(name="Altimeter", value=translations['altimeter'], inline=False)
 
         if translations['temperature'] != "":
-            embed.add_field(name="Temperature", value=translations['temperature'], inline=True)
+            embed.add_field(name="Temperature", value=translations['temperature'], inline=False)
 
         if data['flight_rules'] != "":
-            embed.add_field(name="Flight Rule", value=data['flight_rules'], inline=True)
+            embed.add_field(name="Flight Rule", value=data['flight_rules'], inline=False)
 
         if translations['visibility'] != "":
-            embed.add_field(name="Visibility", value=translations['visibility'], inline=True)
+            embed.add_field(name="Visibility", value=translations['visibility'], inline=False)
 
         embed.timestamp = report_time
         if color == discord.Color.red() or color == discord.Color.magenta():
