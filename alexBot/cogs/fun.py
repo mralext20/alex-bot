@@ -38,11 +38,12 @@ class Fun(Cog):
     async def on_message(self, message):
         if self.bot.location == 'dev' or message.guild is None:
             return
-        if (await get_guild_config(self.bot, message.guild.id))['ayy'] is False:
-            return
-
-        if ayygen.fullmatch(message.content):
-            await message.channel.send("lmao")
+        if (await get_guild_config(self.bot, message.guild.id))['ayy'] is True:
+            if ayygen.fullmatch(message.content):
+                await message.channel.send("lmao")
+        if (await get_guild_config(self.bot, message.guild.id))['veryCool'] is True:
+            if message.content.lower().startswith('thank you '):
+                await message.channel.send('very cool')
 
 
 def setup(bot):

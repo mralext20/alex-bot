@@ -12,6 +12,7 @@ log = getLogger(__name__)
 configKeys = {
     "ayy": False,
     "tikTok": False,
+    "veryCool": False,
 }
 
 
