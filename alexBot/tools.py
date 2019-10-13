@@ -156,6 +156,6 @@ async def update_guild_key(bot, guild_id: int, key: str, value):
 
 def metar_only_in_vasa(ctx: commands.Context):
     try:
-        return not (ctx.guild.id == 377567755743789064 and ctx.command.name not in ['help','invite', 'metar'])
+        return not (ctx.guild.id == 377567755743789064 and ctx.command.name not in ['help','invite','info','metar'])
     except AttributeError:
         return True

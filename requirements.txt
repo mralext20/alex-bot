@@ -2,7 +2,7 @@ aiohttp
 async-timeout
 certifi
 chardet
-git+https://github.com/Rapptz/discord.py@rewrite
+discord.py
 idna
 multidict
 urllib3

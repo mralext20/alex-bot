@@ -39,9 +39,12 @@ class TikTok(Cog):
                 await message.channel.trigger_typing()
                 thing = partial(self.download_tiktok, match)
                 await self.bot.loop.run_in_executor(None, thing)
-                # file is out.mp4, need to create discord.File and upload it to channel then delete out.mp4
-                file = discord.File('out.mp4', 'tiktok.mp4')
-                await message.channel.send(file=file)
+                if os.path('out.mp4').size > 8000000:
+                    await message.channel.send('i cant embed that, its too big :(')
+                else:
+                    # file is out.mp4, need to create discord.File and upload it to channel then delete out.mp4
+                    file = discord.File('out.mp4', 'tiktok.mp4')
+                    await message.channel.send(file=file)
         finally:
             os.remove('out.mp4')
             self.active = False
