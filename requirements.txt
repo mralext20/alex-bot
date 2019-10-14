@@ -7,7 +7,6 @@ idna
 multidict
 urllib3
 yarl
-lxml
 asyncpg
 humanize
 xmltodict
