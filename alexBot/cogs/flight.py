@@ -56,7 +56,7 @@ class Flight(Cog):
         try:
             report_time = datetime.strptime(data['time']['dt'], "%Y-%m-%dT%H:%M:%SZ")
         except ValueError:
-            report_time = datetime.strptime(data['time']['dt'], "%Y-%m-%dT%H:%M:%S%zZ")  # '2019-10-13T20:51:00+00:00Z'
+            report_time = datetime.strptime(data['time']['dt'].replace(':00Z', '00Z'), "%Y-%m-%dT%H:%M:%S%zZ")  # '2019-10-13T20:51:00+00:00Z'
             now = datetime.now(tz=timezone.utc)
         # report_time = report_time.replace(year=now.year, month=now.month)  # this will fail around end of month/year
         embed.set_footer(text=f"report {humanize.naturaldelta(report_time - now)} old, "
