@@ -143,8 +143,8 @@ class Flight(Cog):
             if magdec != "":
                 if data['wind_gust'] is not None:
                     embed.add_field(name="Wind", value=f"{data['wind_direction']['repr']}@{data['wind_speed']['repr']}"
-                    f"G{data['wind_gust']}(True)\n"
-                    f"{magdec:0f}@{data['wind_speed']['repr']}G{data['wind_gust']}"
+                    f"G{data['wind_gust']['repr']}(True)\n"
+                    f"{magdec:0f}@{data['wind_speed']['repr']}G{data['wind_gust']['repr']}"
                     f" (with Variation")
                 else:
                     embed.add_field(name="Wind", value=f"{data['wind_direction']['repr']}@{data['wind_speed']['repr']} (True)\n "
