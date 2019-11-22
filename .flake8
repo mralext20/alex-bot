@@ -20,4 +20,5 @@ exclude = .git,
           .tox,
           build,
           dist,
-          .pyc
+          .pyc,
+          alexBot/formatting.py

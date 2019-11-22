@@ -7,9 +7,9 @@ import discord
 import humanize
 from discord.ext import commands
 
-log = logging.getLogger(__name__)
-
 from alexBot.tools import Cog, get_json, get_xml
+
+log = logging.getLogger(__name__)
 
 
 class Flight(Cog):
@@ -24,9 +24,9 @@ class Flight(Cog):
 
         try:
             data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
-            f'?options=info,speech,translate'
-            f'&onfail=cache'
-            f'&token={self.bot.config.avwx_token}')
+                                                    f'?options=info,speech,translate'
+                                                    f'&onfail=cache'
+                                                    f'&token={self.bot.config.avwx_token}')
             if data is None:
                 raise commands.BadArgument('It Appears that station doesnt have METAR data available.')
         except aiohttp.ClientResponseError:
@@ -34,7 +34,7 @@ class Flight(Cog):
         if 'meta' in data or 'Meta' in data:
             try:
                 await self.bot.get_channel(384087096735956995).send(data['meta'])
-            except:
+            except KeyError:
                 pass
         if 'error' in data or 'Error' in data:
             try:
@@ -56,28 +56,27 @@ class Flight(Cog):
         try:
             report_time = datetime.strptime(data['time']['dt'], "%Y-%m-%dT%H:%M:%SZ")
         except ValueError:
-            report_time = datetime.strptime(data['time']['dt'].replace(':00Z', '00Z'), "%Y-%m-%dT%H:%M:%S%zZ")  # '2019-10-13T20:51:00+00:00Z'
+            report_time = datetime.strptime(data['time']['dt'].replace(':00Z', '00Z'), "%Y-%m-%dT%H:%M:%S%zZ")
+
             now = datetime.now(tz=timezone.utc)
-        # report_time = report_time.replace(year=now.year, month=now.month)  # this will fail around end of month/year
         embed.set_footer(text=f"report {humanize.naturaldelta(report_time - now)} old, "
-        f"please only use this data for planning purposes.")
+                              f"please only use this data for planning purposes.")
 
         info = data['info']
         magdec = ""
         if data['wind_direction']['value'] is not None and self.bot.config.government_is_working:
 
-                magdec = await get_xml(ctx.bot.session,
-                                       f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
-                                       f"?lat1={info['latitude']}&lon1={info['longitude']}&resultFormat=xml")
+            magdec = await get_xml(ctx.bot.session,
+                                   f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
+                                   f"?lat1={info['latitude']}&lon1={info['longitude']}&resultFormat=xml")
 
-                magdec = float(magdec['maggridresult']['result']['declination']['#text'])
+            magdec = float(magdec['maggridresult']['result']['declination']['#text'])
 
-                magdec = magdec + int(data['wind_direction']['value'])  # add the magdec to the direction of the wind
-                if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
-                    magdec = magdec - 360
-                elif magdec < 0:  # same as above, but for less than 0 condition.
-                    magdec = magdec + 360
-
+            magdec = magdec + int(data['wind_direction']['value'])  # add the magdec to the direction of the wind
+            if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
+                magdec = magdec - 360
+            elif magdec < 0:  # same as above, but for less than 0 condition.
+                magdec = magdec + 360
 
         color = data['flight_rules']
         if color == "VFR":
@@ -140,12 +139,16 @@ class Flight(Cog):
             if magdec != "":
                 if data['wind_gust'] is not None:
                     embed.add_field(name="Wind", value=f"{data['wind_direction']['repr']}@{data['wind_speed']['repr']}"
-                    f"G{data['wind_gust']['repr']}(True)\n"
-                    f"{magdec:0f}@{data['wind_speed']['repr']}G{data['wind_gust']['repr']}"
-                    f" (with Variation")
+                                                       f"G{data['wind_gust']['repr']}(True)\n"
+                                                       f""
+                                                       f"{magdec:0f}@{data['wind_speed']['repr']}"
+                                                       f"G{data['wind_gust']['repr']}"
+                                                       f" (with Variation")
                 else:
-                    embed.add_field(name="Wind", value=f"{data['wind_direction']['repr']}@{data['wind_speed']['repr']} (True)\n "
-                    f"{magdec:.0f}@{data['wind_speed']['repr']} (with variation)")
+                    embed.add_field(name="Wind", value=f"{data['wind_direction']['repr']}@"
+                                                       f"{data['wind_speed']['repr']} (True)\n "
+                                                       f"{magdec:.0f}@"
+                                                       f"{data['wind_speed']['repr']} (with variation)")
             else:
                 embed.add_field(name="Wind", value=translations['wind'], inline=False)
 

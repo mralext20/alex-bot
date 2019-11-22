@@ -31,7 +31,7 @@ class Utils(Cog):
         await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
     @commands.command()
-    async def quote(self, ctx, msg, channel: discord.TextChannel=None):
+    async def quote(self, ctx, msg, channel: discord.TextChannel = None):
         """Quotes a message. msg can be message ID or the output of shift clicking the 'copy id' button in the UI."""
         if '-' in msg:
             try:
@@ -53,7 +53,7 @@ class Utils(Cog):
 
         ret = discord.Embed(color=discord.Color.blurple())
 
-        if msg.content is "" and msg.attachments == []:
+        if msg.content == "" and msg.attachments == []:
             embed = msg.embeds[0]
             try:
                 assert isinstance(embed, discord.Embed)
@@ -82,7 +82,7 @@ class Utils(Cog):
         await ctx.send(embed=ret)
 
     @commands.command(aliases=['diff'])
-    async def difference(self, ctx, object_one: int, object_two: int=None):
+    async def difference(self, ctx, object_one: int, object_two: int = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
         one = discord.utils.snowflake_time(object_one)
         if object_two is None:

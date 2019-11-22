@@ -10,7 +10,6 @@ from ..tools import Cog
 log = logging.getLogger(__name__)
 
 
-
 class MinecraftMonitor(Cog):
     """allows you to track a minecraft server's players.
      you can only monitor one server per channel. requires manage channel permissions."""
