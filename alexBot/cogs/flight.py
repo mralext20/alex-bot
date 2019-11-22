@@ -31,9 +31,9 @@ class Flight(Cog):
                 raise commands.BadArgument('It Appears that station doesnt have METAR data available.')
         except aiohttp.ClientResponseError:
             return await ctx.send(f"something happened. try again?")
-        if 'note' in data or 'Note' in data:
+        if 'meta' in data or 'Meta' in data:
             try:
-                await self.bot.get_channel(384087096735956995).send(data['note'])
+                await self.bot.get_channel(384087096735956995).send(data['meta'])
             except:
                 pass
         if 'error' in data or 'Error' in data:
@@ -64,7 +64,7 @@ class Flight(Cog):
 
         info = data['info']
         magdec = ""
-        if data['wind_direction'] not in ['VRB', '',] and self.bot.config.government_is_working:
+        if data['wind_direction']['value'] is not None and self.bot.config.government_is_working:
 
                 magdec = await get_xml(ctx.bot.session,
                                        f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
@@ -78,9 +78,6 @@ class Flight(Cog):
                 elif magdec < 0:  # same as above, but for less than 0 condition.
                     magdec = magdec + 360
 
-
-                log.debug('magdec fail')
-                # magdec = ""
 
         color = data['flight_rules']
         if color == "VFR":

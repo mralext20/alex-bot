@@ -1,8 +1,8 @@
+discord.py
 aiohttp
 async-timeout
 certifi
 chardet
-discord.py
 idna
 multidict
 urllib3
