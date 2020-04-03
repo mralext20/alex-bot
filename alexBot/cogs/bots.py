@@ -25,7 +25,10 @@ class Bots(Cog):
 
         config = self.bot.config.monitored_bots[before.id]
 
-        owner = self.bot.get_user(config['owner_id'])
+        messagable = self.bot.get_user(config['owner_id'])
+        if messagable is None:
+            messagable = self.bot.get_channel(config['owner_id'])
+
         shard_count = config.get('shard_count', 1)
 
         if not self.is_shard_presence_guild(before, shard_count):
@@ -44,7 +47,7 @@ class Bots(Cog):
         now = datetime.datetime.utcnow().strftime('`[%H:%M]`')
 
         try:
-            await owner.send(f'{now} {msg}')
+            await messagable.send(f'{now} {msg}')
         except discord.HTTPException:
             pass
 
