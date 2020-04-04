@@ -58,7 +58,7 @@ class Bots(Cog):
         except discord.HTTPException:
             pass
 
-    async def send(messagable: discord.abc.messagable, message, wait=30):
+    async def send(messagable, message, wait=30):
         """sends a message to a messagable after 30 seconds unless cancled"""
         await asyncio.sleep(wait)
         await messagable.send(message)
