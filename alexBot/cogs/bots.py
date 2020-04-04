@@ -46,15 +46,21 @@ class Bots(Cog):
             msg = f'\N{PARTY POPPER} `{before} {before.id}` shard `{shard_id}/{shard_count}` just came back online'
             wait = 0
             if (before.id in self.pending_messages.keys()):
-                self.pending_messages[before.id].cancel()
-                return
+                if self.pending_messages[before.id].done():
+                    del self.pending_messages[before.id]
+                else:
+                    self.pending_messages[before.id].cancel()
+                    del self.pending_messages[before.id]
+                    return
 
         log.debug(f'Sending notification about {before} {before.id} shard {shard_id}/{shard_count} going {status}.')
 
         now = datetime.datetime.utcnow().strftime('`[%H:%M]`')
 
         try:
-            self.pending_messages[before.id] = asyncio.create_task(self.send(messagable, f'{now} {msg}', wait))
+            self.pending_messages[before.id] = asyncio.get_event_loop().create_task(
+                self.send(messagable, f'{now} {msg}', wait)
+            )
         except discord.HTTPException:
             pass
 
