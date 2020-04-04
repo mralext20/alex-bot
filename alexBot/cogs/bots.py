@@ -7,12 +7,14 @@ import discord
 
 from ..tools import Cog
 
+import asyncio
 
 log = logging.getLogger(__name__)
 
 
 class Bots(Cog):
     """Bot downtime notifications."""
+    pending_messages = {}
 
     @Cog.listener()
     async def on_member_update(self, before, after):
@@ -39,17 +41,27 @@ class Bots(Cog):
 
         if status is discord.Status.offline:
             msg = f'\N{WARNING SIGN} `{before} {before.id}` shard `{shard_id}/{shard_count}` just went offline'
+            wait = 30
         else:
             msg = f'\N{PARTY POPPER} `{before} {before.id}` shard `{shard_id}/{shard_count}` just came back online'
+            wait = 0
+            if (before.id in self.pending_messages.keys()):
+                self.pending_messages[before.id].cancel()
+                return
 
         log.debug(f'Sending notification about {before} {before.id} shard {shard_id}/{shard_count} going {status}.')
 
         now = datetime.datetime.utcnow().strftime('`[%H:%M]`')
 
         try:
-            await messagable.send(f'{now} {msg}')
+            self.pending_messages[before.id] = asyncio.create_task(self.send(messagable, f'{now} {msg}', wait))
         except discord.HTTPException:
             pass
+
+    async def send(messagable: discord.abc.messagable, message, wait=30):
+        """sends a message to a messagable after 30 seconds unless cancled"""
+        await asyncio.sleep(wait)
+        await messagable.send(message)
 
     def is_shard_presence_guild(self, member, shard_count):
         """
