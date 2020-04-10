@@ -14,7 +14,7 @@ class Highlighter(Cog):
             return
       if message.guild.id in self.bot.config.listenServers:
         if any(each in message.content for each in self.bot.config.listens):
-          await _bot.owner.send(f"highlight: {messasge.author.mention} ({message.author})\n{message.jump_url}\n\n{message.content}")
+          await _bot.owner.send(f"highlight: {messasge.author.mention} ({message.author}) in {message.channel.mention} ({message.channel})\n{message.jump_url}\n\n{message.content}")
 
 
 def setup(bot):
