@@ -27,3 +27,7 @@ monitored_bots = {
         'shard_count': 2,  # Optional shard count of the Bot
     },
 }
+
+
+listenServers = [272885620769161216]
+listens = ['alex', 'alaska']
