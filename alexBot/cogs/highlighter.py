@@ -1,9 +1,7 @@
 import logging
-import re
 
 from ..tools import Cog
 
-import discord
 from discord.ext import commands
 
 log = logging.getLogger(__name__)
