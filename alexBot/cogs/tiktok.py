@@ -10,13 +10,14 @@ from ..tools import get_guild_config
 from youtube_dl import YoutubeDL
 
 log = logging.getLogger(__name__)
-tiktok = re.compile(r'http://vm.tiktok.com/.{6,}/')
+tiktok = re.compile(r'https?://vm\.tiktok\.com/.{6,}/')
 opts = {'outtmpl': 'out.mp4'}
 ytdl = YoutubeDL(opts)
 
 
 class TikTok(Cog):
     active = False
+
     @staticmethod
     def download_tiktok(url):
         return ytdl.download([url])
