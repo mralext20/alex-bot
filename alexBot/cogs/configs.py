@@ -12,7 +12,7 @@ class Configs(Cog):
     @commands.group(name="config", invoke_without_command=True)
     async def config(self, ctx: commands.Context):
         """how you configure your guild"""
-        await ctx.send((await self.bot.formatter.format_help_for(ctx, ctx.command))[0])
+        await ctx.send(f"see `{self.bot.config.prefix}help` config for more information")
 
     @config.command()
     async def get(self, ctx, key):
