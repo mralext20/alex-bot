@@ -32,20 +32,27 @@ class TikTok(Cog):
         if matches is None:
             return
         match = matches.group(0)
+        log.info(f'collecting {match} for {message.author}')
+
         while self.active:
             await asyncio.sleep(.5)
         try:
             self.active = True
             if match:
                 await message.channel.trigger_typing()
+                await message.add_reaction('⌛')
                 thing = partial(self.download_tiktok, match)
                 await self.bot.loop.run_in_executor(None, thing)
                 if os.path('out.mp4').size > 8000000:
-                    await message.channel.send('i cant embed that, its too big :(')
+                    await message.remove_reaction('⌛')
+                    await message.add_reaction('❌')
                 else:
                     # file is out.mp4, need to create discord.File and upload it to channel then delete out.mp4
                     file = discord.File('out.mp4', 'tiktok.mp4')
                     await message.channel.send(file=file)
+                    await message.remove_reaction('⌛')
+                    await message.add_reaction('✅')
+
         finally:
             os.remove('out.mp4')
             self.active = False
