@@ -43,7 +43,7 @@ class TikTok(Cog):
                 await message.add_reaction('⌛')
                 thing = partial(self.download_tiktok, match)
                 await self.bot.loop.run_in_executor(None, thing)
-                if os.path('out.mp4').size > 8000000:
+                if os.path.getsize('out.mp4') > 8000000:
                     await message.remove_reaction('⌛')
                     await message.add_reaction('❌')
                 else:
