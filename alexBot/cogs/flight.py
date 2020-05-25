@@ -30,7 +30,7 @@ class Flight(Cog):
             if data is None:
                 raise commands.BadArgument('It Appears that station doesnt have METAR data available.')
         except aiohttp.ClientResponseError:
-            return await ctx.send(f"something happened. try again?")
+            return await ctx.send("something happened. try again?")
         if 'meta' in data or 'Meta' in data:
             try:
                 await self.bot.get_channel(384087096735956995).send(data['meta'])

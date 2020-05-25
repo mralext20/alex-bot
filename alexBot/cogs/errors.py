@@ -34,7 +34,8 @@ class CommandErrorHandler(Cog):
 
         elif isinstance(error, commands.MissingRequiredArgument):
             msg = f'Parameter {error.param} is required but missing! See {ctx.prefix}help {ctx.command} for help!'
-
+        elif isinstance(error, commands.MissingPermissions):
+            msg = 'You do not have permission to run that command.'
         elif isinstance(error, commands.CommandInvokeError):
             error = error.original
 
@@ -55,7 +56,7 @@ class CommandErrorHandler(Cog):
         try:
             await ctx.send(msg)
         except discord.HTTPException:
-            await ctx.send(f'error message too long')
+            await ctx.send('error message too long')
 
 
 def setup(bot: commands.Bot):
