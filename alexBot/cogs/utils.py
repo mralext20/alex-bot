@@ -40,10 +40,11 @@ class Utils(Cog):
             except ValueError or discord.errors.NotFound:
                 raise commands.BadArgument("your input was not a message id")
         try:
+
             if channel is None:
-                msg = await ctx.channel.get_message(msg)
+                msg = await ctx.channel.fetch_message(msg)
             else:
-                msg = await channel.get_message(msg)
+                msg = await channel.fetch_message(msg)
         except (discord.errors.NotFound, discord.errors.HTTPException):
             return await ctx.send("cant find that message. \N{SLIGHTLY FROWNING FACE}")
         assert isinstance(msg, discord.Message)
