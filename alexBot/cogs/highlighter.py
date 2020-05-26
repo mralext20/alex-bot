@@ -21,8 +21,8 @@ class Highlighter(Cog):
                     assert type(message.content) == str
                     # message too long to send, crop content
                     tosend = f"highlight: {message.author.mention} ({message.author})"
-                f"in {message.channel.mention}({message.channel})"
-                f"\n{message.jump_url}\n\n{message.content[:500]}"
+                    f"in {message.channel.mention}({message.channel})"
+                    f"\n{message.jump_url}\n\n{message.content[:500]}"
 
                 await self.bot.owner.send(tosend)
 
