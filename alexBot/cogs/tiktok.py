@@ -20,7 +20,8 @@ class TikTok(Cog):
 
     @staticmethod
     def download_tiktok(url):
-        return ytdl.download([url])
+        data = ytdl.extract_info(url, download=True)
+        return data['title']
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -40,22 +41,28 @@ class TikTok(Cog):
             self.active = True
             if match:
                 await message.channel.trigger_typing()
-                await message.add_reaction('⌛')
-                thing = partial(self.download_tiktok, match)
-                await self.bot.loop.run_in_executor(None, thing)
+                try:
+                    await message.add_reaction('⌛')
+                except discord.Forbidden:
+                    pass
+                task = partial(self.download_tiktok, match)
+                title = await self.bot.loop.run_in_executor(None, task)
                 if os.path.getsize('out.mp4') > 8000000:
-                    await message.remove_reaction('⌛', self.bot.user)
-                    await message.add_reaction('❌')
+                    try:
+                        await message.remove_reaction('⌛', self.bot.user)
+                        await message.add_reaction('❌')
+                    except discord.Forbidden:
+                        await message.channel.send('too large too send')
                 else:
                     # file is out.mp4, need to create discord.File and upload it to channel then delete out.mp4
                     file = discord.File('out.mp4', 'tiktok.mp4')
-                    await message.channel.send(file=file)
+                    await message.channel.send(title, file=file)
                     await message.remove_reaction('⌛', self.bot.user)
                     await message.add_reaction('✅')
 
         finally:
-            os.remove('out.mp4')
             self.active = False
+            os.remove('out.mp4')
 
 
 def setup(bot):
