@@ -13,12 +13,11 @@ class Highlighter(Cog):
         if self.bot.location == 'dev' or message.guild is None:
             return
         if message.guild.id in self.bot.config.listenServers and message.author.id != self.bot.owner.id:
-            if any(each in message.content for each in self.bot.config.listens):
+            if any(each.lower() in message.content.lower() for each in self.bot.config.listens):
                 tosend = (f"highlight: {message.author.mention} ({message.author})"
                           f"in {message.channel.mention}({message.channel})"
                           f"\n{message.jump_url}\n\n{message.content}")
                 if len(tosend) > 2000:
-                    assert type(message.content) == str
                     # message too long to send, crop content
                     tosend = (f"highlight: {message.author.mention} ({message.author})"
                               f"in {message.channel.mention}({message.channel})"

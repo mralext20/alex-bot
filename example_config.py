@@ -2,9 +2,11 @@
 
 import os
 
-token = ""
+token = os.environ.get('BOT_TOKEN')
 
 cat_token = os.environ.get('THECATAPI_KEY')
+
+avwx_token = os.environ.get('AVWX_KEY')
 
 dsn = os.environ.get('POSTGRES_URI')
 
