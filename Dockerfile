@@ -1,4 +1,4 @@
-FROM gorialis/discord.py:rewrite
+FROM gorialis/discord.py
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
