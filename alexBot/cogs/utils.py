@@ -105,17 +105,27 @@ class Utils(Cog):
         ret.add_field(name='Members', value=str(len(list(self.bot.get_all_members()))))
         await ctx.send(embed=ret)
 
-    @commands.command()
-    @commands.is_owner()
-    async def reloaddebug(self, ctx):
-        """Reload the admin cog"""
-        try:
-            self.bot.unload_extension("alexBot.cogs.debug")
-            self.bot.load_extension("alexBot.cogs.debug")
-        except Exception as e:
-            await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
-        else:
-            await ctx.send('**`SUCCESS`**')
+    @commands.command(name='inviteDetails')
+    async def inviteDetails(self, ctx, invite: discord.Invite):
+        if invite.revoked:
+            return await ctx.send("That invite is revoked...")
+        ret = discord.Embed()
+        ret.add_field(name='aprox members', value=invite.approximate_member_count, inline=True)
+        ret.add_field(name='Aprox Present Members', value=invite.approximate_member_count, inline=True)
+        ret.add_field(name='guild created at', value=invite.guild.created_at, inline=True)
+        ret.add_field(name='guild ID', value=invite.guild.id, inline=True)
+        ret.add_field(name='verification level', value=invite.guild.verification_level, inline=True)
+        if invit.guild.features != []:
+            ret.add_field(name='features:', value=', '.join(invite.guild.features), inline=True)
+        ret.add_field(name='inviter name', value=invite.inviter.name, inline=True)
+        ret.add_field(name='inviter id', value=invite.inviter.id, inline=True)
+        ret.add_field(name='channel target', value=invite.channel.name, inline=True)
+        ret.add_field(name='channel Type', value=invite.channel.type, inline=True)
+
+
+        await ctx.send(embed=ret)
+
+
 
     @commands.command()
     async def invite(self, ctx):

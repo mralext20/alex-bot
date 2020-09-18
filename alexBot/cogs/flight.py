@@ -65,12 +65,14 @@ class Flight(Cog):
         info = data['info']
         magdec = ""
         if data['wind_direction']['value'] is not None and self.bot.config.government_is_working:
-
             magdec = await get_xml(ctx.bot.session,
                                    f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
                                    f"?lat1={info['latitude']}&lon1={info['longitude']}&resultFormat=xml")
-
-            magdec = float(magdec['maggridresult']['result']['declination']['#text'])
+            try:
+                magdec = float(magdec['maggridresult']['result']['declination']['#text'])
+            except KeyError:
+                log.error(f'magdec failed, value was {magdec}')
+                magdec = 0
 
             magdec = magdec + int(data['wind_direction']['value'])  # add the magdec to the direction of the wind
             if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
