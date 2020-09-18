@@ -115,13 +115,12 @@ class Utils(Cog):
         ret.add_field(name='guild created at', value=invite.guild.created_at, inline=True)
         ret.add_field(name='guild ID', value=invite.guild.id, inline=True)
         ret.add_field(name='verification level', value=invite.guild.verification_level, inline=True)
-        if invit.guild.features != []:
+        if invite.guild.features:
             ret.add_field(name='features:', value=', '.join(invite.guild.features), inline=True)
         ret.add_field(name='inviter name', value=invite.inviter.name, inline=True)
         ret.add_field(name='inviter id', value=invite.inviter.id, inline=True)
         ret.add_field(name='channel target', value=invite.channel.name, inline=True)
         ret.add_field(name='channel Type', value=invite.channel.type, inline=True)
-
 
         await ctx.send(embed=ret)
 
