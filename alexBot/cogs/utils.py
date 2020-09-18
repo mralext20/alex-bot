@@ -110,7 +110,7 @@ class Utils(Cog):
         if invite.revoked:
             return await ctx.send("That invite is revoked...")
         ret = discord.Embed()
-        ret.set_image(url=invite.guild.icon_url)
+        ret.set_thumbnail(url=invite.guild.icon_url)
         ret.title = invite.guild.name
         ret.add_field(name='aprox members', value=invite.approximate_member_count, inline=True)
         ret.add_field(name='Aprox Present Members', value=invite.approximate_member_count, inline=True)
@@ -118,7 +118,7 @@ class Utils(Cog):
         ret.add_field(name='guild ID', value=invite.guild.id, inline=True)
         ret.add_field(name='verification level', value=invite.guild.verification_level, inline=True)
         if invite.guild.features:
-            ret.add_field(name='features:', value=', '.join(invite.guild.features), inline=True)
+            ret.add_field(name='features:', value=', '.join(invite.guild.features), inline=False)
         if invite.inviter:
             ret.add_field(name='inviter name', value=invite.inviter.name, inline=True)
             ret.add_field(name='inviter id', value=invite.inviter.id, inline=True)
