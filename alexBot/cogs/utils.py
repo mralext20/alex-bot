@@ -126,10 +126,7 @@ class Utils(Cog):
             ret.add_field(name='channel target', value=invite.channel.name, inline=True)
             ret.add_field(name='channel Type', value=invite.channel.type, inline=True)
 
-
         await ctx.send(embed=ret)
-
-
 
     @commands.command()
     async def invite(self, ctx):
