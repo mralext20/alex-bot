@@ -113,7 +113,7 @@ class Utils(Cog):
         ret.set_thumbnail(url=invite.guild.icon_url)
         ret.title = invite.guild.name
         ret.add_field(name='aprox members', value=invite.approximate_member_count, inline=True)
-        ret.add_field(name='Aprox Present Members', value=invite.approximate_member_count, inline=True)
+        ret.add_field(name='Aprox Present Members', value=invite.approximate_presence_count, inline=True)
         ret.add_field(name='guild created at', value=invite.guild.created_at, inline=True)
         ret.add_field(name='guild ID', value=invite.guild.id, inline=True)
         ret.add_field(name='verification level', value=invite.guild.verification_level, inline=True)
