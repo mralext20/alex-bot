@@ -117,10 +117,13 @@ class Utils(Cog):
         ret.add_field(name='verification level', value=invite.guild.verification_level, inline=True)
         if invite.guild.features:
             ret.add_field(name='features:', value=', '.join(invite.guild.features), inline=True)
-        ret.add_field(name='inviter name', value=invite.inviter.name, inline=True)
-        ret.add_field(name='inviter id', value=invite.inviter.id, inline=True)
-        ret.add_field(name='channel target', value=invite.channel.name, inline=True)
-        ret.add_field(name='channel Type', value=invite.channel.type, inline=True)
+        if invite.inviter:
+            ret.add_field(name='inviter name', value=invite.inviter.name, inline=True)
+            ret.add_field(name='inviter id', value=invite.inviter.id, inline=True)
+        if invite.channel:
+            ret.add_field(name='channel target', value=invite.channel.name, inline=True)
+            ret.add_field(name='channel Type', value=invite.channel.type, inline=True)
+
 
         await ctx.send(embed=ret)
 
