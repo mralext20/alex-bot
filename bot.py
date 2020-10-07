@@ -3,11 +3,10 @@
 
 import asyncio
 import logging
-import time
 from pathlib import Path
 
 import aiohttp
-import asyncpg
+import aiosqlite
 import discord
 from discord.ext import commands
 
@@ -20,18 +19,16 @@ cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__
 
 log = logging.getLogger(__name__)
 
-time.sleep(2)  # wait for postgres docker to come up
-
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(
             command_prefix=config.prefix, **kwargs)
-        self.session = aiohttp.ClientSession(loop=self.loop)
-        self.loop.create_task(self._pool())
+        self.session = None
+        self.loop.create_task(self._asyncinit())
         self.logger = logging.getLogger("bot")
         self.config = config
-        self.pool = None
+        self.db = None
         self.configs = {}
         self.wallets = {}
         self.location = config.location
@@ -46,12 +43,13 @@ class Bot(commands.Bot):
         log.info(f'owner is {self.owner} ({self.owner.id})')
         self.add_check(metar_only_in_vasa)
 
-    async def _pool(self):
-        self.pool = await asyncpg.create_pool(config.dsn, loop=self.loop)
+    async def _asyncinit(self):
+        self.db = await aiosqlite.connect('configs.db', loop=self.loop)
+        self.session = aiohttp.ClientSession(loop=self.loop)
 
     async def cogSetup(self):
-        while self.pool is None:
-            log.info('waiting for postgres connection...')
+        while self.db is None:
+            log.info('waiting for initialization of async connectors...')
             await asyncio.sleep(.5)
         for cog in cogs:
             try:
