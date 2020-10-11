@@ -102,7 +102,7 @@ class Bot(commands.Bot):
 loop = asyncio.get_event_loop()
 
 webhooks = {}
-session = aiohttp.ClientSession(loop=loop)
+session = aiohttp.ClientSession()
 
 for name in config.logging:
     level = getattr(logging, name.upper(), None)
@@ -115,4 +115,9 @@ for name in config.logging:
 with setup_logging(webhooks=webhooks):
     bot = Bot()
     bot.load_extension('jishaku')
-    bot.run(config.token)
+    try:
+        loop.run_until_complete(bot.start(config.token))
+    except KeyboardInterrupt:
+        loop.run_until_complete(bot.close())
+        loop.run_until_complete(bot.db.close())
+        loop.run_until_complete(session.close())
