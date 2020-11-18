@@ -12,7 +12,7 @@ class Highlighter(Cog):
     async def on_message(self, message):
         if self.bot.location == 'dev' or message.guild is None:
             return
-        if message.guild.id in self.bot.config.listenServers and message.author.id != self.bot.owner.id:
+        if message.guild.id in self.bot.config.listenServers and message.author.id != self.bot.owner.id and not message.author.bot:
             if any(each.lower() in message.content.lower() for each in self.bot.config.listens):
                 tosend = (f"highlight: {message.author.mention} ({message.author})"
                           f"in {message.channel.mention}({message.channel})"
