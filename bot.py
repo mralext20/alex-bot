@@ -26,7 +26,7 @@ intents.presences = True
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(
-            command_prefix=config.prefix, intents=intents **kwargs)
+            command_prefix=config.prefix, intents=intents, **kwargs)
         self.session = None
         self.loop.create_task(self._asyncinit())
         self.logger = logging.getLogger("bot")
