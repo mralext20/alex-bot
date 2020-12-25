@@ -16,11 +16,6 @@ class Bots(Cog):
     """Bot downtime notifications."""
     pending_messages = {}
 
-    def __init__(self):
-        super().__init__(self)
-        for i in self.bot.config.monitored_bots:
-            self.bot.get_user(i)
-
     @Cog.listener()
     async def on_member_update(self, before, after):
         if before.id not in self.bot.config.monitored_bots or before.status == after.status:
