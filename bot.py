@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 
 intents = discord.Intents.default()
-intents.Members = True
+intents.members = True
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
