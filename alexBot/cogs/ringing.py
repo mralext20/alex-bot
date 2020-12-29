@@ -10,9 +10,9 @@ from discord.ext import commands
 class Ringing(Cog):
     @commands.command()
     async def ring(self, ctx: commands.Context, target: discord.Member):
-        # if not ctx.author.voice:
-        #     await ctx.send("cannot ring: you are not in a voice channel")
-        #     return
+        if not ctx.author.voice:
+            await ctx.send("cannot ring: you are not in a voice channel")
+            return
         if target.voice:
             await ctx.send("cannot ring: they are already in voice")
             return
