@@ -1,6 +1,6 @@
 import json
 from logging import getLogger
-
+from typing import Dict
 
 import config
 import aiohttp
@@ -9,10 +9,14 @@ from discord.ext import commands
 
 log = getLogger(__name__)
 
-configKeys = {
+GUILDCONFIGKEYS = {
     "ayy": False,
     "tikTok": False,
     "veryCool": False,
+}
+
+USERCONFIGKEYS = {
+    "ringable": True
 }
 
 
@@ -57,10 +61,18 @@ async def get_xml(session: aiohttp.ClientSession, url) -> dict:
 
 async def create_guild_config(bot, guild_id: int) -> dict:
     log.info(f'creating a guild config for {guild_id}')
-    cfg = json.dumps(configKeys)
+    cfg = json.dumps(GUILDCONFIGKEYS)
     await bot.db.execute("""INSERT INTO configs (id, data) VALUES (?, ?)""", (guild_id, cfg))
     await bot.db.commit()
-    return configKeys
+    return GUILDCONFIGKEYS
+
+
+async def create_user_config(bot, user_id):
+    log.info(f'creating a user config for {user_id}')
+    cfg = json.dumps(USERCONFIGKEYS)
+    await bot.db.execute("""INSERT INTO CONFIGS (id, data) VALUES (?,?)""", (user_id, cfg))
+    await bot.db.commit()
+    return USERCONFIGKEYS
 
 
 async def get_guild_config(bot, guild_id: int) -> dict:
@@ -77,8 +89,27 @@ async def get_guild_config(bot, guild_id: int) -> dict:
         else:
             ret = json.loads(ret[0])
     finally:
-        ret = {**configKeys, **ret}
+        ret = {**GUILDCONFIGKEYS, **ret}
         bot.configs[guild_id] = ret
+    return ret
+
+
+async def get_user_config(bot, user_id: int):
+    ret = {}
+    try:
+        ret = bot.configs[user_id]
+    except KeyError:
+        async with bot.db.cursor() as cur:
+            await cur.execute("""SELECT data FROM configs WHERE id=?""", (user_id,))
+            ret = await cur.fetchone()
+
+        if ret is None:
+            ret = await create_user_config(bot, user_id)
+        else:
+            ret = json.loads(ret[0])
+    finally:
+        ret = {**USERCONFIGKEYS, **ret}
+        bot.configs[user_id] = ret
     return ret
 
 
@@ -89,6 +120,16 @@ async def update_guild_key(bot, guild_id: int, key: str, value):
     bot.configs[guild_id][key] = value
     cfg = json.dumps(bot.configs[guild_id])
     await bot.db.execute("""UPDATE configs SET data=? WHERE id=?""", (cfg, guild_id))
+    await bot.db.commit()
+
+
+async def update_user_key(bot, user_id: int, key: str, value):
+    """updates the `key` to be `value`.
+    note: this method is extremely dumb,
+    as it does no error checking to ensure that you are giving it the right value for a key."""
+    bot.configs[user_id][key] = value
+    cfg = json.dumps(bot.configs[user_id])
+    await bot.db.execute("""UPDATE configs SET data=? WHERE id=?""", (cfg, user_id))
     await bot.db.commit()
 
 

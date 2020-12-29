@@ -2,6 +2,8 @@
 
 import os
 
+import discord
+
 token = os.environ.get('BOT_TOKEN')
 
 cat_token = os.environ.get('THECATAPI_KEY')
@@ -28,6 +30,24 @@ monitored_bots = {
     },
 }
 
+ringRates = {
+    discord.Status.online: {
+        "times": 4,
+        "rate": 0.5
+    },
+    discord.Status.idle: {
+        "times": 10,
+        "rate": 1
+    },
+    discord.Status.dnd: {
+        "times": 1,
+        "rate": 1
+    },
+    discord.Status.offline: {
+        "times": 15,
+        "rate": 2
+    }
+}
 
 listenServers = [272885620769161216]
 listens = ['alex', 'alaska']

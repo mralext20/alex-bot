@@ -24,6 +24,7 @@ intents = discord.Intents.default()
 intents.members = True
 intents.presences = True
 
+
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(
@@ -46,10 +47,10 @@ class Bot(commands.Bot):
         self.owner = (await self.application_info()).owner
         log.info(f'owner is {self.owner} ({self.owner.id})')
         self.add_check(metar_only_in_vasa)
+        self.session = aiohttp.ClientSession()
 
     async def _asyncinit(self):
         self.db = await aiosqlite.connect('configs.db', loop=self.loop)
-        self.session = aiohttp.ClientSession(loop=self.loop)
 
     async def cogSetup(self):
         while self.db is None:
