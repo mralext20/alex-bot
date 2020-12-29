@@ -59,7 +59,7 @@ class Bots(Cog):
 
         try:
             self.pending_messages[before.id] = asyncio.get_event_loop().create_task(
-                self.send(messagable, f'{now} {msg}', wait)
+                messagable.send(f'{now} {msg}')
             )
         except discord.HTTPException:
             pass
