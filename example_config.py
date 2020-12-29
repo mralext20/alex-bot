@@ -25,8 +25,8 @@ logging = {
 #  bots who's owner gets a dm whenever they go offline
 monitored_bots = {
     288369203046645761: {  # Mousey
-        'owner_id': 69198249432449024,  # SnowyLuma
-        'shard_count': 2,  # Optional shard count of the Bot
+        'messagable_id': 69198249432449024,  # SnowyLuma
+        'shared_guild': 383886323699679234,  # shared guild with bot
     },
 }
 
