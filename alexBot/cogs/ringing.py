@@ -30,18 +30,30 @@ class Ringing(Cog):
             pass
         await ctx.message.add_reaction("✅")
 
-    @staticmethod
-    async def doRing(initiator: str,
+    async def doRing(self, initiator: str,
                      target: discord.Member,
                      channel: discord.TextChannel,
                      sentinalMessage: discord.Message,
                      ringRate={"times": 1, "rate": 1},
                      ):
         times = 0
-        while (not target.voice) and times < ringRate['times'] and ((await sentinalMessage.channel.fetch_message(sentinalMessage.id)).reactions[0].count < 2):
+        while self.running(target, times, ringRate, sentinalMessage):
             await channel.send(f"HELLO, {target.mention}! {initiator.upper()} WANTS YOU TO JOIN VOICE!")
             await asyncio.sleep(ringRate['rate'])
             times += 1
+
+    @staticmethod
+    async def running(target, times, ringRate, sentinalMessage):
+        if target.voice:
+            return False
+        if times < ringRate['times']:
+            return False
+
+        newSentinalMessage = await sentinalMessage.channel.fetch_message(sentinalMessage.id)
+
+        if not newSentinalMessage.reactions:
+            return False
+        return newSentinalMessage.reactions[0].count < 2
 
 
 def setup(bot):
