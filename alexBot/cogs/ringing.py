@@ -37,7 +37,7 @@ class Ringing(Cog):
                      ringRate={"times": 1, "rate": 1},
                      ):
         times = 0
-        while self.running(target, times, ringRate, sentinalMessage):
+        while await self.running(target, times, ringRate, sentinalMessage):
             await channel.send(f"HELLO, {target.mention}! {initiator.upper()} WANTS YOU TO JOIN VOICE!")
             await asyncio.sleep(ringRate['rate'])
             times += 1
@@ -46,7 +46,7 @@ class Ringing(Cog):
     async def running(target, times, ringRate, sentinalMessage):
         if target.voice:
             return False
-        if times < ringRate['times']:
+        if times > ringRate['times']:
             return False
 
         newSentinalMessage = await sentinalMessage.channel.fetch_message(sentinalMessage.id)
