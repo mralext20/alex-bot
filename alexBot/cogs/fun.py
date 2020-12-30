@@ -14,7 +14,7 @@ ayygen = re.compile('[aA][yY][Yy][yY]*')
 
 class Fun(Cog):
     @commands.command()
-    async def cat(self, ctx):
+    async def cat(self, ctx: commands.Context):
         cat = await get_json(self.bot.session, f"https://thecatapi.com/api/images/get?format=json"
                                                f"&api_key={self.bot.config.cat_token}")
         cat = cat[0]
@@ -25,7 +25,7 @@ class Fun(Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def dog(self, ctx):
+    async def dog(self, ctx: commands.Context):
         dog = None
         while dog is None or dog['url'][-3:].lower() == 'mp4':
             dog = await get_json(self.bot.session, 'https://random.dog/woof.json')
@@ -35,7 +35,7 @@ class Fun(Cog):
         await ctx.send(embed=ret)
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if self.bot.location == 'dev' or message.guild is None:
             return
         if (await get_guild_config(self.bot, message.guild.id))['ayy'] is True:

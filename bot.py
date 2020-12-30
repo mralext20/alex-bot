@@ -32,10 +32,9 @@ class Bot(commands.Bot):
         self.session = None
         self.loop.create_task(self._asyncinit())
         self.logger = logging.getLogger("bot")
-        self.config = config
-        self.db = None
+        self.config: config = config
+        self.db: aiosqlite.Connection = None
         self.configs = {}
-        self.wallets = {}
         self.location = config.location
         self.owner = None
         logging.getLogger('discord.gateway').setLevel(logging.ERROR)

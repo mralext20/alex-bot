@@ -1,9 +1,13 @@
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from bot import Bot
+
 import json
 from logging import getLogger
-from typing import Dict
-
-import config
 import aiohttp
+import config
 import xmltodict
 from discord.ext import commands
 
@@ -23,8 +27,8 @@ USERCONFIGKEYS = {
 class Cog(commands.Cog):
     """ The Cog base class that all cogs should inherit from. """
 
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: "Bot"):
+        self.bot: "Bot" = bot
 
 
 class BoolConverter(commands.Converter):
