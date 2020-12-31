@@ -10,31 +10,33 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class VoiceData:
-    longest_session_int: int
-    last_started_int: int
+    longest_session_raw: float
+    last_started_raw: float
     currently_running: bool
+    average_duration: float
+    total_sessions: int
 
     @property
     def longest_session(self) -> datetime.timedelta:
         """
         the length of the longest Session, as returned as a `Datetime.timespan`
         """
-        return datetime.timedelta(seconds=self.longest_session_int)
+        return datetime.timedelta(seconds=self.longest_session_raw)
 
     @longest_session.setter
     def longest_session(self, value: datetime.timedelta):
-        self.longest_session_int = value.total_seconds()
+        self.longest_session_raw = value.total_seconds()
 
     @property
     def last_started(self) -> datetime.datetime:
         """
         the start time of the current session. only valid if self.currentlyRunning == true
         """
-        return datetime.datetime.fromtimestamp(self.last_started_int)
+        return datetime.datetime.fromtimestamp(self.last_started_raw)
 
     @last_started.setter
     def last_started(self, value: datetime.datetime):
-        self.last_started_int = int(value.timestamp())
+        self.last_started_raw = int(value.timestamp())
 
 
 class VoiceStats(Cog):
@@ -88,9 +90,12 @@ class VoiceStats(Cog):
             # odd state, ignore
             return
         current_session_length = datetime.datetime.now() - vd.last_started
-        if vd.longest_session > current_session_length:
-            return  # previous longes session is longer than this session
-        vd.longest_session = current_session_length
+        if vd.longest_session < current_session_length:
+            vd.longest_session = current_session_length
+
+        vd.average_duration = ((vd.total_sessions * vd.average_duration) +
+                               current_session_length.total_seconds()) / vd.total_sessions + 1
+        vd.total_sessions += 1
         vd.currently_running = False
         await self.save_server_voice_data(channel.guild, vd)
 
@@ -98,10 +103,20 @@ class VoiceStats(Cog):
         """
         loads a VD from storage
         """
-        cur = await self.bot.db.execute("""SELECT longestSession, lastStarted, currentlyRunning FROM voiceData WHERE id=?""", (guild.id,))
+        cur = await self.bot.db.execute("""SELECT
+        longestSession,
+        lastStarted,
+        currentlyRunning FROM voiceData WHERE id=?""", (guild.id,))
         data = await cur.fetchone()
         if not data:
-            await self.bot.db.execute("""INSERT INTO voiceData (id, longestSession, lastStarted, currentlyRunning) VALUES (?,?,?,?)""", (guild.id, 0, 0, False))
+            await self.bot.db.execute("""INSERT INTO voiceData (
+                                        id,
+                                        longestSession,
+                                        lastStarted,
+                                        currentlyRunning,
+                                        averageDuration,
+                                        totalSessions
+                                        ) VALUES (?,?,?,?)""", (guild.id, 0, 0, False))
             await self.bot.db.commit()
             vd = VoiceData(0, 0, False)
         else:
@@ -114,8 +129,23 @@ class VoiceStats(Cog):
         saves the VD to storage
         """
         log.debug(f"saving for {guild=}, {voiceData=}")
-        await self.bot.db.execute("""UPDATE voiceData SET longestSession=?, lastStarted=?, currentlyRunning=? WHERE id=?""",
-                                  (voiceData.longest_session_int, voiceData.last_started_int, voiceData.currently_running, guild.id))
+        await self.bot.db.execute(
+            """UPDATE voiceData SET
+                longestSession=?,
+                lastStarted=?,
+                currentlyRunning=?,
+                averageDuration=?,
+                totalSessions=?
+            WHERE id=?""",
+            (
+                voiceData.longest_session_raw,
+                voiceData.last_started_raw,
+                voiceData.currently_running,
+                voiceData.average_duration,
+                voiceData.total_sessions,
+                guild.id
+            )
+        )
         await self.bot.db.commit()
 
 
