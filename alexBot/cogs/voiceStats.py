@@ -1,6 +1,6 @@
 import logging
 from attr import dataclass
-from alexBot.tools import Cog
+from alexBot.tools import Cog, get_guild_config
 from discord.ext import commands
 import datetime
 import discord
@@ -21,7 +21,7 @@ class VoiceData:
         """
         the length of the longest Session, as returned as a `Datetime.timespan`
         """
-        return datetime.timedelta(seconds=self.longest_session_raw)
+        return datetime.timedelta(seconds=int(self.longest_session_raw))
 
     @longest_session.setter
     def longest_session(self, value: datetime.timedelta):
@@ -29,7 +29,7 @@ class VoiceData:
 
     @property
     def average_duration(self) -> datetime.timedelta:
-        return datetime.timedelta(seconds=self.average_duration_raw)
+        return datetime.timedelta(seconds=int(self.average_duration_raw))
 
     @property
     def last_started(self) -> datetime.datetime:
@@ -47,9 +47,12 @@ class VoiceStats(Cog):
     @Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         if before.channel is not None and after.channel is not None:  # check that joined or left a voice call
-            log.debug("early return")
             return
         channel = before.channel or after.channel
+        # ?? can we gather data from this guild?
+        if not (await get_guild_config(self.bot, channel.guild.id))["collectVoiceData"]:
+            return
+
         # ?? are we getting an event for someone leaving?
         if before.channel:
             LEAVING = True
@@ -69,7 +72,7 @@ class VoiceStats(Cog):
             await self.ending_a_call(channel)
 
         if not LEAVING and FIRST:
-            await self.starting_a_call(channel)  # dont forget to check the DB for ongoing call...
+            await self.starting_a_call(channel)
 
         log.debug(f"{LAST=}, {LEAVING=}, {FIRST=}")
 

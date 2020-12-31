@@ -17,6 +17,7 @@ GUILDCONFIGKEYS = {
     "ayy": False,
     "tikTok": False,
     "veryCool": False,
+    "collectVoiceData": True
 }
 
 USERCONFIGKEYS = {
