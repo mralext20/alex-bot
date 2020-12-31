@@ -13,7 +13,7 @@ class VoiceData:
     longest_session_raw: float
     last_started_raw: float
     currently_running: bool
-    average_duration: float
+    average_duration_raw: float
     total_sessions: int
 
     @property
@@ -26,6 +26,10 @@ class VoiceData:
     @longest_session.setter
     def longest_session(self, value: datetime.timedelta):
         self.longest_session_raw = value.total_seconds()
+
+    @property
+    def average_duration(self) -> datetime.timedelta:
+        return datetime.timedelta(seconds=self.average_duration_raw)
 
     @property
     def last_started(self) -> datetime.datetime:
@@ -82,7 +86,7 @@ class VoiceStats(Cog):
     async def ending_a_call(self, channel: discord.VoiceChannel):
         log.debug(f"ending a call: {channel=}")
         guild = channel.guild
-        if any([len(vc.members) > 1 for vc in guild.voice_channels]):
+        if self.any_other_voice_chats(guild):
             log.debug("late return: other VC in guild")
             return  # the call continues in another channel
         vd = await self.get_server_voice_data(channel.guild)
@@ -93,11 +97,26 @@ class VoiceStats(Cog):
         if vd.longest_session < current_session_length:
             vd.longest_session = current_session_length
 
-        vd.average_duration = ((vd.total_sessions * vd.average_duration) +
-                               current_session_length.total_seconds()) / vd.total_sessions + 1
+        vd.average_duration_raw = ((vd.total_sessions * vd.average_duration_raw) +
+                                   current_session_length.total_seconds()) / vd.total_sessions + 1
         vd.total_sessions += 1
         vd.currently_running = False
         await self.save_server_voice_data(channel.guild, vd)
+
+    @commands.command()
+    async def voiceStats(self, ctx: commands.Context):
+        vd = await self.get_server_voice_data(ctx.guild)
+        embed = discord.Embed()
+        if self.any_other_voice_chats(ctx.guild):
+            embed.add_field(name="Current Session Length", value=datetime.datetime.now() - vd.last_started)
+        embed.add_field(name="longest session", value=vd.longest_session)
+        embed.add_field(name="Average Session Length", value=vd.average_duration)
+        embed.add_field(name="Total Sessions", value=vd.total_sessions)
+        await ctx.send(embed=embed)
+
+    @staticmethod
+    def any_other_voice_chats(guild: discord.Guild) -> bool:
+        return any([len(vc.members) > 1 for vc in guild.voice_channels])
 
     async def get_server_voice_data(self, guild: discord.Guild) -> VoiceData:
         """
@@ -141,7 +160,7 @@ class VoiceStats(Cog):
                 voiceData.longest_session_raw,
                 voiceData.last_started_raw,
                 voiceData.currently_running,
-                voiceData.average_duration,
+                voiceData.average_duration_raw,
                 voiceData.total_sessions,
                 guild.id
             )
