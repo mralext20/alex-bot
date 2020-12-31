@@ -2,6 +2,7 @@ import logging
 import re
 from functools import partial
 import discord
+from discord.errors import DiscordException
 from discord.ext import commands
 import os
 import shutil
@@ -38,7 +39,7 @@ class Video_DL(Cog):
         data = ytdl.extract_info(url, download=True)
         return data['title']
 
-    @commands.Cog.listener()
+    @Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.guild is None:
             return
@@ -87,7 +88,7 @@ class Video_DL(Cog):
 
                     try:
                         await message.add_reaction('✅')
-                    except:
+                    except DiscordException:
                         pass
 
             except Exception as e:
