@@ -13,8 +13,8 @@ class VoiceData:
     longest_session_raw: float
     last_started_raw: float
     currently_running: bool
-    average_duration_raw: float
-    total_sessions: int
+    average_duration_raw: float = 1
+    total_sessions: int = 0
 
     @property
     def longest_session(self) -> datetime.timedelta:
@@ -98,7 +98,7 @@ class VoiceStats(Cog):
             vd.longest_session = current_session_length
 
         vd.average_duration_raw = ((vd.total_sessions * vd.average_duration_raw) +
-                                   current_session_length.total_seconds()) / vd.total_sessions + 1
+                                   current_session_length.total_seconds()) / (vd.total_sessions + 1)
         vd.total_sessions += 1
         vd.currently_running = False
         await self.save_server_voice_data(channel.guild, vd)
@@ -116,7 +116,7 @@ class VoiceStats(Cog):
 
     @staticmethod
     def any_other_voice_chats(guild: discord.Guild) -> bool:
-        return any([len(vc.members) > 1 for vc in guild.voice_channels])
+        return any([len(vc.members) > 0 for vc in guild.voice_channels])
 
     async def get_server_voice_data(self, guild: discord.Guild) -> VoiceData:
         """
@@ -125,21 +125,22 @@ class VoiceStats(Cog):
         cur = await self.bot.db.execute("""SELECT
         longestSession,
         lastStarted,
-        currentlyRunning FROM voiceData WHERE id=?""", (guild.id,))
+        currentlyRunning,
+        averageDuration,
+        totalSessions
+         FROM voiceData WHERE id=?""", (guild.id,))
         data = await cur.fetchone()
         if not data:
             await self.bot.db.execute("""INSERT INTO voiceData (
                                         id,
                                         longestSession,
                                         lastStarted,
-                                        currentlyRunning,
-                                        averageDuration,
-                                        totalSessions
+                                        currentlyRunning
                                         ) VALUES (?,?,?,?)""", (guild.id, 0, 0, False))
             await self.bot.db.commit()
             vd = VoiceData(0, 0, False)
         else:
-            vd = VoiceData(data[0], data[1], data[2])
+            vd = VoiceData(data[0], data[1], data[2], data[3], data[4])
         log.debug(f"fetched {vd=} for {guild=}")
         return vd
 
