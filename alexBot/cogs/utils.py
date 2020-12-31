@@ -15,7 +15,7 @@ class Utils(Cog):
     """The description for Utils goes here."""
     @commands.command(aliases=['p'])
     async def ping(self, ctx):
-        """You know it"""
+        """returns the webscocket and rest ping times."""
         start = await ctx.send("Po..")
         assert isinstance(start, discord.Message)
         a = start.created_at
@@ -100,7 +100,7 @@ class Utils(Cog):
         ret = discord.Embed()
         ret.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
         ret.add_field(name='Support Server', value='[link](https://discord.gg/jMwPFqp)')
-        ret.add_field(name='Source Code', value='[github](https://gitlab.com/mralext20/alex-bot)')
+        ret.add_field(name='Source Code', value='[github](https://github.com/mralext20/alex-bot)')
         ret.add_field(name='Servers', value=str(len(self.bot.guilds)))
         ret.add_field(name='Members', value=str(len(list(self.bot.get_all_members()))))
         await ctx.send(embed=ret)
