@@ -36,6 +36,6 @@ cur = sqlite3.connect('configs.db').cursor()
 
 # build tables
 with open('schema.sql', 'r') as f:
-    cur.execute(f.read())
+    cur.executescript(f.read())
 
 print("Done!")

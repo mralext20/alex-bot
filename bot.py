@@ -116,7 +116,7 @@ for name in config.logging:
     url = config.logging[name]
     webhooks[level] = discord.Webhook.from_url(url, adapter=discord.AsyncWebhookAdapter(session))
 
-with setup_logging(webhooks=webhooks):
+with setup_logging(webhooks=webhooks, silenced=['discord', 'websockets', 'aiosqlite']):
     bot = Bot()
     bot.load_extension('jishaku')
     try:
