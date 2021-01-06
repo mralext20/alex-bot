@@ -9,7 +9,7 @@ import shutil
 import asyncio
 import subprocess
 import math
-from ..tools import Cog
+from ..tools import Cog, timing
 from ..tools import get_guild_config
 from youtube_dl import YoutubeDL
 
@@ -106,6 +106,7 @@ class Video_DL(Cog):
                 if os.path.exists('out.mp4'):
                     os.remove('out.mp4')
 
+    @timing(log=log)
     @staticmethod
     def transcode_shrink():
         shutil.copyfile('out.mp4', 'in.mp4')

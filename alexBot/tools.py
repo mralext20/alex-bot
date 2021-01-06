@@ -1,5 +1,8 @@
+from functools import wraps
+from attr import dataclass
+import time
 
-from typing import TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -33,7 +36,7 @@ class Cog(commands.Cog):
 
 
 class BoolConverter(commands.Converter):
-    async def convert(self, ctx, argument):
+    async def convert(self, ctx: commands.Context, argument: str):
         if argument[0].lower() == "f":
             return False
         elif argument[0].lower() == "t":
@@ -42,14 +45,14 @@ class BoolConverter(commands.Converter):
             raise commands.BadArgument(f'can not convert {argument} to True or False')
 
 
-async def get_text(session: aiohttp.ClientSession, url) -> str:
+async def get_text(session: aiohttp.ClientSession, url: str) -> str:
     if config.location == 'dev':
         log.debug(f"fetched url: {url}")
     async with session.get(url) as content:
         return await content.text()
 
 
-async def get_json(session: aiohttp.ClientSession, url, body=None) -> dict:
+async def get_json(session: aiohttp.ClientSession, url: str, body=None) -> dict:
     if config.location == 'dev':
         log.debug(f"fetched json: {url}, body: {body}")
 
@@ -57,14 +60,14 @@ async def get_json(session: aiohttp.ClientSession, url, body=None) -> dict:
         return await content.json()
 
 
-async def get_xml(session: aiohttp.ClientSession, url) -> dict:
+async def get_xml(session: aiohttp.ClientSession, url: str) -> dict:
     if config.location == 'dev':
         log.debug(f"fetched xml: {url}")
     async with session.get(url) as content:
         return xmltodict.parse(await content.text())
 
 
-async def create_guild_config(bot, guild_id: int) -> dict:
+async def create_guild_config(bot: "Bot", guild_id: int) -> dict:
     log.info(f'creating a guild config for {guild_id}')
     cfg = json.dumps(GUILDCONFIGKEYS)
     await bot.db.execute("""INSERT INTO configs (id, data) VALUES (?, ?)""", (guild_id, cfg))
@@ -72,7 +75,7 @@ async def create_guild_config(bot, guild_id: int) -> dict:
     return GUILDCONFIGKEYS
 
 
-async def create_user_config(bot, user_id):
+async def create_user_config(bot: "Bot", user_id):
     log.info(f'creating a user config for {user_id}')
     cfg = json.dumps(USERCONFIGKEYS)
     await bot.db.execute("""INSERT INTO CONFIGS (id, data) VALUES (?,?)""", (user_id, cfg))
@@ -80,7 +83,7 @@ async def create_user_config(bot, user_id):
     return USERCONFIGKEYS
 
 
-async def get_guild_config(bot, guild_id: int) -> dict:
+async def get_guild_config(bot: "Bot", guild_id: int) -> dict:
     ret = {}
     try:
         ret = bot.configs[guild_id]
@@ -99,7 +102,7 @@ async def get_guild_config(bot, guild_id: int) -> dict:
     return ret
 
 
-async def get_user_config(bot, user_id: int):
+async def get_user_config(bot: "Bot", user_id: int):
     ret = {}
     try:
         ret = bot.configs[user_id]
@@ -118,7 +121,7 @@ async def get_user_config(bot, user_id: int):
     return ret
 
 
-async def update_guild_key(bot, guild_id: int, key: str, value):
+async def update_guild_key(bot: "Bot", guild_id: int, key: str, value):
     """updates the `key` to be `value`.
     note: this method is extremely dumb,
     as it does no error checking to ensure that you are giving it the right value for a key."""
@@ -128,7 +131,7 @@ async def update_guild_key(bot, guild_id: int, key: str, value):
     await bot.db.commit()
 
 
-async def update_user_key(bot, user_id: int, key: str, value):
+async def update_user_key(bot: "Bot", user_id: int, key: str, value):
     """updates the `key` to be `value`.
     note: this method is extremely dumb,
     as it does no error checking to ensure that you are giving it the right value for a key."""
