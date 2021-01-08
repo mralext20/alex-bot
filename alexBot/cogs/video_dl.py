@@ -20,7 +20,6 @@ REGEXES = [
     re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/.{6,}')
 ]
 
-ytdl = YoutubeDL({'outtmpl': 'out.mp4'})
 
 TARGET_SHRINK_SIZE = (8 * 10**6 - 128 * 1000) * 8  # 8 MB - 128 KB in bits
 MAX_VIDEO_LENGTH = 5 * 60  # 5 Minutes
@@ -28,14 +27,16 @@ AUDIO_BITRATE = 64 * 1000  # 64 Kbits
 BUFFER_CONSTANT = 20  # Magic number, see https://unix.stackexchange.com/a/598360
 
 FFPROBE_CMD = 'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 in.mp4'
-FFMPEG_CMD = 'ffmpeg -i in.mp4 -y -b:v {0} -maxrate:v {0} -b:a {1} -maxrate:a {1} -bufsize:v {2} out.mp4'
+FFMPEG_CMD = 'ffmpeg -i in.mp4 -y -b:v {0} -maxrate:v {0} -b:a {1} -maxrate:a {1} -bufsize:v {2} {3}.mp4'
 
 
 class Video_DL(Cog):
     active = False
+    encode_lock = asyncio.Lock()  # TODO: convert to ~asyncio.Condition() in the future for better responce in emojis?
 
     @staticmethod
-    def download_video(url):
+    def download_video(url, id):
+        ytdl = YoutubeDL({'outtmpl': f'{id}.mp4'})
         data = ytdl.extract_info(url, download=True)
         return data['title']
 
@@ -59,10 +60,8 @@ class Video_DL(Cog):
         match = matches.group(0)
         log.info(f'collecting {match} for {message.author}')
         async with message.channel.typing():
-            while self.active:
-                await asyncio.sleep(.5)
             try:
-                self.active = True
+
                 if match:
                     await message.channel.trigger_typing()
                     try:
@@ -70,21 +69,22 @@ class Video_DL(Cog):
                     except discord.Forbidden:
                         pass
 
-                    task = partial(self.download_video, match)
+                    task = partial(self.download_video, match, message.id)
                     title = await self.bot.loop.run_in_executor(None, task)
 
-                    if os.path.getsize('out.mp4') > 8000000:
+                    if os.path.getsize(f'{message.id}.mp4') > 8000000:
                         try:
                             await message.add_reaction('🪄')
-                        except:
+                        except discord.Forbidden:
                             pass
+                        async with self.encode_lock:
+                            task = partial(self.transcode_shrink, message.id)
+                            await self.bot.loop.run_in_executor(None, task)
 
-                        await self.bot.loop.run_in_executor(None, self.transcode_shrink)
+                    # file is MESSAGE.ID.mp4, need to create discord.File and upload it to channel then delete out.mp4
+                    file = discord.File(f'{message.id}.mp4', 'vid.mp4')
 
-                    # file is out.mp4, need to create discord.File and upload it to channel then delete out.mp4
-                    file = discord.File('out.mp4', 'vid.mp4')
-
-                    await message.channel.send(title, file=file)
+                    await message.reply(title, file=file, mention_author=False)
 
                     try:
                         await message.add_reaction('✅')
@@ -101,19 +101,17 @@ class Video_DL(Cog):
 
             finally:
                 await message.remove_reaction('⌛', self.bot.user)
-                self.active = False
 
-                if os.path.exists('out.mp4'):
-                    os.remove('out.mp4')
+                if os.path.exists(f'{message.id}.mp4'):
+                    os.remove(f'{message.id}.mp4')
 
-    @timing(log=log)
     @staticmethod
-    def transcode_shrink():
-        shutil.copyfile('out.mp4', 'in.mp4')
-        os.remove('out.mp4')
+    @timing(log=log)
+    def transcode_shrink(id):
+        shutil.copyfile(f'{id}.mp4', 'in.mp4')
+        os.remove(f'{id}.mp4')
 
         try:
-            input_filesize = os.path.getsize('in.mp4')
             video_length = float(subprocess.check_output(FFPROBE_CMD.split(' ')).decode("utf-8"))
 
             if video_length > MAX_VIDEO_LENGTH:
@@ -126,7 +124,8 @@ class Video_DL(Cog):
             command_formatted = FFMPEG_CMD.format(
                 str(target_video_bitrate),
                 str(AUDIO_BITRATE),
-                str(buffer_size)
+                str(buffer_size),
+                str(id)
             )
 
             subprocess.check_call(command_formatted.split(' '))
