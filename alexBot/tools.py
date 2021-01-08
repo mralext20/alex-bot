@@ -146,3 +146,28 @@ def metar_only_in_vasa(ctx: commands.Context):
         return not (ctx.guild.id == 377567755743789064 and ctx.command.name not in ['help', 'invite', 'info', 'metar'])
     except AttributeError:
         return True
+
+
+def timing(log=None):
+    """
+    a decorator to log how long a function takes to execute.
+    """
+    if log is None:
+        prt = print
+    else:
+        prt = log.debug
+
+    def inner_function(function: Callable):
+        """
+        a decorator to log how long a function takes to execute.
+        """
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            prt(f"starting {function.__name__}..")
+            ts = time.time()
+            result = function(*args, **kwargs)
+            te = time.time()
+            prt(f"{function.__name__} completed, took {te - ts} seconds")
+            return result
+        return wrapper
+    return inner_function
