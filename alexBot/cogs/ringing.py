@@ -46,7 +46,7 @@ class Ringing(Cog):
     async def running(target, times, ringRate, sentinalMessage):
         if target.voice:
             return False
-        if times > ringRate['times']:
+        if times >= ringRate['times']:
             return False
 
         newSentinalMessage = await sentinalMessage.channel.fetch_message(sentinalMessage.id)
