@@ -11,13 +11,14 @@ import subprocess
 import math
 from ..tools import Cog, timing
 from ..tools import get_guild_config
-from youtube_dl import YoutubeDL
+from youtube_dl import YoutubeDL, DownloadError
 
 log = logging.getLogger(__name__)
 REGEXES = [
     re.compile(r'https?://vm\.tiktok\.com/.{6,}/'),
     re.compile(r'https?://(?:v\.)?redd\.it/.{6,}'),
-    re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/.{6,}')
+    re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/.{6,}'),
+    re.compile(r'https?://twitter.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*')
 ]
 
 
@@ -30,6 +31,10 @@ FFPROBE_CMD = 'ffprobe -v error -show_entries format=duration -of default=noprin
 FFMPEG_CMD = 'ffmpeg -i in.mp4 -y -b:v {0} -maxrate:v {0} -b:a {1} -maxrate:a {1} -bufsize:v {2} {3}.mp4'
 
 
+class NotAVideo(Exception):
+    pass
+
+
 class Video_DL(Cog):
     active = False
     encode_lock = asyncio.Lock()  # TODO: convert to ~asyncio.Condition() in the future for better responce in emojis?
@@ -37,12 +42,17 @@ class Video_DL(Cog):
     @staticmethod
     def download_video(url, id):
         ytdl = YoutubeDL({'outtmpl': f'{id}.mp4'})
-        data = ytdl.extract_info(url, download=True)
-        return data['title']
+        try:
+            data = ytdl.extract_info(url, download=True)
+        except DownloadError:
+            raise NotAVideo(False)
+        if data['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
+            raise NotAVideo(data['url'])
+        return REGEXES[3].sub('', data['title'])
 
-    @Cog.listener()
+    @ Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.guild is None:
+        if message.guild is None or message.author == self.bot.user:
             return
         if (await get_guild_config(self.bot, message.guild.id))['tikTok'] is False:
             return
@@ -70,7 +80,16 @@ class Video_DL(Cog):
                         pass
 
                     task = partial(self.download_video, match, message.id)
-                    title = await self.bot.loop.run_in_executor(None, task)
+                    try:
+                        title = await self.bot.loop.run_in_executor(None, task)
+                    except NotAVideo as e:
+                        if e.args[0]:
+                            await message.reply(e, mention_author=False)
+                            try:
+                                await message.add_reaction('✅')
+                            except DiscordException:
+                                pass
+                        return
 
                     if os.path.getsize(f'{message.id}.mp4') > 8000000:
                         try:
