@@ -46,11 +46,14 @@ class Video_DL(Cog):
             data = ytdl.extract_info(url, download=True)
         except DownloadError:
             raise NotAVideo(False)
-        if data['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
-            raise NotAVideo(data['url'])
+        try:
+            if data['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
+                raise NotAVideo(data['url'])
+        except KeyError:
+            pass
         return REGEXES[3].sub('', data['title'])
 
-    @ Cog.listener()
+    @Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.guild is None or message.author == self.bot.user:
             return
