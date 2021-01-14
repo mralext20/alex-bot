@@ -1,5 +1,5 @@
 from functools import wraps
-from attr import dataclass
+from dataclasses import dataclass
 import time
 
 from typing import Callable, TYPE_CHECKING

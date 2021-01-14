@@ -1,5 +1,5 @@
 import logging
-from attr import dataclass
+from dataclasses import dataclass
 from alexBot.tools import Cog, get_guild_config
 from discord.ext import commands
 import datetime
