@@ -18,7 +18,7 @@ class VoiceStats(Cog):
         channel = before.channel or after.channel
         # ?? can we gather data from this guild?
         gd = await self.bot.db.get_guild_data(channel.guild.id)
-        if not gd.config.collectVocieData:
+        if not gd.config.collectVoiceData:
             return
 
         # ?? are we getting an event for someone leaving?
