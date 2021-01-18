@@ -29,18 +29,18 @@ class CommandErrorHandler(Cog):
             msg = f'{ctx.command} can not be used in Private Messages.'
 
         elif isinstance(error, commands.BadArgument):
-            msg = f'Bad argument! {error} See {ctx.prefix}help {ctx.command} for help!'
+            msg = f'Bad argument: {error} See {ctx.prefix}help {ctx.command} for help!'
             log.warning(f"bad argument on {ctx.command}: {error}")
 
         elif isinstance(error, commands.MissingRequiredArgument):
-            msg = f'Parameter {error.param} is required but missing! See {ctx.prefix}help {ctx.command} for help!'
+            msg = f'Parameter {error.param} is required but missing, See {ctx.prefix}help {ctx.command} for help!'
         elif isinstance(error, commands.MissingPermissions):
             msg = 'You do not have permission to run that command.'
         elif isinstance(error, commands.CommandInvokeError):
             error = error.original
 
             if isinstance(error, discord.Forbidden):
-                msg = 'A permission error occurred while executing this command! ' \
+                msg = 'A permission error occurred while executing this command, ' \
                       'Make sure I have the required permissions and try again.'
 
         # post the error into the chat if no short error message could be generated

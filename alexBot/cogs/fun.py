@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 
 from ..tools import Cog
-from ..tools import get_guild_config
 from ..tools import get_json
 
 log = logging.getLogger(__name__)
@@ -38,10 +37,11 @@ class Fun(Cog):
     async def on_message(self, message: discord.Message):
         if self.bot.location == 'dev' or message.guild is None:
             return
-        if (await get_guild_config(self.bot, message.guild.id))['ayy'] is True:
+        cfg = (await self.bot.db.get_guild_data(message.guild.id)).config
+        if cfg.ayy:
             if ayygen.fullmatch(message.content):
                 await message.channel.send("lmao")
-        if (await get_guild_config(self.bot, message.guild.id))['veryCool'] is True:
+        if cfg.veryCool:
             if message.content.lower().startswith('thank you '):
                 await message.channel.send('very cool')
 

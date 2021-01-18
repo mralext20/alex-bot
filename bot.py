@@ -15,6 +15,11 @@ from alexBot.channel_logging import setup_logging
 
 from alexBot.tools import metar_only_in_vasa
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from alexBot.data import Data
+
+
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
 
 log = logging.getLogger(__name__)
@@ -30,12 +35,10 @@ class Bot(commands.Bot):
         super().__init__(
             command_prefix=config.prefix, intents=intents, **kwargs)
         self.session = None
-        self.loop.create_task(self._asyncinit())
         self.logger = logging.getLogger("bot")
         self.config: config = config
-        self.db: aiosqlite.Connection = None
-        self.configs = {}
         self.location = config.location
+        self.db: "Data" = None
         self.owner = None
         logging.getLogger('discord.gateway').setLevel(logging.ERROR)
         self.loop.create_task(self.cogSetup())
@@ -48,13 +51,9 @@ class Bot(commands.Bot):
         self.add_check(metar_only_in_vasa)
         self.session = aiohttp.ClientSession()
 
-    async def _asyncinit(self):
-        self.db = await aiosqlite.connect('configs.db', loop=self.loop)
-
     async def cogSetup(self):
-        while self.db is None:
-            log.info('waiting for initialization of async connectors...')
-            await asyncio.sleep(.5)
+        self.load_extension("alexBot.data")
+        self.db: "Data" = self.get_cog('Data')
         for cog in cogs:
             try:
                 self.load_extension(f"alexBot.cogs.{cog}")
@@ -123,5 +122,4 @@ with setup_logging(webhooks=webhooks, silenced=['discord', 'websockets', 'aiosql
         loop.run_until_complete(bot.start(config.token))
     except KeyboardInterrupt:
         loop.run_until_complete(bot.close())
-        loop.run_until_complete(bot.db.close())
         loop.run_until_complete(session.close())

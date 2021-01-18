@@ -10,7 +10,6 @@ import asyncio
 import subprocess
 import math
 from ..tools import Cog, timing
-from ..tools import get_guild_config
 from youtube_dl import YoutubeDL, DownloadError
 
 log = logging.getLogger(__name__)
@@ -22,7 +21,6 @@ REGEXES = [
     re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/.{6,}'),
     re.compile(r'https?://twitter.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*')
 ]
-
 
 TARGET_SHRINK_SIZE = (8 * 10**6 - 128 * 1000) * 8  # 8 MB - 128 KB in bits
 MAX_VIDEO_LENGTH = 5 * 60  # 5 Minutes
@@ -59,7 +57,7 @@ class Video_DL(Cog):
     async def on_message(self, message: discord.Message):
         if message.guild is None or message.author == self.bot.user:
             return
-        if (await get_guild_config(self.bot, message.guild.id))['tikTok'] is False:
+        if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
 
         matches = None

@@ -1,10 +1,8 @@
-CREATE TABLE IF NOT EXISTS configs (id BIGINT PRIMARY KEY,
-                                    data JSON NOT NULL);
+CREATE TABLE IF NOT EXISTS guilds(guildId BIGINT PRIMARY KEY,
+                                 data STRING);
 
 
-CREATE TABLE IF NOT EXISTS voiceData (id BIGINT PRIMARY KEY,
-                                      longestSession INTEGER,
-                                      lastStarted INTEGER,
-                                      averageDuration INTEGER DEFAULT 0,
-                                      totalSessions INTEGER DEFAULT 0,
-                                      currentlyRunning BOOLEAN);
+CREATE TABLE IF NOT EXISTS users(userId BIGINT PRIMARY KEY,
+                                 data STRING);
+
+

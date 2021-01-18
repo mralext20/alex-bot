@@ -1,9 +1,9 @@
+from alexBot.classes import RingRate
 import asyncio
-import typing
 import discord
 from discord.errors import DiscordException
 
-from alexBot.tools import Cog, get_user_config
+from alexBot.tools import Cog
 from discord.ext import commands
 
 
@@ -16,7 +16,7 @@ class Ringing(Cog):
         if target.voice:
             await ctx.send("cannot ring: they are already in voice")
             return
-        if not (await get_user_config(self.bot, target.id))["ringable"]:
+        if not (await self.bot.db.get_user_data(target.id)).config.ringable:
             await ctx.send("cannot ring: they do not want to be rung")
             return
 
@@ -34,19 +34,19 @@ class Ringing(Cog):
                      target: discord.Member,
                      channel: discord.TextChannel,
                      sentinalMessage: discord.Message,
-                     ringRate={"times": 1, "rate": 1},
+                     ringRate: RingRate = RingRate(),
                      ):
         times = 0
         while await self.running(target, times, ringRate, sentinalMessage):
             await channel.send(f"HELLO, {target.mention}! {initiator.upper()} WANTS YOU TO JOIN VOICE!")
-            await asyncio.sleep(ringRate['rate'])
+            await asyncio.sleep(ringRate.rate)
             times += 1
 
     @staticmethod
-    async def running(target, times, ringRate, sentinalMessage):
+    async def running(target: discord.Member, times: int, ringRate: RingRate, sentinalMessage: discord.Message):
         if target.voice:
             return False
-        if times >= ringRate['times']:
+        if times >= ringRate.times:
             return False
 
         newSentinalMessage = await sentinalMessage.channel.fetch_message(sentinalMessage.id)

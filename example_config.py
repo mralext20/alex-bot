@@ -1,5 +1,6 @@
 # config file. copy to `config.py` and fill in your details.
 
+from alexBot.classes import RingRate
 import os
 
 import discord
@@ -30,24 +31,16 @@ monitored_bots = {
     },
 }
 
+
 ringRates = {
-    discord.Status.online: {
-        "times": 4,
-        "rate": 0.5
-    },
-    discord.Status.idle: {
-        "times": 10,
-        "rate": 1
-    },
-    discord.Status.dnd: {
-        "times": 1,
-        "rate": 1
-    },
-    discord.Status.offline: {
-        "times": 15,
-        "rate": 2
-    }
+    discord.Status.online: RingRate(4, 0.5),
+    discord.Status.idle: RingRate(10, 1),
+    discord.Status.dnd: RingRate(1, 1),
+    discord.Status.offline: RingRate(15, 5)
 }
+
 
 listenServers = [272885620769161216]
 listens = ['alex', 'alaska']
+
+db = "configs.db"
