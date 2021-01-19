@@ -59,6 +59,7 @@ class GuildConfig:
     veryCool: bool = False
     collectVoiceData: bool = True
     firstAmendment: bool = False
+    reactionRoles: List[ReactionRoleConfig] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data) -> "GuildConfig":
