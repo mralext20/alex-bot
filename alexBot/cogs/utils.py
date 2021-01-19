@@ -8,11 +8,13 @@ import discord
 from discord.ext import commands
 
 from ..tools import Cog
+
 DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
     """The description for Utils goes here."""
+
     @commands.command(aliases=['p'])
     async def ping(self, ctx: commands.Context):
         """returns the webscocket and rest ping times."""
@@ -29,7 +31,7 @@ class Utils(Cog):
         time = datetime.datetime.now()
         await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
-    @ commands.command(aliases=['diff'])
+    @commands.command(aliases=['diff'])
     async def difference(self, ctx, object_one: int, object_two: int = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
         one = discord.utils.snowflake_time(object_one)
@@ -42,7 +44,7 @@ class Utils(Cog):
             diff = two - one
         await ctx.send(f'time difference from {one} to {two} is {diff}.')
 
-    @ commands.command(name='info', aliases='source about git'.split())
+    @commands.command(name='info', aliases='source about git'.split())
     async def info(self, ctx):
         ret = discord.Embed()
         ret.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
@@ -52,7 +54,7 @@ class Utils(Cog):
         ret.add_field(name='Members', value=str(len(list(self.bot.get_all_members()))))
         await ctx.send(embed=ret)
 
-    @ commands.command(name='inviteDetails')
+    @commands.command(name='inviteDetails')
     async def inviteDetails(self, ctx, invite: discord.Invite):
         if invite.revoked:
             return await ctx.send("That invite is revoked...")
@@ -75,7 +77,7 @@ class Utils(Cog):
 
         await ctx.send(embed=ret)
 
-    @ commands.command()
+    @commands.command()
     async def invite(self, ctx):
         await ctx.send(f"<{discord.utils.oauth_url(self.bot.user.id)}>")
 

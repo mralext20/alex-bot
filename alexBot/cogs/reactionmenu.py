@@ -3,7 +3,7 @@ import discord
 from ..tools import Cog
 
 
-class ReactionMenu():
+class ReactionMenu:
     message: discord.Message = None
     actions: Dict[discord.Emoji, Awaitable] = {}
 

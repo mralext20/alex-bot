@@ -70,6 +70,7 @@ def timing(log=None):
         """
         a decorator to log how long a function takes to execute.
         """
+
         @wraps(function)
         def wrapper(*args, **kwargs):
             prt(f"starting {function.__name__}..")
@@ -78,5 +79,7 @@ def timing(log=None):
             te = time.time()
             prt(f"{function.__name__} completed, took {te - ts} seconds")
             return result
+
         return wrapper
+
     return inner_function

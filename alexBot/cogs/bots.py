@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 class Bots(Cog):
     """Bot downtime notifications."""
+
     pending_messages = {}
 
     @Cog.listener()
@@ -42,7 +43,7 @@ class Bots(Cog):
         else:
             msg = f'\N{PARTY POPPER} `{before} {before.id}` just came back online'
             wait = 0
-            if (before.id in self.pending_messages.keys()):
+            if before.id in self.pending_messages.keys():
                 if self.pending_messages[before.id].done():
                     del self.pending_messages[before.id]
                 else:

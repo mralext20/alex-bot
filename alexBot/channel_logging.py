@@ -98,7 +98,7 @@ class DiscordHandler(logging.Handler):
         msg = self.format(record).replace('\N{GRAVE ACCENT}', '\N{MODIFIER LETTER GRAVE ACCENT}')
 
         if record.levelno == logging.ERROR:
-            chunks = (msg[x:x + 1987] for x in range(0, len(msg), 1987))
+            chunks = (msg[x : x + 1987] for x in range(0, len(msg), 1987))
 
             paginator = commands.Paginator(prefix='```py\n', suffix='```')
             for chunk in chunks:
@@ -107,7 +107,7 @@ class DiscordHandler(logging.Handler):
             for page in paginator.pages:
                 self._buffer.append(page)
         else:
-            for chunk in (msg[x:x + 1996] for x in range(0, len(msg), 1996)):
+            for chunk in (msg[x : x + 1996] for x in range(0, len(msg), 1996)):
                 # not using the paginators prefix/suffix due to this resulting in weird indentation on newlines
                 self._buffer.append(f'`{chunk}`')
 

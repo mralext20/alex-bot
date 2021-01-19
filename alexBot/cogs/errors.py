@@ -40,18 +40,24 @@ class CommandErrorHandler(Cog):
             error = error.original
 
             if isinstance(error, discord.Forbidden):
-                msg = 'A permission error occurred while executing this command, ' \
-                      'Make sure I have the required permissions and try again.'
+                msg = (
+                    'A permission error occurred while executing this command, '
+                    'Make sure I have the required permissions and try again.'
+                )
 
         # post the error into the chat if no short error message could be generated
         if msg is None:
             trace = traceback.format_exception(type(error), error, error.__traceback__, limit=5)
             actual_trace = '\n'.join(trace)
-            msg = f"Something, somewhere, broke. if {alex.mention} isnt in this server, " \
-                  f"so you'll have to join the server in `a!about`."
-            log.error(f"{ctx.author.id} broke bot running {ctx.command.cog_name}.{ctx.command.qualified_name}"
-                      f"\nquotable: {ctx.channel.id or 'DM'}-{ctx.message.id or None}\n"
-                      f":{actual_trace}")
+            msg = (
+                f"Something, somewhere, broke. if {alex.mention} isnt in this server, "
+                f"so you'll have to join the server in `a!about`."
+            )
+            log.error(
+                f"{ctx.author.id} broke bot running {ctx.command.cog_name}.{ctx.command.qualified_name}"
+                f"\nquotable: {ctx.channel.id or 'DM'}-{ctx.message.id or None}\n"
+                f":{actual_trace}"
+            )
 
         try:
             await ctx.send(msg)

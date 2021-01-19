@@ -10,9 +10,10 @@ log = logging.getLogger(__name__)
 
 
 class VoiceStats(Cog):
-
     @Cog.listener()
-    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    async def on_voice_state_update(
+        self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
+    ):
         if before.channel is not None and after.channel is not None:  # check that joined or left a voice call
             return
         channel = before.channel or after.channel
@@ -67,8 +68,9 @@ class VoiceStats(Cog):
         if gd.voiceStat.longest_session < current_session_length:
             gd.voiceStat.longest_session = current_session_length
 
-        gd.voiceStat.average_duration_raw = ((gd.voiceStat.total_sessions * gd.voiceStat.average_duration_raw) +
-                                             current_session_length.total_seconds()) / (gd.voiceStat.total_sessions + 1)
+        gd.voiceStat.average_duration_raw = (
+            (gd.voiceStat.total_sessions * gd.voiceStat.average_duration_raw) + current_session_length.total_seconds()
+        ) / (gd.voiceStat.total_sessions + 1)
         gd.voiceStat.total_sessions += 1
         gd.voiceStat.currently_running = False
         await self.bot.db.save_guild_data(channel.guild.id, gd)

@@ -16,6 +16,7 @@ from alexBot.channel_logging import setup_logging
 from alexBot.tools import metar_only_in_vasa
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from alexBot.data import Data
 
@@ -32,8 +33,7 @@ intents.presences = True
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(
-            command_prefix=config.prefix, intents=intents, **kwargs)
+        super().__init__(command_prefix=config.prefix, intents=intents, **kwargs)
         self.session = None
         self.logger = logging.getLogger("bot")
         self.config: config = config
@@ -95,11 +95,9 @@ class Bot(commands.Bot):
         author = ctx.message.author
         guild = ctx.guild
         checks = [c.__qualname__.split('.')[0] for c in ctx.command.checks]
-        location = '[DM]' if isinstance(ctx.channel, discord.DMChannel) else \
-            f'[Guild {guild.name} {guild.id}]'
+        location = '[DM]' if isinstance(ctx.channel, discord.DMChannel) else f'[Guild {guild.name} {guild.id}]'
 
-        log.info('%s [cmd] %s(%d) "%s" checks=%s', location, author,
-                 author.id, content, ','.join(checks) or '(none)')
+        log.info('%s [cmd] %s(%d) "%s" checks=%s', location, author, author.id, content, ','.join(checks) or '(none)')
 
 
 loop = asyncio.get_event_loop()

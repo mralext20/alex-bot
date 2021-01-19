@@ -21,7 +21,6 @@ logging = {
     'info': 'webhook url here',
     'warning': 'webhook here too',
     'error': 'webhook url here three',
-
 }
 #  bots who's owner gets a dm whenever they go offline
 monitored_bots = {
@@ -36,7 +35,7 @@ ringRates = {
     discord.Status.online: RingRate(4, 0.5),
     discord.Status.idle: RingRate(10, 1),
     discord.Status.dnd: RingRate(1, 1),
-    discord.Status.offline: RingRate(15, 5)
+    discord.Status.offline: RingRate(15, 5),
 }
 
 

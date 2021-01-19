@@ -23,10 +23,13 @@ class Flight(Cog):
         station = stations.upper()
 
         try:
-            data = await get_json(self.bot.session, f'https://avwx.rest/api/metar/{station}'
-                                                    f'?options=info,speech,translate'
-                                                    f'&onfail=cache'
-                                                    f'&token={self.bot.config.avwx_token}')
+            data = await get_json(
+                self.bot.session,
+                f'https://avwx.rest/api/metar/{station}'
+                f'?options=info,speech,translate'
+                f'&onfail=cache'
+                f'&token={self.bot.config.avwx_token}',
+            )
             if data is None:
                 raise commands.BadArgument('It Appears that station doesnt have METAR data available.')
         except aiohttp.ClientResponseError:
@@ -59,15 +62,19 @@ class Flight(Cog):
             report_time = datetime.strptime(data['time']['dt'].replace(':00Z', '00Z'), "%Y-%m-%dT%H:%M:%S%zZ")
 
             now = datetime.now(tz=timezone.utc)
-        embed.set_footer(text=f"report {humanize.naturaldelta(report_time - now)} old, "
-                              f"please only use this data for planning purposes.")
+        embed.set_footer(
+            text=f"report {humanize.naturaldelta(report_time - now)} old, "
+            f"please only use this data for planning purposes."
+        )
 
         info = data['info']
         magdec = ""
         if data['wind_direction']['value'] is not None and self.bot.config.government_is_working:
-            magdec = await get_xml(ctx.bot.session,
-                                   f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
-                                   f"?lat1={info['latitude']}&lon1={info['longitude']}&resultFormat=xml")
+            magdec = await get_xml(
+                ctx.bot.session,
+                f"https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination"
+                f"?lat1={info['latitude']}&lon1={info['longitude']}&resultFormat=xml",
+            )
             try:
                 magdec = float(magdec['maggridresult']['result']['declination']['#text'])
             except KeyError:
@@ -140,17 +147,23 @@ class Flight(Cog):
         if translations['wind'] != "":
             if magdec != "":
                 if data['wind_gust'] is not None:
-                    embed.add_field(name="Wind", value=f"{data['wind_direction']['repr']}@{data['wind_speed']['repr']}"
-                                                       f"G{data['wind_gust']['repr']}(True)\n"
-                                                       f""
-                                                       f"{magdec:0f}@{data['wind_speed']['repr']}"
-                                                       f"G{data['wind_gust']['repr']}"
-                                                       f" (with Variation")
+                    embed.add_field(
+                        name="Wind",
+                        value=f"{data['wind_direction']['repr']}@{data['wind_speed']['repr']}"
+                        f"G{data['wind_gust']['repr']}(True)\n"
+                        f""
+                        f"{magdec:0f}@{data['wind_speed']['repr']}"
+                        f"G{data['wind_gust']['repr']}"
+                        f" (with Variation",
+                    )
                 else:
-                    embed.add_field(name="Wind", value=f"{data['wind_direction']['repr']}@"
-                                                       f"{data['wind_speed']['repr']} (True)\n "
-                                                       f"{magdec:.0f}@"
-                                                       f"{data['wind_speed']['repr']} (with variation)")
+                    embed.add_field(
+                        name="Wind",
+                        value=f"{data['wind_direction']['repr']}@"
+                        f"{data['wind_speed']['repr']} (True)\n "
+                        f"{magdec:.0f}@"
+                        f"{data['wind_speed']['repr']} (with variation)",
+                    )
             else:
                 embed.add_field(name="Wind", value=translations['wind'], inline=False)
 

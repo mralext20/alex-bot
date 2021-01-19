@@ -19,10 +19,10 @@ REGEXES = [
     re.compile(r'https?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://(?:v\.)?redd\.it/.{6,}'),
     re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/.{6,}'),
-    re.compile(r'https?://twitter.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*')
+    re.compile(r'https?://twitter.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
 ]
 
-TARGET_SHRINK_SIZE = (8 * 10**6 - 128 * 1000) * 8  # 8 MB - 128 KB in bits
+TARGET_SHRINK_SIZE = (8 * 10 ** 6 - 128 * 1000) * 8  # 8 MB - 128 KB in bits
 MAX_VIDEO_LENGTH = 5 * 60  # 5 Minutes
 AUDIO_BITRATE = 64 * 1000  # 64 Kbits
 BUFFER_CONSTANT = 20  # Magic number, see https://unix.stackexchange.com/a/598360
@@ -144,10 +144,7 @@ class Video_DL(Cog):
             target_video_bitrate = target_total_bitrate - AUDIO_BITRATE
 
             command_formatted = FFMPEG_CMD.format(
-                str(target_video_bitrate),
-                str(AUDIO_BITRATE),
-                str(buffer_size),
-                str(id)
+                str(target_video_bitrate), str(AUDIO_BITRATE), str(buffer_size), str(id)
             )
 
             subprocess.check_call(command_formatted.split(' '))

@@ -30,12 +30,14 @@ class Ringing(Cog):
             pass
         await ctx.message.add_reaction("✅")
 
-    async def doRing(self, initiator: str,
-                     target: discord.Member,
-                     channel: discord.TextChannel,
-                     sentinalMessage: discord.Message,
-                     ringRate: RingRate = RingRate(),
-                     ):
+    async def doRing(
+        self,
+        initiator: str,
+        target: discord.Member,
+        channel: discord.TextChannel,
+        sentinalMessage: discord.Message,
+        ringRate: RingRate = RingRate(),
+    ):
         times = 0
         while await self.running(target, times, ringRate, sentinalMessage):
             await channel.send(f"HELLO, {target.mention}! {initiator.upper()} WANTS YOU TO JOIN VOICE!")

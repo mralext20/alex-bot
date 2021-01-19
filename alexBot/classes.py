@@ -5,7 +5,7 @@ import discord
 
 
 @dataclass
-class RingRate():
+class RingRate:
     times: int = 1
     rate: float = 1
 
@@ -46,37 +46,40 @@ class VoiceStat:
 
 
 @dataclass
-class ReactionRoleConfig():
+class ReactionRoleConfig:
     channel: int
     role: int
     reaction: str
 
 
 @dataclass
-class GuildConfig():
+class GuildConfig:
     ayy: bool = False
     tikTok: bool = False
     veryCool: bool = False
     collectVoiceData: bool = True
-    reactionRoles: List[ReactionRoleConfig] = field(default_factory=list)
+    firstAmendment: bool = False
 
     @classmethod
     def from_dict(cls, data) -> "GuildConfig":
-        return cls(**data, reactionRoles=[ReactionRoleConfig(**[d for d in data['reactionRoles']])])
+        return cls(**data, reactionRoles=[ReactionRoleConfig(**[d for d in data["reactionRoles"]])])
 
 
 @dataclass
-class GuildData():
+class GuildData:
     voiceStat: VoiceStat = VoiceStat()
     config: GuildConfig = GuildConfig()
 
     @classmethod
     def from_dict(cls, data) -> "GuildData":
-        return cls(voiceStat=VoiceStat(**data['voiceStat']), config=GuildConfig(**data['config']))
+        return cls(
+            voiceStat=VoiceStat(**data["voiceStat"]),
+            config=GuildConfig(**data["config"]),
+        )
 
 
 @dataclass
-class UserConfig():
+class UserConfig:
     ringable: bool = True
 
     @classmethod
@@ -85,9 +88,9 @@ class UserConfig():
 
 
 @dataclass
-class UserData():
+class UserData:
     config: UserConfig = UserConfig()
 
     @classmethod
     def from_dict(cls, data) -> "UserData":
-        return cls(config=UserConfig.from_dict(data['config']))
+        return cls(config=UserConfig.from_dict(data["config"]))

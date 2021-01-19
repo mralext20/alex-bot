@@ -13,6 +13,7 @@ class KeyConverter(commands.Converter):
 
 class Configs(Cog):
     """handles guild config settings"""
+
     @commands.group(name="config", invoke_without_command=True)
     async def config(self, ctx: commands.Context):
         """how you configure your self, or the server if you have that permissions."""
@@ -60,7 +61,8 @@ class Configs(Cog):
             return
         else:
             raise commands.errors.BadArgument(
-                f"the typekey {typekey} does not exist. please check `{self.bot.command_prefix}config` for a list of keys.")
+                f"the typekey {typekey} does not exist. please check `{self.bot.command_prefix}config` for a list of keys."
+            )
 
     @config.command(name="reset")
     async def config_reset(self, ctx: commands.Context, rawkey: str):
@@ -76,7 +78,7 @@ class Configs(Cog):
             default = getattr(defaultGDC, key, None)
             if default is None:
                 raise commands.BadArgument("The key {key} is not a valid key on {typekey}")
-            currGD = (await self.bot.db.get_guild_data(ctx.guild.id))
+            currGD = await self.bot.db.get_guild_data(ctx.guild.id)
             setattr(currGD.config, key, default)  # currGD.config.$KEY = default
             await self.bot.db.save_guild_data(currGD)
             await ctx.send(f"set {typekey}.{key} to {default}, the default value.")
@@ -92,7 +94,8 @@ class Configs(Cog):
             await ctx.send(f"set {typekey}.{key} to {default}, the default value.")
         else:
             raise commands.errors.BadArgument(
-                f"{typekey} is not a valid typekey. see `{self.bot.command_prefix}config` for a list of valid keys.")
+                f"{typekey} is not a valid typekey. see `{self.bot.command_prefix}config` for a list of valid keys."
+            )
 
 
 def setup(bot):
