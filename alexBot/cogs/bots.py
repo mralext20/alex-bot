@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+from typing import Dict, Tuple
 
 import discord
 
@@ -15,10 +16,10 @@ log = logging.getLogger(__name__)
 class Bots(Cog):
     """Bot downtime notifications."""
 
-    pending_messages = {}
+    pending_messages: Dict(Tuple, asyncio.Task) = {}
 
     @Cog.listener()
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         if before.id not in self.bot.config.monitored_bots or before.status == after.status:
             return
 
@@ -28,8 +29,11 @@ class Bots(Cog):
 
         config = self.bot.config.monitored_bots[before.id]
         # we only care about in the notification guild
-        if config['shared_guild'] != before.guild.id:
-            return
+        key = None
+        if config.get('shared_guild'):
+            key = before.id
+        else:
+            key = (before.id, (before.guild.id >> 22) % config['shards'])
 
         messagable = self.bot.get_user(config['messagable_id'])
         if messagable is None:
@@ -38,17 +42,17 @@ class Bots(Cog):
         status = after.status
 
         if status is discord.Status.offline:
-            msg = f'\N{WARNING SIGN} `{before} {before.id}` just went offline'
+            msg = f'\N{WARNING SIGN} `{before} {key}` just went offline'
             wait = 30
         else:
-            msg = f'\N{PARTY POPPER} `{before} {before.id}` just came back online'
+            msg = f'\N{PARTY POPPER} `{before} {key}` just came back online'
             wait = 0
-            if before.id in self.pending_messages.keys():
-                if self.pending_messages[before.id].done():
-                    del self.pending_messages[before.id]
+            if key in self.pending_messages.keys():
+                if self.pending_messages[key].done():
+                    del self.pending_messages[key]
                 else:
-                    self.pending_messages[before.id].cancel()
-                    del self.pending_messages[before.id]
+                    self.pending_messages[key].cancel()
+                    del self.pending_messages[key]
                     return
 
         log.debug(f'Sending notification about {before} ({before.id}) going {status}.')

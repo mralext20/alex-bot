@@ -25,8 +25,12 @@ logging = {
 #  bots who's owner gets a dm whenever they go offline
 monitored_bots = {
     288369203046645761: {  # Mousey
-        'messagable_id': 69198249432449024,  # SnowyLuma
-        'shared_guild': 383886323699679234,  # shared guild with bot
+        'messagable_id': 69198249432449024,  # the bot channel in mousey's server
+        'shards': 2,
+    },
+    701277606758318090: {  # parakarry
+        'messagable_id': 125233822760566784,  # mattBSG
+        'shared_guild': 314857672585248768,  # a shared guild. will be used instead of scanning any guilds.
     },
 }
 
