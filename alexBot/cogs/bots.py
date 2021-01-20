@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 class Bots(Cog):
     """Bot downtime notifications."""
 
-    pending_messages: Dict(Tuple, asyncio.Task) = {}
+    pending_messages = {}
 
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
