@@ -60,7 +60,7 @@ class Bots(Cog):
         now = datetime.datetime.utcnow().strftime('`[%H:%M]`')
 
         try:
-            self.pending_messages[before.id] = asyncio.get_event_loop().create_task(
+            self.pending_messages[key] = asyncio.get_event_loop().create_task(
                 self.send(messagable, f'{now} {msg}', wait)
             )
         except discord.HTTPException:
