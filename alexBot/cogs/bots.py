@@ -2,7 +2,7 @@
 
 import datetime
 import logging
-from typing import Dict, Tuple
+from typing import Dict
 
 import discord
 
@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 class Bots(Cog):
     """Bot downtime notifications."""
 
-    pending_messages = {}
+    pending_messages: Dict[object, asyncio.Task] = {}
 
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
@@ -48,7 +48,7 @@ class Bots(Cog):
             msg = f'\N{PARTY POPPER} `{before} {key}` just came back online'
             wait = 0
             if key in self.pending_messages.keys():
-                if self.pending_messages[key].done():
+                if self.pending_messages[key].done():  # the task finished already, this must be a new notif?
                     del self.pending_messages[key]
                 else:
                     self.pending_messages[key].cancel()
