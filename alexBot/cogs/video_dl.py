@@ -15,10 +15,10 @@ from youtube_dl import YoutubeDL, DownloadError
 log = logging.getLogger(__name__)
 
 REGEXES = [
-    re.compile(r'https?://vm\.tiktok\.com/.{6,}/'),
+    re.compile(r'https?://vm\.tiktok\.com/[a-zA-Z0-9#-_!*\(\),]{6,}/'),
     re.compile(r'https?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
-    re.compile(r'https?://(?:v\.)?redd\.it/.{6,}'),
-    re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/.{6,}'),
+    re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
+    re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/[a-zA-Z0-9#-_!*\(\),]{6,}'),
     re.compile(r'https?://twitter.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
 ]
 
