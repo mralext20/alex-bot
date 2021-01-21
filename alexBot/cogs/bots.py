@@ -33,6 +33,8 @@ class Bots(Cog):
         if config.get('shared_guild'):
             key = before.id
         else:
+            if not self.is_shard_presence_guild(before, config['shards']):
+                return
             key = (before.id, (before.guild.id >> 22) % config['shards'])
 
         messagable = self.bot.get_user(config['messagable_id'])
@@ -71,6 +73,31 @@ class Bots(Cog):
         """sends a message to a messagable after 30 seconds unless cancled"""
         await asyncio.sleep(wait)
         await messagable.send(message)
+
+    def is_shard_presence_guild(self, member: discord.Member, shard_count: int) -> bool:
+        """
+        Whether the guild the member is part of is significant in terms of presence tracking.
+        This is done by calculating if the guild has the lowest of all shared guilds for a specific bot shard
+        of the other bot, not ours.
+        Parameters
+        ----------
+        member : discord.Member
+            The bot to check the updates significance for.
+        shard_count : int
+            How many shards the bot has.
+        Returns
+        -------
+        bool
+            Whether the update is significant for us.
+        """
+
+        shard_id = (member.guild.id >> 22) % shard_count
+        guilds = [x for x in self.bot.guilds if x.get_member(member.id) and (x.id >> 22) % shard_count == shard_id]
+
+        if not guilds:
+            return False
+
+        return member.guild == min(guilds, key=lambda x: x.id)
 
 
 def setup(bot):
