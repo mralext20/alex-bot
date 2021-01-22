@@ -2,7 +2,7 @@
 
 import datetime
 import logging
-from typing import Dict
+from typing import Dict, Tuple, Union
 
 import discord
 
@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 class Bots(Cog):
     """Bot downtime notifications."""
 
-    pending_messages: Dict[object, asyncio.Task] = {}
+    pending_messages: Dict[Union[int, Tuple[int, int]], asyncio.Task] = {}
 
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
