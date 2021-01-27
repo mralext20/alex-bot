@@ -36,7 +36,7 @@ class Flight(Cog):
             return await ctx.send("something happened. try again?")
         if 'meta' in data or 'Meta' in data:
             try:
-                await self.bot.get_channel(384087096735956995).send(data['meta'])
+                log.warn(data['meta'])
             except KeyError:
                 pass
         if 'error' in data or 'Error' in data:
