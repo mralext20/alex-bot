@@ -62,6 +62,7 @@ def is_in_guild(guild_id):
 
     return commands.check(predicate)
 
+
 def is_in_channel(channel_id):
     async def predicate(ctx):
         return ctx.channel and ctx.channel.id == channel_id
