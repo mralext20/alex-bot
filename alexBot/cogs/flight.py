@@ -36,7 +36,7 @@ class Flight(Cog):
             return await ctx.send("something happened. try again?")
         if 'meta' in data or 'Meta' in data:
             try:
-                log.warn(data['meta'])
+                log.info(data['meta'])
             except KeyError:
                 pass
         if 'error' in data or 'Error' in data:
