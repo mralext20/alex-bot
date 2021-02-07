@@ -1,12 +1,12 @@
 import logging
 import re
+import time
+from typing import Dict
 
 import discord
 from discord.ext import commands
-from typing import Dict
-import time
-from ..tools import Cog
-from ..tools import get_json
+
+from ..tools import Cog, get_json
 
 log = logging.getLogger(__name__)
 ayygen = re.compile("[aA][yY][Yy][yY]*")

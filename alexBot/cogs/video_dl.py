@@ -1,16 +1,18 @@
+import asyncio
 import logging
+import math
+import os
 import re
+import shutil
+import subprocess
 from functools import partial
+
 import discord
 from discord.errors import DiscordException
 from discord.ext import commands
-import os
-import shutil
-import asyncio
-import subprocess
-import math
+from youtube_dl import DownloadError, YoutubeDL
+
 from ..tools import Cog, timing
-from youtube_dl import YoutubeDL, DownloadError
 
 log = logging.getLogger(__name__)
 

@@ -1,7 +1,6 @@
-from functools import wraps
 import time
-
-from typing import Callable, TYPE_CHECKING
+from functools import wraps
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from bot import Bot

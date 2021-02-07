@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import datetime
 import logging
 from typing import Dict, Tuple, Union
@@ -7,8 +8,6 @@ from typing import Dict, Tuple, Union
 import discord
 
 from ..tools import Cog
-
-import asyncio
 
 log = logging.getLogger(__name__)
 

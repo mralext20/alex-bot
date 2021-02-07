@@ -1,6 +1,5 @@
-from datetime import datetime, timezone
-
 import logging
+from datetime import datetime, timezone
 
 import aiohttp
 import discord

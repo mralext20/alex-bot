@@ -7,7 +7,6 @@ import time
 import discord
 from discord.ext import commands
 
-
 DEFAULT_SILENCED = ['discord', 'websockets']
 
 

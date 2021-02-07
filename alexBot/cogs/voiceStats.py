@@ -1,10 +1,11 @@
-import logging
-from alexBot.tools import Cog
-from discord.ext import commands
 import datetime
-import discord
-from alexBot.classes import GuildData, VoiceStat
+import logging
 
+import discord
+from discord.ext import commands
+
+from alexBot.classes import GuildData, VoiceStat
+from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
 

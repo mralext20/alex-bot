@@ -1,7 +1,10 @@
-from alexBot.classes import GuildConfig, UserData
-from discord.ext import commands
-import discord
 import dataclasses
+
+import discord
+from discord.ext import commands
+
+from alexBot.classes import GuildConfig, UserData
+
 from ..tools import Cog
 
 

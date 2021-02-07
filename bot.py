@@ -4,18 +4,16 @@
 import asyncio
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import aiohttp
 import aiosqlite
+import config
 import discord
 from discord.ext import commands
 
-import config
 from alexBot.channel_logging import setup_logging
-
 from alexBot.tools import metar_only_in_vasa
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from alexBot.data import Data

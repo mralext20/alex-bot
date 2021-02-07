@@ -1,10 +1,11 @@
-from alexBot.classes import RingRate
 import asyncio
+
 import discord
 from discord.errors import DiscordException
-
-from alexBot.tools import Cog
 from discord.ext import commands
+
+from alexBot.classes import RingRate
+from alexBot.tools import Cog
 
 
 class Ringing(Cog):

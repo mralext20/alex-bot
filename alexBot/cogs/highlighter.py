@@ -1,9 +1,9 @@
 import logging
 
-from ..tools import Cog
-
-from discord.ext import commands
 import discord
+from discord.ext import commands
+
+from ..tools import Cog
 
 log = logging.getLogger(__name__)
 

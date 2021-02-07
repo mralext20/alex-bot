@@ -1,6 +1,6 @@
 # creates databases in mongodb
-import sys
 import sqlite3
+import sys
 
 
 def leave(msg):

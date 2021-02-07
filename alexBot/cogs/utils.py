@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import humanize
-
 
 import discord
+import humanize
 from discord.ext import commands
 
 from ..tools import Cog

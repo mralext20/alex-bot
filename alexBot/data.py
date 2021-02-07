@@ -1,9 +1,11 @@
 import dataclasses
-
 import json
-from .tools import Cog
+
 import aiosqlite
+
 from alexBot.classes import GuildData, UserData
+
+from .tools import Cog
 
 
 class Data(Cog):

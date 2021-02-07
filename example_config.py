@@ -1,9 +1,10 @@
 # config file. copy to `config.py` and fill in your details.
 
-from alexBot.classes import RingRate
 import os
 
 import discord
+
+from alexBot.classes import RingRate
 
 token = os.environ.get('BOT_TOKEN')
 
