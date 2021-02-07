@@ -12,7 +12,7 @@ from discord.errors import DiscordException
 from discord.ext import commands
 from youtube_dl import DownloadError, YoutubeDL
 
-from ..tools import Cog, timing
+from ..tools import Cog, is_in_channel, is_in_guild, timing
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +54,22 @@ class Video_DL(Cog):
         except KeyError:
             pass
         return REGEXES[3].sub('', data['title'])
+
+    @staticmethod
+    def download_audio(url, id):
+        ydl_opts = {
+            'outtmpl': f'{id}.mp3',
+            'format': 'bestaudio/best',
+            'postprocessors': [
+                {
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '64',
+                }
+            ],
+        }
+        ytdl = YoutubeDL(ydl_opts)
+        ytdl.download([url])
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -157,6 +173,20 @@ class Video_DL(Cog):
         finally:
             if os.path.exists('in.mp4'):
                 os.remove('in.mp4')
+
+    @commands.command()
+    @is_in_guild(791528974442299412)
+    @is_in_channel(791530687102451712)
+    async def mirror(self, ctx: commands.Context, url: str):
+        async with ctx.typing():
+            try:
+                task = partial(self.download_audio, url, ctx.message.id)
+                await self.bot.loop.run_in_executor(None, task)
+                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.mp3", filename=f'audio.mp3'))
+                await ctx.send(f"!play {msg.attachments[0].url}")
+            finally:
+                if os.path.exists(f"{ctx.message.id}.mp3"):
+                    os.remove(f"{ctx.message.id}.mp3")
 
 
 def setup(bot):
