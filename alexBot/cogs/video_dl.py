@@ -69,7 +69,11 @@ class Video_DL(Cog):
             ],
         }
         ytdl = YoutubeDL(ydl_opts)
-        ytdl.download([url])
+        data = ytdl.extract_info(url, download=True)
+        try:
+            return data['title']
+        except KeyError:
+            return "audio"
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -181,8 +185,8 @@ class Video_DL(Cog):
         async with ctx.typing():
             try:
                 task = partial(self.download_audio, url, ctx.message.id)
-                await self.bot.loop.run_in_executor(None, task)
-                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.mp3", filename=f'audio.mp3'))
+                title = await self.bot.loop.run_in_executor(None, task)
+                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.mp3", filename=f'{title}.mp3'))
                 await ctx.send(f"!play {msg.attachments[0].url}")
             finally:
                 if os.path.exists(f"{ctx.message.id}.mp3"):
