@@ -11,3 +11,4 @@ humanize~=2.5.0
 xmltodict~=0.12.0
 jishaku~=1.19.0.194
 youtube_dl
+python-slugify[unidecode]~=4.0.1

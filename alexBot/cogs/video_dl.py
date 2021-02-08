@@ -10,6 +10,7 @@ from functools import partial
 import discord
 from discord.errors import DiscordException
 from discord.ext import commands
+from slugify import slugify
 from youtube_dl import DownloadError, YoutubeDL
 
 from ..tools import Cog, is_in_channel, is_in_guild, timing
@@ -186,7 +187,7 @@ class Video_DL(Cog):
             try:
                 task = partial(self.download_audio, url, ctx.message.id)
                 title = await self.bot.loop.run_in_executor(None, task)
-                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.mp3", filename=f'{title}.mp3'))
+                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.mp3", filename=f'{slugify(title)}.mp3'))
                 await ctx.send(f"!play {msg.attachments[0].url}")
             finally:
                 if os.path.exists(f"{ctx.message.id}.mp3"):
