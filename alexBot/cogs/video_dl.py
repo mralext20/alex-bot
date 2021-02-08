@@ -59,12 +59,12 @@ class Video_DL(Cog):
     @staticmethod
     def download_audio(url, id):
         ydl_opts = {
-            'outtmpl': f'{id}.mp3',
+            'outtmpl': f'{id}.%(ext)s',
             'format': 'bestaudio/best',
             'postprocessors': [
                 {
                     'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
+                    'preferredcodec': 'm4a',
                     'preferredquality': '64',
                 }
             ],
@@ -187,11 +187,11 @@ class Video_DL(Cog):
             try:
                 task = partial(self.download_audio, url, ctx.message.id)
                 title = await self.bot.loop.run_in_executor(None, task)
-                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.mp3", filename=f'{slugify(title)}.mp3'))
+                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a'))
                 await ctx.send(f"!play {msg.attachments[0].url}")
             finally:
-                if os.path.exists(f"{ctx.message.id}.mp3"):
-                    os.remove(f"{ctx.message.id}.mp3")
+                if os.path.exists(f"{ctx.message.id}.m4a"):
+                    os.remove(f"{ctx.message.id}.m4a")
 
 
 def setup(bot):
