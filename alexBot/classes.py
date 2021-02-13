@@ -4,7 +4,6 @@ from typing import List
 
 import discord
 
-
 @dataclass
 class RingRate:
     times: int = 1
@@ -69,8 +68,8 @@ class GuildConfig:
 
 @dataclass
 class GuildData:
-    voiceStat: VoiceStat = VoiceStat()
-    config: GuildConfig = GuildConfig()
+    voiceStat: VoiceStat = field(default_factory=VoiceStat)
+    config: GuildConfig = field(default_factory=GuildConfig)
 
     @classmethod
     def from_dict(cls, data) -> "GuildData":
@@ -85,14 +84,14 @@ class UserConfig:
     ringable: bool = True
 
     @classmethod
-    def from_dict(cls, data) -> "UserConfig":
+    def from_dict(cls, data):
         return cls(**data)
 
 
 @dataclass
 class UserData:
-    config: UserConfig = UserConfig()
+    config: UserConfig = field(default_factory=UserConfig)
 
     @classmethod
-    def from_dict(cls, data) -> "UserData":
+    def from_dict(cls, data):
         return cls(config=UserConfig.from_dict(data["config"]))
