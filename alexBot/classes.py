@@ -4,6 +4,7 @@ from typing import List
 
 import discord
 
+
 @dataclass
 class RingRate:
     times: int = 1
