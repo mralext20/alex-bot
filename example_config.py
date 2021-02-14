@@ -48,3 +48,5 @@ listenServers = [272885620769161216]
 listens = ['alex', 'alaska']
 
 db = "configs.db"
+
+neosTZData = r"..\neostz\data.json"

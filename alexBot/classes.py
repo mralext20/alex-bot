@@ -1,8 +1,9 @@
 import datetime
+import posixpath
 from dataclasses import asdict, dataclass, field
-from typing import List
+from typing import Dict, List, Optional
+from urllib.parse import urlparse
 
-import discord
 
 @dataclass
 class RingRate:
@@ -50,6 +51,45 @@ class ReactionRoleConfig:
     channel: int
     role: int
     reaction: str
+
+
+@dataclass
+class NeosTZGroup:
+    name: str
+    tags: Dict[str, List[str]]
+    default_icon: str
+    users: Dict[str, str]
+
+    def __init__(self, data) -> None:
+        self.name = data['name']
+        self.tags = data['tags']
+        self.default_icon = data['default_icon']
+        self.users = data['users']
+
+
+@dataclass
+class NeosTZData:
+    zones: Dict[str, str]
+    groups: List[NeosTZGroup]
+
+    def __init__(self, data) -> None:
+        self.zones = data['zones']
+        self.groups = [NeosTZGroup(each) for each in data['groups']]
+
+
+@dataclass
+class NeosUser:
+    idx: str
+    username: str
+    icon: Optional[str] = None
+
+    def __init__(self, data: dict) -> None:
+        self.idx = data['id']
+        self.username = data['username']
+        if data.get('profile'):
+            if data['profile'].get('iconUrl'):
+                url = urlparse(data['profile']['iconUrl'])
+                self.icon = f"https://cloudxstorage.blob.core.windows.net/assets{posixpath.splitext(url.path)[0]}"
 
 
 @dataclass

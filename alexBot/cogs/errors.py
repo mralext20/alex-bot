@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import traceback
 
@@ -18,6 +19,8 @@ class CommandErrorHandler(Cog):
 
         msg = None
         alex = ctx.bot.owner
+        if isinstance(error, asyncio.TimeoutError):
+            msg = f"timed out. you can start again with {ctx.prefix}{ctx.command}"
 
         if isinstance(error, commands.DisabledCommand):
             msg = f'{ctx.command} has been disabled.'
