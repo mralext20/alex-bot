@@ -1,8 +1,8 @@
 import datetime
-import posixpath
 from dataclasses import asdict, dataclass, field
 from typing import Dict, List, Optional
-from urllib.parse import urlparse
+
+from .tools import transform_neosdb
 
 
 @dataclass
@@ -83,13 +83,18 @@ class NeosUser:
     username: str
     icon: Optional[str] = None
 
+    def __eq__(self, o: "NeosUser") -> bool:
+        return self.idx == o.idx
+
+    def __hash__(self) -> int:
+        return hash(self.idx)
+
     def __init__(self, data: dict) -> None:
         self.idx = data['id']
         self.username = data['username']
         if data.get('profile'):
             if data['profile'].get('iconUrl'):
-                url = urlparse(data['profile']['iconUrl'])
-                self.icon = f"https://cloudxstorage.blob.core.windows.net/assets{posixpath.splitext(url.path)[0]}"
+                self.icon = transform_neosdb(data['profile']['iconUrl'])
 
 
 @dataclass

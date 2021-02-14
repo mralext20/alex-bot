@@ -1,6 +1,9 @@
+import math
+import posixpath
 import time
 from functools import wraps
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Generator, Iterable, TypeVar
+from urllib.parse import urlparse
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -12,6 +15,8 @@ import xmltodict
 from discord.ext import commands
 
 log = getLogger(__name__)
+
+_T = TypeVar("_T")
 
 
 class Cog(commands.Cog):
@@ -96,3 +101,16 @@ def timing(log=None):
         return wrapper
 
     return inner_function
+
+
+def grouper(iterable: Iterable[_T], n: int) -> Generator[Iterable[_T], None, None]:
+    """
+    given a iterable, yield that iterable back in chunks of size n. last item will be any size.
+    """
+    for i in range(math.ceil(len(iterable) / n)):
+        yield iterable[i * n : i * n + n]
+
+
+def transform_neosdb(url: str) -> str:
+    url = urlparse(url)
+    return f"https://cloudxstorage.blob.core.windows.net/assets{posixpath.splitext(url.path)[0]}"

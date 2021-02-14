@@ -13,7 +13,7 @@ from discord.embeds import EmptyEmbed
 from discord.ext import commands
 
 from ..classes import NeosTZData, NeosUser
-from ..tools import Cog
+from ..tools import Cog, grouper, transform_neosdb
 
 GUILD_GROUP_LOOKUP: Dict[int, str] = {
     670631606477651970: 'viarsys',
@@ -31,7 +31,11 @@ REQUEST_TIMEZONE = (
 DATA_PATH = "../neostz/data.json"
 
 
+neosUserCache: Dict[str, NeosUser] = {}
+
+
 class NeosTZ(Cog):
+
     """Set of commands to do with NeosTZ stuff"""
 
     RWLOCK = asyncio.Lock()
@@ -66,14 +70,17 @@ class NeosTZ(Cog):
         return embed
 
     async def get_neos_users(self, name: str) -> List[NeosUser]:
-        if name.lower().startswith("U-"):
+        if name.startswith("U-"):
             if ' ' in name:
                 raise ValueError("can't have spaces in a U- based User ID")
-            data = await self.bot.session.get(f"https://www.neosvr-api.com/api/users/{name}")
             try:
-                users = [NeosUser(await data.json())]
+                return neosUserCache[name]
             except KeyError:
-                raise ValueError("Not Found")
+                data = await self.bot.session.get(f"https://www.neosvr-api.com/api/users/{name}")
+                try:
+                    users = [NeosUser(await data.json())]
+                except KeyError:
+                    raise ValueError("Not Found")
         else:
             data = await self.bot.session.get("https://www.neosvr-api.com/api/users", params={'name': name})
             try:
@@ -88,7 +95,30 @@ class NeosTZ(Cog):
     @commands.group('neostz', invoke_without_command=True)
     async def neostz(self, ctx: commands.Context):
         """shows who's when in this group"""
-        pass
+        async with self.RWLOCK:
+            data = self.readData()
+        groupData = next(
+            group for group in data.groups if group.name == GUILD_GROUP_LOOKUP[ctx.guild.id]
+        )  # list.find(e.name == group)
+        members = {(await self.get_neos_users(user))[0]: pytz.timezone(tz) for user, tz in groupData.users.items()}
+        for group in grouper([(k, v) for k, v in members.items()], 25):
+            embed = discord.Embed()
+            embed.set_author(
+                name=f"Times for Members of {groupData.name}",
+                icon_url=(
+                    transform_neosdb(groupData.default_icon)
+                    if groupData.default_icon.startswith('neosdb:///')
+                    else groupData.default_icon
+                ),
+            )
+
+            embed.color = discord.Color(0xF1C40F)
+            for member, timezone in group:
+                embed.add_field(
+                    name=member.username,
+                    value=pytz.utc.localize(datetime.utcnow()).astimezone(timezone).strftime('%H:%M (%I:%M %p)'),
+                )
+            await ctx.send(embed=embed)
 
     @neostz.command()
     async def add(self, ctx: commands.Context):
