@@ -123,8 +123,10 @@ class NeosTZ(Cog):
             )
             try:
                 tz = pytz.timezone(usermsg.content)
+                localtime = pytz.utc.localize(datetime.utcnow()).astimezone(tz)
                 msg = await ctx.send(
-                    f"too confirm, your timezone is {tz.zone}, and it is {pytz.utc.localize(datetime.utcnow()).astimezone(tz)} where you live?"
+                    f"too confirm, your timezone is {tz.zone}, and it is"
+                    f"{localtime.strftime('%H:%M (%I:%M %p)')} where you live?"
                 )
                 if not await self.confirm(msg, ctx.author):
                     tz = None
@@ -138,8 +140,10 @@ class NeosTZ(Cog):
         # aquire lock
         async with self.RWLOCK:
             data = self.readData()
-            group = next(group for group in data.groups if group.name == GUILD_GROUP_LOOKUP[ctx.guild.id])
-            group.users[user.idx] = tz
+            group = next(
+                group for group in data.groups if group.name == GUILD_GROUP_LOOKUP[ctx.guild.id]
+            )  # list.find(e.name == group)
+            group.users[user.idx] = str(tz)
             self.saveData(data)
         if self.bot.location != 'dev':
             await asyncio.create_subprocess_shell('systemctl start --user neos-tz.service'.split(' '))
