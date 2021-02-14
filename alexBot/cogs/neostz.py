@@ -148,7 +148,8 @@ class NeosTZ(Cog):
             group.users[user.idx] = str(tz)
             self.saveData(data)
         if self.bot.location != 'dev':
-            await asyncio.create_subprocess_shell('systemctl start --user neos-tz.service')
+            process = await asyncio.create_subprocess_shell('systemctl start --user neos-tz.service')
+            await process.wait()
             await ctx.send('updated!')
 
 
