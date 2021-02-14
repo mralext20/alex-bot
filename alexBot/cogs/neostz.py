@@ -125,7 +125,7 @@ class NeosTZ(Cog):
                 tz = pytz.timezone(usermsg.content)
                 localtime = pytz.utc.localize(datetime.utcnow()).astimezone(tz)
                 msg = await ctx.send(
-                    f"too confirm, your timezone is {tz.zone}, and it is"
+                    f"too confirm, your timezone is {tz.zone}, and it is "
                     f"{localtime.strftime('%H:%M (%I:%M %p)')} where you live?"
                 )
                 if not await self.confirm(msg, ctx.author):
@@ -135,7 +135,7 @@ class NeosTZ(Cog):
                 await ctx.send(f"cannot find the timezone {usermsg.content}")
 
         await ctx.send(
-            f"ok! your user account is {user.username}, and the TZ is {tz}.i'll go ahead and tell the panel in neos to update...."
+            f"ok! your user account is {user.username}, and the TZ is {tz}. i'll go ahead and tell the panel in neos to update...."
         )
         # aquire lock
         async with self.RWLOCK:
