@@ -2,9 +2,9 @@
 
 import asyncio
 import json
+import subprocess
 from dataclasses import asdict
 from datetime import datetime
-import subprocess
 from typing import Dict, List, Optional
 
 import discord
