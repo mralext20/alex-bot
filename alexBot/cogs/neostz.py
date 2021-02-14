@@ -61,6 +61,7 @@ class NeosTZ(Cog):
     def embed_for_user(user: NeosUser) -> discord.Embed:
         embed = discord.Embed()
         embed.set_author(name=user.username, icon_url=user.icon or embed.Empty)
+        embed.color = discord.Color(0xF1C40F)  # solarix Gold ? citation needed
         embed.set_footer(text=f"user ID: {user.idx}")
         return embed
 
