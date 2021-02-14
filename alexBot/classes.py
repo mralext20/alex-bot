@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
 
+
 @dataclass
 class RingRate:
     times: int = 1
