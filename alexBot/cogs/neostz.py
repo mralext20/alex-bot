@@ -41,7 +41,9 @@ class NeosTZ(Cog):
         return NeosTZData(data)
 
     def saveData(self, data: NeosTZData):
-        json.dump(asdict(data), open(self.bot.config.neosTZData, 'w'))
+        str = json.dumps(asdict(data), indent=2)
+        with open(self.bot.config.neosTZData, 'w') as f:
+            f.write(str)
 
     async def confirm(self, msg: discord.Message, target: discord.Member):
         reactions = ["\U00002705", "\U0000274c"]
