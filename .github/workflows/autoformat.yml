@@ -14,7 +14,6 @@ jobs:
           python-version: 3.8
 
       - name: Install pip modules
-<<<<<<< HEAD
         run: pip install black isort
 
       - name: copy config for isort sanity 
@@ -22,9 +21,6 @@ jobs:
 
       - name: Run isort 
         run: isort .
-=======
-        run: pip install black 
->>>>>>> parent of bb90c3f... Update autoformat to use isort, run on PRs
 
       - name: Run Black 
         run: black .
