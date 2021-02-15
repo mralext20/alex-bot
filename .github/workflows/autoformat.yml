@@ -1,20 +1,12 @@
-name: "Autoformat using Black & isort"
+name: "Autoformat using Black"
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - master
-  pull_request:
-
+on: [workflow_dispatch, push]
 
 jobs:
   autoformat:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:  # https://github.com/stefanzweifel/git-auto-commit-action#checkout-the-correct-branch
-          ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
@@ -22,6 +14,7 @@ jobs:
           python-version: 3.8
 
       - name: Install pip modules
+<<<<<<< HEAD
         run: pip install black isort
 
       - name: copy config for isort sanity 
@@ -29,6 +22,9 @@ jobs:
 
       - name: Run isort 
         run: isort .
+=======
+        run: pip install black 
+>>>>>>> parent of bb90c3f... Update autoformat to use isort, run on PRs
 
       - name: Run Black 
         run: black .
@@ -37,7 +33,6 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "auto: format python code"
           git push
