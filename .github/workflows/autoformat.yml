@@ -24,6 +24,9 @@ jobs:
       - name: Install pip modules
         run: pip install black isort
 
+      - name: copy config for isort sanity 
+        run: cp example_config.py config.py
+
       - name: Run isort 
         run: isort .
 
