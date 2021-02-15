@@ -45,6 +45,7 @@ class Utils(Cog):
 
     @commands.command(name='info', aliases='source about git'.split())
     async def info(self, ctx):
+        """general bot information"""
         ret = discord.Embed()
         ret.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
         ret.add_field(name='Support Server', value='[link](https://discord.gg/jMwPFqp)')
@@ -55,6 +56,7 @@ class Utils(Cog):
 
     @commands.command(name='inviteDetails')
     async def inviteDetails(self, ctx, invite: discord.Invite):
+        """Tells you about an invite, such as how many members the server it's pointed to has and more!"""
         if invite.revoked:
             return await ctx.send("That invite is revoked...")
         ret = discord.Embed()
@@ -78,6 +80,7 @@ class Utils(Cog):
 
     @commands.command()
     async def invite(self, ctx):
+        """tells you my invite link!"""
         await ctx.send(f"<{discord.utils.oauth_url(self.bot.user.id)}>")
 
 

@@ -4,7 +4,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from alexBot.classes import GuildData, VoiceStat
+from alexBot.classes import GuildData
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
@@ -78,6 +78,7 @@ class VoiceStats(Cog):
 
     @commands.command()
     async def voiceStats(self, ctx: commands.Context):
+        """tells you how long your average, longest, and current voice sessions is."""
         vd = (await self.bot.db.get_guild_data(ctx.guild.id)).voiceStat
         embed = discord.Embed()
         if self.any_other_voice_chats(ctx.guild):

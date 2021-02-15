@@ -15,7 +15,7 @@ class Flight(Cog):
     @commands.command()
     async def metar(self, ctx: commands.Context, *, stations):
         """
-        returns the METAR for a given station or set of stations. also works with cord pairs (40.38,-73.46)
+        returns the METAR for a given station. also works with cord pairs (40.38,-73.46)
         """
         await ctx.trigger_typing()
 

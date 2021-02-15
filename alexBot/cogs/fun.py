@@ -17,6 +17,7 @@ class Fun(Cog):
 
     @commands.command()
     async def cat(self, ctx: commands.Context):
+        """Posts a pretty photo of a cat"""
         cat = await get_json(
             self.bot.session,
             f"https://thecatapi.com/api/images/get?format=json" f"&api_key={self.bot.config.cat_token}",
@@ -30,6 +31,7 @@ class Fun(Cog):
 
     @commands.command()
     async def dog(self, ctx: commands.Context):
+        """Posts a pretty picture of a dog."""
         dog = None
         while dog is None or dog["url"][-3:].lower() == "mp4":
             dog = await get_json(self.bot.session, "https://random.dog/woof.json")

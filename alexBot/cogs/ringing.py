@@ -11,6 +11,7 @@ from alexBot.tools import Cog
 class Ringing(Cog):
     @commands.command()
     async def ring(self, ctx: commands.Context, target: discord.Member):
+        """Alerts another member of the server that you want someone to talk to. requires that you're in a voice channel."""
         if not ctx.author.voice:
             await ctx.send("cannot ring: you are not in a voice channel")
             return
