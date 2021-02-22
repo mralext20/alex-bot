@@ -25,7 +25,8 @@ REQUEST_USERNAME = "What is the username of your account in neos? you can say 'A
 REQUEST_TIMEZONE = (
     "What timezone do you live in? see "
     "<http://www.timezoneconverter.com/cgi-bin/findzone> to help figure out your timezone, "
-    "or <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> for just a plain list of timezones."
+    "or <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> for just a plain list of timezones.\n\n"
+    "please ensure that you are using a timezone with a `/` in it, e.g. `America/Anchorage`, `Europe/Berlin`"
 )
 
 DATA_PATH = "../neostz/data.json"
@@ -155,6 +156,8 @@ class NeosTZ(Cog):
                 timeout=120,
             )
             try:
+                if '/' not in usermsg.contnet:
+                    raise pytz.UnknownTimeZoneError
                 tz = pytz.timezone(usermsg.content)
                 localtime = pytz.utc.localize(datetime.utcnow()).astimezone(tz)
                 msg = await ctx.send(
