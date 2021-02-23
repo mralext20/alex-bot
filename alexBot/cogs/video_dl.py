@@ -78,6 +78,7 @@ class Video_DL(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
+        loop = asyncio.get_running_loop()
         if message.guild is None or message.author == self.bot.user:
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
@@ -101,7 +102,7 @@ class Video_DL(Cog):
                 if match:
                     await message.channel.trigger_typing()
                     try:
-                        await message.add_reaction('⌛')
+                        await message.add_reaction('📥')
                     except discord.Forbidden:
                         pass
 
@@ -118,19 +119,18 @@ class Video_DL(Cog):
                         return
 
                     if os.path.getsize(f'{message.id}.mp4') > 8000000:
-                        try:
-                            await message.add_reaction('🪄')
-                        except discord.Forbidden:
-                            pass
+                        loop.create_task(message.add_reaction('🪄'))  # magic wand
+                        loop.create_task(message.remove_reaction('📥', self.bot.user))
+
                         async with self.encode_lock:
                             task = partial(self.transcode_shrink, message.id)
                             await self.bot.loop.run_in_executor(None, task)
 
                     # file is MESSAGE.ID.mp4, need to create discord.File and upload it to channel then delete out.mp4
                     file = discord.File(f'{message.id}.mp4', 'vid.mp4')
-
+                    loop.create_task(message.add_reaction('📤'))
                     await message.reply(title, file=file, mention_author=False)
-
+                    loop.create_task(message.remove_reaction('📤', self.bot.user))
                     try:
                         await message.add_reaction('✅')
                     except DiscordException:
