@@ -117,10 +117,10 @@ class Video_DL(Cog):
                             except DiscordException:
                                 pass
                         return
+                    loop.create_task(message.remove_reaction('📥', self.bot.user))
 
                     if os.path.getsize(f'{message.id}.mp4') > 8000000:
                         loop.create_task(message.add_reaction('🪄'))  # magic wand
-                        loop.create_task(message.remove_reaction('📥', self.bot.user))
 
                         async with self.encode_lock:
                             task = partial(self.transcode_shrink, message.id)
