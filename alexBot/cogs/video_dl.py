@@ -145,7 +145,7 @@ class Video_DL(Cog):
                     await message.channel.send('Something broke')
 
             finally:
-                await message.remove_reaction('⌛', self.bot.user)
+                await message.remove_reaction('📥', self.bot.user)
 
                 if os.path.exists(f'{message.id}.mp4'):
                     os.remove(f'{message.id}.mp4')
