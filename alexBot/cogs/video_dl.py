@@ -40,7 +40,8 @@ class NotAVideo(Exception):
 
 class Video_DL(Cog):
     active = False
-    encode_lock = asyncio.Lock()  # TODO: convert to ~asyncio.Condition() in the future for better responce in emojis?
+    encode_lock = asyncio.Lock()
+    mirror_upload_lock = asyncio.Lock()
 
     @staticmethod
     def download_video(url, id):
@@ -185,18 +186,19 @@ class Video_DL(Cog):
     async def mirror(self, ctx: commands.Context, url: str):
         """Mirrors a youtube-dl compatible URL to a discord file upload.
         also connects to your voice channel, requests the bot play the song, and leaves."""
-        async with ctx.typing():
-            try:
-                task = partial(self.download_audio, url, ctx.message.id)
-                title = await self.bot.loop.run_in_executor(None, task)
-                msg = await ctx.send(file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a'))
-                voice_connection = await ctx.author.voice.channel.connect()
-                await ctx.send(f"!play {msg.attachments[0].url}")
-                await asyncio.sleep(5)
-                await voice_connection.disconnect()
-            finally:
-                if os.path.exists(f"{ctx.message.id}.m4a"):
-                    os.remove(f"{ctx.message.id}.m4a")
+        async with self.mirror_upload_lock:
+            async with ctx.typing():
+                try:
+                    task = partial(self.download_audio, url, ctx.message.id)
+                    title = await self.bot.loop.run_in_executor(None, task)
+
+                    msg = await ctx.send(file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a'))
+                    voice_connection = await ctx.author.voice.channel.connect()
+                    await ctx.send(f"!play {msg.attachments[0].url}")
+                    await voice_connection.disconnect()
+                finally:
+                    if os.path.exists(f"{ctx.message.id}.m4a"):
+                        os.remove(f"{ctx.message.id}.m4a")
 
 
 def setup(bot):
