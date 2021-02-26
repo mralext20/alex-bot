@@ -192,7 +192,12 @@ class Video_DL(Cog):
                     task = partial(self.download_audio, url, ctx.message.id)
                     title = await self.bot.loop.run_in_executor(None, task)
 
-                    msg = await ctx.send(file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a'))
+                    try:
+                        msg = await ctx.send(
+                            file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a')
+                        )
+                    except discord.errors.HTTPException:
+                        return await ctx.send("file too large :(")
                     voice_connection = await ctx.author.voice.channel.connect()
                     await ctx.send(f"!play {msg.attachments[0].url}")
                     await voice_connection.disconnect()
