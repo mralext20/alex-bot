@@ -198,9 +198,7 @@ class Video_DL(Cog):
                         )
                     except discord.errors.HTTPException:
                         return await ctx.send("file too large :(", reference=ctx.message)
-                    voice_connection = await ctx.author.voice.channel.connect()
                     await ctx.send(f"!play {msg.attachments[0].url}", reference=ctx.message)
-                    await voice_connection.disconnect()
                 finally:
                     if os.path.exists(f"{ctx.message.id}.m4a"):
                         os.remove(f"{ctx.message.id}.m4a")
