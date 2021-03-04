@@ -22,7 +22,8 @@ REGEXES = [
     re.compile(r'https?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
     re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/[a-zA-Z0-9#-_!*\(\),]{6,}'),
-    re.compile(r'https?://twitter.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
+    re.compile(r'https?://twitter\.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
+    re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
 ]
 
 TARGET_SHRINK_SIZE = (8 * 10 ** 6 - 128 * 1000) * 8  # 8 MB - 128 KB in bits
@@ -55,7 +56,7 @@ class Video_DL(Cog):
                 raise NotAVideo(data['url'])
         except KeyError:
             pass
-        return REGEXES[3].sub('', data['title'])
+        return REGEXES[5].sub('', data['title'])
 
     @staticmethod
     def download_audio(url, id):
@@ -194,11 +195,14 @@ class Video_DL(Cog):
 
                     try:
                         msg = await ctx.send(
-                            file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a')
+                            file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a'),
+                            reference=ctx.message,
                         )
                     except discord.errors.HTTPException:
                         return await ctx.send("file too large :(", reference=ctx.message)
-                    await ctx.send(f"!play {msg.attachments[0].url}", reference=ctx.message)
+                    await ctx.send(
+                        f"!play {msg.attachments[0].url}",
+                    )
                 finally:
                     if os.path.exists(f"{ctx.message.id}.m4a"):
                         os.remove(f"{ctx.message.id}.m4a")
