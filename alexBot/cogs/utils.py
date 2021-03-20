@@ -34,14 +34,16 @@ class Utils(Cog):
     async def difference(self, ctx, object_one: int, object_two: int = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
         one = discord.utils.snowflake_time(object_one)
+        now=False
         if object_two is None:
             object_two = ctx.message.id
+            now=True
         two = discord.utils.snowflake_time(object_two)
         if one > two:
             diff = one - two
         else:
             diff = two - one
-        await ctx.send(f'time difference from {one} to {two} is {diff}.')
+        await ctx.send(f'time difference from {f"{one} ({humanize.naturaldate(one)})" if now else "Now"} to {two} ({humanize.naturaldate(two)}) is {diff} ({humanize.naturaldelta(diff)}).')
 
     @commands.command(name='info', aliases='source about git'.split())
     async def info(self, ctx):
