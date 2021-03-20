@@ -1,4 +1,7 @@
 import dataclasses
+import pytz
+from datetime import timezone
+from typing import Callable, Dict, TypeVar
 
 import discord
 from discord.ext import commands
@@ -6,6 +9,15 @@ from discord.ext import commands
 from alexBot.classes import GuildConfig, UserData
 
 from ..tools import Cog
+
+
+_T = TypeVar("_T")
+
+typeMap: Dict[_T, Callable[[str], _T]] = {
+    bool: lambda s: s[0].lower() in ['y', 't'],
+    str: lambda s: s,
+    timezone: pytz.timezone,
+}
 
 
 class KeyConverter(commands.Converter):

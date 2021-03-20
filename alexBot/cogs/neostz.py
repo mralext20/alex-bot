@@ -2,7 +2,6 @@
 
 import asyncio
 import json
-import subprocess
 from dataclasses import asdict
 from datetime import datetime
 from typing import Dict, List, Optional
