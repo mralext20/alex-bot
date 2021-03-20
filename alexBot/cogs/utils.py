@@ -3,16 +3,21 @@
 import datetime
 
 import discord
+from discord.partial_emoji import PartialEmoji
 import humanize
 from discord.ext import commands
-
+import re
 from ..tools import Cog
+
+import aiohttp
 
 DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
     """The description for Utils goes here."""
+
+    EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
 
     @commands.command(aliases=['p'])
     async def ping(self, ctx: commands.Context):
@@ -34,16 +39,18 @@ class Utils(Cog):
     async def difference(self, ctx, object_one: int, object_two: int = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
         one = discord.utils.snowflake_time(object_one)
-        now=False
+        now = False
         if object_two is None:
             object_two = ctx.message.id
-            now=True
+            now = True
         two = discord.utils.snowflake_time(object_two)
         if one > two:
             diff = one - two
         else:
             diff = two - one
-        await ctx.send(f'time difference from {f"{one} ({humanize.naturaldate(one)})" if now else "Now"} to {two} ({humanize.naturaldate(two)}) is {diff} ({humanize.naturaldelta(diff)}).')
+        await ctx.send(
+            f'time difference from {f"{one} ({humanize.naturaldate(one)})" if now else "Now"} to {two} ({humanize.naturaldate(two)}) is {diff} ({humanize.naturaldelta(diff)}).'
+        )
 
     @commands.command(name='info', aliases='source about git'.split())
     async def info(self, ctx):
@@ -84,6 +91,26 @@ class Utils(Cog):
     async def invite(self, ctx):
         """tells you my invite link!"""
         await ctx.send(f"<{discord.utils.oauth_url(self.bot.user.id)}>")
+
+    @commands.command()
+    @commands.is_owner()
+    async def stealEmoji(self, ctx: commands.Context, index: int = 0):
+        if not ctx.message.reference:
+            raise commands.BadArgument("you need to reply to a message")
+        target = ctx.message.reference.resolved
+        raw_emojis = self.EMOJI_REGEX.findall(target.content)
+        emojis = [PartialEmoji(animated=(e[0] == 'a'), name=e[1], id=e[2]) for e in raw_emojis]
+
+        emoji = emojis[index]
+        async with aiohttp.ClientSession() as session:
+            req = await session.get(str(emoji.url))
+            data = await req.read()
+            nerdiowo = ctx.bot.get_guild(791528974442299412)
+            uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
+            try:
+                await ctx.reply(f"{uploaded}")
+            except discord.errors.Forbidden:
+                await ctx.author.send(f"{uploaded}")
 
 
 def setup(bot):
