@@ -49,7 +49,7 @@ class Utils(Cog):
         else:
             diff = two - one
         await ctx.send(
-            f'time difference from {one if not now else "now"} to {two}is {diff} (around {humanize.naturaldelta(diff)}).'
+            f'time difference from {f"`{one}`" if not now else "Now"} to `{two}` is `{diff}` (around {humanize.naturaldelta(diff)}).'
         )
 
     @commands.command(name='info', aliases='source about git'.split())
