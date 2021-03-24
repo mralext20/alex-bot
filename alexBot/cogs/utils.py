@@ -90,7 +90,9 @@ class Utils(Cog):
     @commands.command()
     async def invite(self, ctx):
         """tells you my invite link!"""
-        await ctx.send(f"<{discord.utils.oauth_url(self.bot.user.id)}>")
+        await ctx.send(
+            f"<https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot%20applications.commands>"
+        )
 
     @commands.command()
     @commands.is_owner()
