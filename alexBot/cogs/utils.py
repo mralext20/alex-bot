@@ -101,18 +101,19 @@ class Utils(Cog):
             raise commands.BadArgument("you need to reply to a message")
         target = ctx.message.reference.resolved
         raw_emojis = self.EMOJI_REGEX.findall(target.content)
-        emojis = [PartialEmoji(animated=(e[0] == 'a'), name=e[1], id=e[2]) for e in raw_emojis]
+        emojis = [
+            PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
+            for e in raw_emojis
+        ]
 
         emoji = emojis[index]
-        async with aiohttp.ClientSession() as session:
-            req = await session.get(str(emoji.url))
-            data = await req.read()
-            nerdiowo = ctx.bot.get_guild(791528974442299412)
-            uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
-            try:
-                await ctx.reply(f"{uploaded}")
-            except discord.errors.Forbidden:
-                await ctx.author.send(f"{uploaded}")
+        data = await emoji.url.read()
+        nerdiowo = ctx.bot.get_guild(791528974442299412)
+        uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
+        try:
+            await ctx.reply(f"{uploaded}")
+        except discord.errors.Forbidden:
+            await ctx.author.send(f"{uploaded}")
 
 
 def setup(bot):
