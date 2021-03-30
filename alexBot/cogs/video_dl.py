@@ -26,7 +26,6 @@ REGEXES = [
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
 ]
 
-TARGET_SHRINK_SIZE = (8 * 10 ** 6 - 128 * 1000) * 8  # 8 MB - 128 KB in bits
 MAX_VIDEO_LENGTH = 5 * 60  # 5 Minutes
 AUDIO_BITRATE = 64 * 1000  # 64 Kbits
 BUFFER_CONSTANT = 20  # Magic number, see https://unix.stackexchange.com/a/598360
@@ -40,7 +39,6 @@ class NotAVideo(Exception):
 
 
 class Video_DL(Cog):
-    active = False
     encode_lock = asyncio.Lock()
     mirror_upload_lock = asyncio.Lock()
 
@@ -121,11 +119,11 @@ class Video_DL(Cog):
                         return
                     loop.create_task(message.remove_reaction('📥', self.bot.user))
 
-                    if os.path.getsize(f'{message.id}.mp4') > 8000000:
+                    if os.path.getsize(f'{message.id}.mp4') > message.guild.filesize_limit:
                         loop.create_task(message.add_reaction('🪄'))  # magic wand
 
                         async with self.encode_lock:
-                            task = partial(self.transcode_shrink, message.id)
+                            task = partial(self.transcode_shrink, message.id, message.guild.filesize_limit)
                             await self.bot.loop.run_in_executor(None, task)
 
                     # file is MESSAGE.ID.mp4, need to create discord.File and upload it to channel then delete out.mp4
@@ -154,7 +152,7 @@ class Video_DL(Cog):
 
     @staticmethod
     @timing(log=log)
-    def transcode_shrink(id):
+    def transcode_shrink(id, limit):
         shutil.copyfile(f'{id}.mp4', 'in.mp4')
         os.remove(f'{id}.mp4')
 
@@ -164,8 +162,9 @@ class Video_DL(Cog):
             if video_length > MAX_VIDEO_LENGTH:
                 raise commands.CommandInvokeError('Video is too large.')
 
-            target_total_bitrate = TARGET_SHRINK_SIZE / video_length
-            buffer_size = math.floor(TARGET_SHRINK_SIZE / BUFFER_CONSTANT)
+            target_strink_size = limit - (128 * 1000 * 8)  # - 128 KB in bits
+            target_total_bitrate = target_strink_size / video_length
+            buffer_size = math.floor(target_strink_size / BUFFER_CONSTANT)
             target_video_bitrate = target_total_bitrate - AUDIO_BITRATE
 
             command_formatted = FFMPEG_CMD.format(
