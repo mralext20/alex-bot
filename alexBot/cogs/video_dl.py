@@ -39,7 +39,6 @@ class NotAVideo(Exception):
 
 
 class Video_DL(Cog):
-    active = False
     encode_lock = asyncio.Lock()
     mirror_upload_lock = asyncio.Lock()
 
