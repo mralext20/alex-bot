@@ -5,7 +5,7 @@ import traceback
 import discord
 from discord.ext import commands
 
-from ..tools import Cog
+from ..tools import Cog, is_in_channel, is_in_guild
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +35,9 @@ class CommandErrorHandler(Cog):
             msg = f'Bad argument: {error} See {ctx.prefix}help {ctx.command} for help!'
             log.warning(f"bad argument on {ctx.command}: {error}")
 
+        elif isinstance(error, commands.CheckFailure):
+            msg = 'A Check failed for this command.'
+
         elif isinstance(error, commands.MissingRequiredArgument):
             msg = f'Parameter {error.param} is required but missing, See {ctx.prefix}help {ctx.command} for help!'
         elif isinstance(error, commands.MissingPermissions):
@@ -49,7 +52,7 @@ class CommandErrorHandler(Cog):
                 )
 
         # post the error into the chat if no short error message could be generated
-        if msg is None:
+        if not msg:
             trace = traceback.format_exception(type(error), error, error.__traceback__, limit=5)
             actual_trace = '\n'.join(trace)
             msg = (
