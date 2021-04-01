@@ -1,9 +1,11 @@
-from alexBot.classes import Thresholds
-from ..tools import Cog, get_json
-from discord.ext import tasks
-import aiohttp
-
 import logging
+
+import aiohttp
+from discord.ext import tasks
+
+from alexBot.classes import Thresholds
+
+from ..tools import Cog, get_json
 
 log = logging.getLogger(__name__)
 
