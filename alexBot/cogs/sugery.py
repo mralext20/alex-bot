@@ -15,7 +15,7 @@ class Sugery(Cog):
         super().__init__(bot)
         self.sugery_update.start()
 
-    @tasks.loop(minute=5)
+    @tasks.loop(minutes=5)
     async def sugery_update(self):
         for user in self.bot.config.suggery:
             async with aiohttp.ClientSession() as session:
