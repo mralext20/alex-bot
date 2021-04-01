@@ -50,3 +50,17 @@ listens = ['alex', 'alaska']
 db = "configs.db"
 
 neosTZData = r"..\neostz\data.json"
+
+
+suggery = [
+    # SugeryUser(
+    #     guild=,
+    #     user=,
+    #     baseURL="https://someUser.herokuapp.com",
+    #     veryHighSugerName="",
+    #     highSugerName="",
+    #     normalSugerName="",
+    #     lowSugerName="",
+    #     veryLowSugerName="",
+    # )
+]
