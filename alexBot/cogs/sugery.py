@@ -23,6 +23,7 @@ class Sugery(Cog):
                 log.debug(f"fetching {user.user}'s current data..")
 
                 sgv = data[0]['sgv']
+                log.debug(f"{sgv=}, {user.thresholds=}")
                 name = None
                 if sgv <= user.thresholds.veryLow:
                     # verylow
