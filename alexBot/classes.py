@@ -140,3 +140,25 @@ class UserData:
     @classmethod
     def from_dict(cls, data):
         return cls(config=UserConfig.from_dict(data["config"]))
+
+
+@dataclass
+class Thresholds:
+    veryHigh: int
+    high: int
+    low: int
+    veryLow: int
+
+
+@dataclass
+class SugeryUser:
+    guild: int
+    user: int
+    baseURL: str
+    veryHighSugerName: str
+    highSugerName: str
+    normalSugerName: str
+    lowSugerName: str
+    veryLowSugerName: str
+    thresholds: Thresholds = None
+    lastName: str = None
