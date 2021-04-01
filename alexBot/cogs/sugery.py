@@ -52,7 +52,7 @@ class Sugery(Cog):
                 user.thresholds = Thresholds(
                     veryHigh=t['bgHigh'],
                     high=t['bgTargetTop'],
-                    low=t['bgTargetTop'],
+                    low=t['bgTargetBottom'],
                     veryLow=t['bgLow'],
                 )
 
