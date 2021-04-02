@@ -19,12 +19,6 @@ typeMap: Dict[_T, Callable[[str], _T]] = {
 }
 
 
-class KeyConverter(commands.Converter):
-    async def converter(self, ctx: commands.Context, argument: str):
-        keytype, key = argument.split('.')
-        return (keytype, key)
-
-
 class Configs(Cog):
     """handles guild config settings"""
 
@@ -53,8 +47,8 @@ class Configs(Cog):
             gd = await self.bot.db.get_guild_data(ctx.guild.id)
             if isinstance(getattr(gd.config, key, list()), list):
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
-            if type(getattr(gd.config, key)) == bool:
-                value = rawvalue[0].lower() == 't'
+            if t := type(getattr(gd.config, key)) in typeMap:
+                value = typeMap[t](rawvalue)
             else:
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
             setattr(gd.config, key, value)
@@ -65,8 +59,8 @@ class Configs(Cog):
             ud = await self.bot.db.get_user_data(ctx.author.id)
             if isinstance(getattr(ud.config, key, list()), list):
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
-            if type(getattr(ud.config, key)) == bool:
-                value = rawvalue[0].lower() == 't'
+            if t := type(getattr(ud.config, key)) in typeMap:
+                value = typeMap[t](rawvalue)
             else:
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
             setattr(ud.config, key, value)
