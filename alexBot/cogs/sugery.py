@@ -77,6 +77,9 @@ class Sugery(Cog):
                     veryLow=t['bgLow'],
                 )
 
+    def cog_unload(self):
+        self.sugery_update.cancel()
+
 
 def setup(bot):
     bot.add_cog(Sugery(bot))
