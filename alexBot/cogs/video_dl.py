@@ -137,7 +137,7 @@ class Video_DL(Cog):
                         pass
 
             except Exception as e:
-                log.warn(f'Exception occurred processing video {e}')
+                log.warn(f'Exception occurred processing video {e} -- {os.path.getsize(f"{message.id}.mp4")}')
 
                 try:
                     await message.add_reaction('❌')
