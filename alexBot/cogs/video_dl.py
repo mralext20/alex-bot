@@ -162,7 +162,7 @@ class Video_DL(Cog):
             if video_length > MAX_VIDEO_LENGTH:
                 raise commands.CommandInvokeError('Video is too large.')
 
-            target_strink_size = limit - (128 * 1000 * 8)  # - 128 KB in bits
+            target_strink_size = (limit - 128 * 1000) * 8  # limit - 128 KB, in bits
             target_total_bitrate = target_strink_size / video_length
             buffer_size = math.floor(target_strink_size / BUFFER_CONSTANT)
             target_video_bitrate = target_total_bitrate - AUDIO_BITRATE
