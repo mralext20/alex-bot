@@ -1,6 +1,6 @@
 import datetime
-from dataclasses import asdict, dataclass, field
 import enum
+from dataclasses import asdict, dataclass, field
 from typing import Dict, List, Optional
 
 from .tools import transform_neosdb
