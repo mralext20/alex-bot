@@ -67,7 +67,7 @@ class Sugery(Cog):
                         f"the direction is {direction} ({DIR2CHAR[direction]})"
                     )
                 user.lastGroup = zone
-                if user.nick == name:
+                if member.nick == name:
                     continue
                 await user.edit(nick=name, reason="user's bloodsuger group or direction changed")
 
