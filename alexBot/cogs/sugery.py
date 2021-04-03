@@ -69,7 +69,7 @@ class Sugery(Cog):
                 user.lastGroup = zone
                 if member.nick == name:
                     continue
-                await user.edit(nick=name, reason="user's bloodsuger group or direction changed")
+                await member.edit(nick=name, reason="user's bloodsuger group or direction changed")
 
     @sugery_update.before_loop
     async def before_sugery(self):
