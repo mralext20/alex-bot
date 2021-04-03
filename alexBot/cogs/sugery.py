@@ -3,7 +3,7 @@ import logging
 import aiohttp
 from discord.ext import tasks
 
-from alexBot.classes import Thresholds
+from alexBot.classes import SugeryZone, Thresholds
 
 from ..tools import Cog, get_json
 
@@ -45,22 +45,30 @@ class Sugery(Cog):
 
                 log.debug(f"{sgv=}, {user.thresholds=}")
                 name = None
+                zone = None
                 if sgv <= user.thresholds.veryLow:
-                    name = user.veryLowSugerName
+                    zone = SugeryZone.VERYLOW
                 elif user.thresholds.veryLow <= sgv <= user.thresholds.low:
-                    name = user.lowSugerName
+                    zone = SugeryZone.LOW
                 elif user.thresholds.low <= sgv <= user.thresholds.high:
-                    name = user.normalSugerName
+                    zone = SugeryZone.NORMAL
                 elif user.thresholds.high <= sgv <= user.thresholds.veryHigh:
-                    name = user.highSugerName
+                    zone = SugeryZone.HIGH
                 elif user.thresholds.veryHigh <= sgv:
-                    name = user.veryHighSugerName
+                    zone = SugeryZone.VERYHIGH
 
-                name = name + f" {DIR2CHAR[direction]}"
-                if name == user.lastName:
-                    break
-                user.lastName = name
-                user = self.bot.get_guild(user.guild).get_member(user.user)
+                name = f"{user.names[zone]} {DIR2CHAR[direction]}"
+
+                member = self.bot.get_guild(user.guild).get_member(user.user)
+                if zone != user.lastGroup:
+                    await member.send(
+                        f"Hi! your sugery zone is now `{zone.name.lower()}`."
+                        f"your SGV is currently {sgv}. "
+                        f"the direction is {direction} ({DIR2CHAR[direction]})"
+                    )
+                user.lastGroup = zone
+                if user.nick == name:
+                    continue
                 await user.edit(nick=name, reason="user's bloodsuger group or direction changed")
 
     @sugery_update.before_loop
@@ -76,6 +84,7 @@ class Sugery(Cog):
                     low=t['bgTargetBottom'],
                     veryLow=t['bgLow'],
                 )
+        await self.bot.wait_until_ready()
 
     def cog_unload(self):
         self.sugery_update.cancel()

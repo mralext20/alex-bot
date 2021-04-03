@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import asdict, dataclass, field
+import enum
 from typing import Dict, List, Optional
 
 from .tools import transform_neosdb
@@ -150,15 +151,19 @@ class Thresholds:
     veryLow: int
 
 
+class SugeryZone(enum.Enum):
+    VERYLOW = enum.auto()
+    LOW = enum.auto()
+    NORMAL = enum.auto()
+    HIGH = enum.auto()
+    VERYHIGH = enum.auto()
+
+
 @dataclass
 class SugeryUser:
     guild: int
     user: int
     baseURL: str
-    veryHighSugerName: str
-    highSugerName: str
-    normalSugerName: str
-    lowSugerName: str
-    veryLowSugerName: str
+    names: Dict[SugeryZone, str] = field(default_factory=dict)
     thresholds: Thresholds = None
-    lastName: str = None
+    lastGroup: SugeryZone = None

@@ -1,10 +1,11 @@
 # config file. copy to `config.py` and fill in your details.
 
+from alexBot.cogs.sugery import Sugery
 import os
 
 import discord
 
-from alexBot.classes import RingRate
+from alexBot.classes import RingRate, SugeryUser, SugeryZone
 
 token = os.environ.get('BOT_TOKEN')
 
@@ -54,13 +55,15 @@ neosTZData = r"..\neostz\data.json"
 
 suggery = [
     # SugeryUser(
-    #     guild=,
-    #     user=,
+    #     guild=0,
+    #     user=0,
     #     baseURL="https://someUser.herokuapp.com",
-    #     veryHighSugerName="",
-    #     highSugerName="",
-    #     normalSugerName="",
-    #     lowSugerName="",
-    #     veryLowSugerName="",
+    #     names={
+    #         SugeryZone.VERYLOW: "very low",
+    #         SugeryZone.LOW: "low",
+    #         SugeryZone.NORMAL: "normal",
+    #         SugeryZone.HIGH: "high",
+    #         SugeryZone.VERYHIGH: "very high",
+    #     },
     # )
 ]
