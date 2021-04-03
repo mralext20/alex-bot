@@ -3,7 +3,7 @@
 import datetime
 import re
 
-import aiohttp
+import asyncio
 import discord
 import humanize
 from discord.ext import commands
@@ -114,6 +114,16 @@ class Utils(Cog):
             await ctx.reply(f"{uploaded}")
         except discord.errors.Forbidden:
             await ctx.author.send(f"{uploaded}")
+
+    @commands.command()
+    @commands.has_guild_permissions(move_members=True)
+    @commands.bot_has_guild_permissions(move_members=True)
+    async def voice_move(self, ctx: commands.Context, target: discord.VoiceChannel):
+        if not ctx.author.voice:
+            raise ValueError("you must be in a voice call!")
+        for user in ctx.author.voice.channel.members:
+            ctx.bot.loop.create_task(user.move_to(target, reason=f"as requested by {ctx.author}"))
+        await ctx.send(":ok_hand:")
 
 
 def setup(bot):
