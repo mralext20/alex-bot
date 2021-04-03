@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import datetime
 import re
 
-import asyncio
 import discord
 import humanize
 from discord.ext import commands
