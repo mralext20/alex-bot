@@ -1,11 +1,11 @@
 # config file. copy to `config.py` and fill in your details.
 
-from alexBot.cogs.sugery import Sugery
 import os
 
 import discord
 
 from alexBot.classes import RingRate, SugeryUser, SugeryZone
+from alexBot.cogs.sugery import Sugery
 
 token = os.environ.get('BOT_TOKEN')
 
