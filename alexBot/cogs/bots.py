@@ -19,6 +19,8 @@ class Bots(Cog):
 
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if not self.bot.is_ready():
+            return
         if before.id not in self.bot.config.monitored_bots or before.status == after.status:
             return
 
