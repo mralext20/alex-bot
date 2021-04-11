@@ -49,7 +49,7 @@ class VoiceStat:
 
 @dataclass
 class ReactionRoleConfig:
-    channel: int
+    message: int
     role: int
     reaction: str
 
