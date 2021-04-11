@@ -24,7 +24,7 @@ class Ringing(Cog):
 
         ringRate = self.bot.config.ringRates[target.status]
         await ctx.message.add_reaction("❌")
-        await self.doRing(ctx.author.name, target, ctx.channel, ctx.message, ringRate)
+        await self.doRing(ctx.author, target, ctx.channel, ctx.message, ringRate)
         await ctx.message.remove_reaction("❌", self.bot.user)
         try:
             await ctx.message.clear_reactions()
@@ -34,7 +34,7 @@ class Ringing(Cog):
 
     async def doRing(
         self,
-        initiator: str,
+        initiator: discord.Member,
         target: discord.Member,
         channel: discord.TextChannel,
         sentinalMessage: discord.Message,
@@ -43,7 +43,7 @@ class Ringing(Cog):
         times = 0
         while await self.running(target, times, ringRate, sentinalMessage):
             await channel.send(
-                f"HELLO, {target.mention}! {initiator.upper()} WANTS YOU TO JOIN {target.voice.channel.mention}!"
+                f"HELLO, {target.mention}! {initiator.name.upper()} WANTS YOU TO JOIN {initiator.voice.channel.mention}!"
             )
             await asyncio.sleep(ringRate.rate)
             times += 1
