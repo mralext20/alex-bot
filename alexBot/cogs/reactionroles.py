@@ -1,4 +1,3 @@
-from alexBot.classes import ReactionRoleConfig
 import asyncio
 import logging
 from typing import Dict
