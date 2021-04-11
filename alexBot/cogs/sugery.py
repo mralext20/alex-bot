@@ -37,7 +37,7 @@ class Sugery(Cog):
     async def sugery_update(self):
         for user in self.bot.config.suggery:
             async with aiohttp.ClientSession() as session:
-                data = await get_json(session, f"{user.baseURL}/api/v1/entries/sgv.json")
+                data = await get_json(session, f"{user.baseURL}/api/v1/entries/current.json")
                 log.debug(f"fetching {user.user}'s current data..")
 
                 sgv = data[0]['sgv']
