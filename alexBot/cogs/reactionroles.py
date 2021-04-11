@@ -1,4 +1,3 @@
-from alexBot.classes import ReactionRoleConfig
 import asyncio
 import logging
 from typing import Dict
@@ -7,6 +6,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands.errors import BadArgument
 from discord.raw_models import RawReactionActionEvent
+
+from alexBot.classes import ReactionRoleConfig
 
 from ..tools import Cog
 
