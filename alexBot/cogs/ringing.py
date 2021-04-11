@@ -25,7 +25,6 @@ class Ringing(Cog):
         ringRate = self.bot.config.ringRates[target.status]
         await ctx.message.add_reaction("❌")
         await self.doRing(ctx.author, target, ctx.channel, ctx.message, ringRate)
-        await ctx.message.remove_reaction("❌", self.bot.user)
         try:
             await ctx.message.clear_reactions()
         except DiscordException:
