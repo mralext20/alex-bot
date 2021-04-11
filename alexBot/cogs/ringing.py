@@ -42,7 +42,9 @@ class Ringing(Cog):
     ):
         times = 0
         while await self.running(target, times, ringRate, sentinalMessage):
-            await channel.send(f"HELLO, {target.mention}! {initiator.upper()} WANTS YOU TO JOIN VOICE!")
+            await channel.send(
+                f"HELLO, {target.mention}! {initiator.upper()} WANTS YOU TO JOIN {target.voice.channel.mention}!"
+            )
             await asyncio.sleep(ringRate.rate)
             times += 1
 
