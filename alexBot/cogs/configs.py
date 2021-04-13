@@ -59,7 +59,7 @@ class Configs(Cog):
             ud = await self.bot.db.get_user_data(ctx.author.id)
             if isinstance(getattr(ud.config, key, list()), list):
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
-            if t := type(getattr(ud.config, key)) in typeMap:
+            if (t := type(getattr(ud.config, key))) in typeMap:
                 value = typeMap[t](rawvalue)
             else:
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
