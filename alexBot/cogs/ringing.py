@@ -1,7 +1,6 @@
 import asyncio
 
 import discord
-from discord.errors import DiscordException
 from discord.ext import commands
 
 from alexBot.classes import RingRate
