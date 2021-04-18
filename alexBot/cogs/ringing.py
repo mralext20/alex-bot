@@ -9,6 +9,7 @@ from alexBot.tools import Cog
 
 
 class Ringing(Cog):
+    @commands.max_concurrency(1, per=commands.BucketType.channel)
     @commands.command()
     async def ring(self, ctx: commands.Context, target: discord.Member):
         """Alerts another member of the server that you want someone to talk to. requires that you're in a voice channel."""
@@ -25,10 +26,6 @@ class Ringing(Cog):
         ringRate = self.bot.config.ringRates[target.status]
         await ctx.message.add_reaction("❌")
         await self.doRing(ctx.author, target, ctx.channel, ctx.message, ringRate)
-        try:
-            await ctx.message.clear_reactions()
-        except DiscordException:
-            pass
         await ctx.message.add_reaction("✅")
 
     async def doRing(
