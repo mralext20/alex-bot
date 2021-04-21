@@ -47,7 +47,7 @@ class Configs(Cog):
             gd = await self.bot.db.get_guild_data(ctx.guild.id)
             if isinstance(getattr(gd.config, key, list()), list):
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
-            if t := type(getattr(gd.config, key)) in typeMap:
+            if (t := type(getattr(gd.config, key))) in typeMap:
                 value = typeMap[t](rawvalue)
             else:
                 raise commands.errors.BadArgument(f"cannot set that key {key}")
