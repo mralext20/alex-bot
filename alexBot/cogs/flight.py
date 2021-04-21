@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime, timezone
-from avwx.exceptions import BadStation
 
-import discord
-import humanize
-from discord.ext import commands
 import avwx
+import discord
 import geomag
+import humanize
+from avwx.exceptions import BadStation
+from discord.ext import commands
 
 from alexBot.tools import Cog, get_json, get_xml
 
