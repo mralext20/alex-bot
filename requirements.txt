@@ -13,3 +13,5 @@ jishaku~=1.19.0.194
 youtube_dl
 python-slugify[unidecode]~=4.0.1
 pytz
+avwx-engine~=1.6.4
+git+git://github.com/mralext20/geomag#egg=geomag

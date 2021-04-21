@@ -11,13 +11,10 @@ token = os.environ.get('BOT_TOKEN')
 
 cat_token = os.environ.get('THECATAPI_KEY')
 
-avwx_token = os.environ.get('AVWX_KEY')
-
 prefix = "a!"
 
 location = "prod or dev"
 
-government_is_working = True
 
 logging = {
     'info': 'webhook url here',
