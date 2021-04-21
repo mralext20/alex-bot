@@ -58,15 +58,7 @@ class Flight(Cog):
             elif magdec < 0:  # same as above, but for less than 0 condition.
                 magdec = magdec + 360
 
-        location = ""
-        if metar.station.city != "":
-            location += f", {metar.station.city}"
-        if metar.station.state != "":
-            location += f", {metar.station.state}"
-        if metar.station.country != "":
-            location += f", {metar.station.country}"
-
-        embed.title = f"{metar.station.name}, {location} ({metar.station.icao})"
+        embed.title = f"{metar.station.name} {metar.station.country} ({metar.station.icao})"
 
         embed.add_field(name="Raw", value=metar.data.raw, inline=False)
         embed.add_field(name="Spoken", value=metar.speech, inline=False)
@@ -109,7 +101,7 @@ class Flight(Cog):
             embed.add_field(name="Visibility", value=translations.visibility, inline=False)
 
         embed.timestamp = metar.data.time.dt
-        if embed.color == discord.Color.red() or embed.color == discord.Color.magenta():
+        if metar.data.flight_rules in ["LIFR", "IFR"]:
             await ctx.send('you might want to reconsider flying.', embed=embed)
         else:
             await ctx.send(embed=embed)
