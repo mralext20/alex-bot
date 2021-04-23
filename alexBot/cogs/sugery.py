@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 import aiohttp
 from discord.ext import tasks
+import math
 
 from alexBot.classes import SugeryZone, Thresholds
 
@@ -81,7 +82,10 @@ class Sugery(Cog):
                 user.lastGroup = zone
                 if member.nick.startswith(name):
                     continue
-                await member.edit(nick=f"{name} ({battery}%)", reason="user's bloodsuger group or direction changed")
+                await member.edit(
+                    nick=f"{name} (\N{BATTERY}{' ⡀⣀⣄⣤⣦⣶⣷⣿'[math.ceil(battery/9)]})",
+                    reason="user's bloodsuger group or direction changed",
+                )
 
     @sugery_update.before_loop
     async def before_sugery(self):
