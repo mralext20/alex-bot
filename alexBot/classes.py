@@ -167,3 +167,4 @@ class SugeryUser:
     names: Dict[SugeryZone, str] = field(default_factory=dict)
     thresholds: Thresholds = None
     lastGroup: SugeryZone = None
+    lastBattery: int = None
