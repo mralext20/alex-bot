@@ -22,6 +22,9 @@ class CommandErrorHandler(Cog):
         if isinstance(error, asyncio.TimeoutError):
             msg = f"timed out. you can start again with {ctx.prefix}{ctx.command}"
 
+        if isinstance(error, commands.MaxConcurrencyReached):
+            msg = f"{ctx.command} is currently being ran. please wait for it to finish."
+
         if isinstance(error, commands.DisabledCommand):
             msg = f'{ctx.command} has been disabled.'
 
