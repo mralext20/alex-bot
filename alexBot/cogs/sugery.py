@@ -1,9 +1,9 @@
 import logging
+import math
 from typing import TYPE_CHECKING
 
 import aiohttp
 from discord.ext import tasks
-import math
 
 from alexBot.classes import SugeryZone, Thresholds
 
