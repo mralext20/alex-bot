@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 import aiohttp
 from discord.ext import tasks
@@ -6,8 +7,6 @@ from discord.ext import tasks
 from alexBot.classes import SugeryZone, Thresholds
 
 from ..tools import Cog, get_json
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bot import Bot
