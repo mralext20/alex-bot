@@ -81,11 +81,11 @@ class Sugery(Cog):
                     await member.send(f"ur battery dyin friendo: {battery}%")
                 user.lastGroup = zone
 
-                if member.nick == f"{name} (\N{BATTERY}{' ⡀⣀⣄⣤⣦⣶⣷⣿'[math.ceil(battery/9)]})":
+                if member.nick == f"{name} (\N{BATTERY}{r' ⡀⣀⣄⣤⣦⣶⣷⣿'[math.ceil(battery * 0.09)]})":
                     continue
 
                 await member.edit(
-                    nick=f"{name} (\N{BATTERY}{' ⡀⣀⣄⣤⣦⣶⣷⣿'[math.ceil(battery/9)]})",
+                    nick=f"{name} (\N{BATTERY}{r' ⡀⣀⣄⣤⣦⣶⣷⣿'[math.ceil(battery * 0.09)]})",
                     reason="user's bloodsuger group or direction changed",
                 )
 
