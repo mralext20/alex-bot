@@ -84,7 +84,7 @@ class Sugery(Cog):
                 user.lastGroup = zone
 
                 await member.edit(
-                    nick=f"{name} (\N{BATTERY}{BATTERYINDICATORS[math.ceil(battery * 0.09)]})",
+                    nick=f"{name} (\N{BATTERY}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
                     reason="user's bloodsuger group or direction changed",
                 )
 
