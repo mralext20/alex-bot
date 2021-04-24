@@ -24,9 +24,6 @@ class Bots(Cog):
         if before.id not in self.bot.config.monitored_bots or before.status == after.status:
             return
 
-        if before.guild.member_count > 75000:
-            return
-
         # we only notify when a bot goes offline or comes back online
         if not any(x.status is discord.Status.offline for x in (before, after)):
             return
@@ -96,7 +93,11 @@ class Bots(Cog):
         """
 
         shard_id = (member.guild.id >> 22) % shard_count
-        guilds = [x for x in self.bot.guilds if x.get_member(member.id) and (x.id >> 22) % shard_count == shard_id]
+        guilds = [
+            x
+            for x in self.bot.guilds
+            if x.get_member(member.id) and ((x.id >> 22) % shard_count == shard_id) and x.member_count < 75000
+        ]
 
         if not guilds:
             return False
