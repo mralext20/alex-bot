@@ -33,6 +33,8 @@ DIR2CHAR = {
     'RATE OUT OF RANGE': '⇕',
 }
 
+BATTERYINDICATORS = " \U00002840\U000028c0\U000028c4\U000028e4\U000028e6\U000028f6\U000028f7\U000028ff"
+
 
 class Sugery(Cog):
     def __init__(self, bot: "Bot"):
@@ -81,11 +83,8 @@ class Sugery(Cog):
                     await member.send(f"ur battery dyin friendo: {battery}%")
                 user.lastGroup = zone
 
-                if member.nick == f"{name} (\N{BATTERY}{r' ⡀⣀⣄⣤⣦⣶⣷⣿'[math.ceil(battery * 0.09)]})":
-                    continue
-
                 await member.edit(
-                    nick=f"{name} (\N{BATTERY}{r' ⡀⣀⣄⣤⣦⣶⣷⣿'[math.ceil(battery * 0.09)]})",
+                    nick=f"{name} (\N{BATTERY}{BATTERYINDICATORS[math.ceil(battery * 0.09)]})",
                     reason="user's bloodsuger group or direction changed",
                 )
 
