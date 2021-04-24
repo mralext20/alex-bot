@@ -24,6 +24,9 @@ class Bots(Cog):
         if before.id not in self.bot.config.monitored_bots or before.status == after.status:
             return
 
+        if before.guild.member_count > 75000:
+            return
+
         # we only notify when a bot goes offline or comes back online
         if not any(x.status is discord.Status.offline for x in (before, after)):
             return
