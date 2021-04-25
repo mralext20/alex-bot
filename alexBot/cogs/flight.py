@@ -8,12 +8,14 @@ import humanize
 from avwx.exceptions import BadStation
 from discord.ext import commands
 
-from alexBot.tools import Cog, get_json, get_xml
+from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
 
 
 class Flight(Cog):
+
+    wmm = geomag.WorldMagneticModel()
 
     flightrule_color = {
         "VFR": discord.Color.green(),
@@ -30,9 +32,14 @@ class Flight(Cog):
         await ctx.trigger_typing()
         station = station.upper()
         try:
-            metar = avwx.Metar(station)
-        except BadStation as e:
-            raise commands.errors.BadArgument(*e.args)
+            location = avwx.Station.from_icao(station)
+        except BadStation:
+            try:
+                location = avwx.Station.from_iata(station)
+            except BadStation as e:
+                raise commands.BadArgument(*e.args)
+
+        metar = avwx.Metar(location.icao)
 
         await metar.async_update()
 
@@ -48,9 +55,9 @@ class Flight(Cog):
 
         magdec = None
         if metar.data.wind_direction.value is not None:
-            declination = geomag.declination(
-                metar.station.latitude, metar.station.longitude, metar.station.elevation_ft
-            )
+            declination = self.wmm.calc_mag_field(
+                location.latitude, location.longitude, location.elevation_ft
+            ).declination
 
             magdec = declination + int(metar.data.wind_direction.value)  # add the magdec to the direction of the wind
             if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
