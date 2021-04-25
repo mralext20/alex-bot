@@ -42,9 +42,9 @@ async def get_text(session: aiohttp.ClientSession, url: str) -> str:
         return await content.text()
 
 
-async def get_json(session: aiohttp.ClientSession, url: str, body=None) -> dict:
-    log.debug(f"fetched json: {url}, body: {body}")
-    async with session.get(url, data=body) as content:
+async def get_json(session: aiohttp.ClientSession, url: str) -> dict:
+    log.debug(f"fetched json: {url}")
+    async with session.get(url) as content:
         return await content.json()
 
 
@@ -56,7 +56,18 @@ async def get_xml(session: aiohttp.ClientSession, url: str) -> dict:
 
 def metar_only_in_vasa(ctx: commands.Context):
     try:
-        return not (ctx.guild.id == 377567755743789064 and ctx.command.name not in ['help', 'invite', 'info', 'metar'])
+        return not (
+            ctx.guild.id == 377567755743789064
+            and ctx.command.name
+            not in [
+                'help',
+                'invite',
+                'info',
+                'metar',
+                'taf',
+                'jsk',
+            ]
+        )
     except AttributeError:
         return True
 

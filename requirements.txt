@@ -1,4 +1,4 @@
-discord.py[voice]>=1.6.0
+discord.py[voice]>=1.7.1
 aiohttp>=3.7.4
 aiosqlite~=0.15.0
 certifi~=2020.6.20
@@ -13,5 +13,5 @@ jishaku~=1.19.0.194
 youtube_dl
 python-slugify[unidecode]~=4.0.1
 pytz
-avwx-engine~=1.6.4
+avwx-engine~=1.6.5
 git+git://github.com/mralext20/geomag#egg=geomag
