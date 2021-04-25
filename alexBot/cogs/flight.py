@@ -45,8 +45,6 @@ class Flight(Cog):
 
         embed = discord.Embed(color=self.flightrule_color.get(metar.data.flight_rules, discord.Color.default()))
 
-        now = datetime.utcnow()
-
         now = datetime.now(tz=timezone.utc)
         embed.set_footer(
             text=f"report {humanize.naturaldelta(metar.data.time.dt - now)} old, "
@@ -65,7 +63,7 @@ class Flight(Cog):
             elif magdec < 0:  # same as above, but for less than 0 condition.
                 magdec = magdec + 360
 
-        embed.title = f"{metar.station.name} {metar.station.country} ({metar.station.icao})"
+        embed.title = f"{location.name}, {location.country} ({location.icao})"
 
         embed.add_field(name="Raw", value=metar.data.raw, inline=False)
         embed.add_field(name="Spoken", value=metar.speech, inline=False)
@@ -74,8 +72,8 @@ class Flight(Cog):
         if translations.clouds != "":
             embed.add_field(name="Clouds", value=translations.clouds, inline=False)
 
-        if translations.wind != "":
-            if magdec != "":
+        if translations.wind is not None:
+            if magdec is not None:
                 if metar.data.wind_gust is not None:
                     embed.add_field(
                         name="Wind",
@@ -112,6 +110,42 @@ class Flight(Cog):
             await ctx.send('you might want to reconsider flying.', embed=embed)
         else:
             await ctx.send(embed=embed)
+
+    @commands.command()
+    async def taf(self, ctx: commands.Context, station: str):
+        """
+        returns the METAR for a given station.
+        """
+        await ctx.trigger_typing()
+        station = station.upper()
+        try:
+            location = avwx.Station.from_icao(station)
+        except BadStation:
+            try:
+                location = avwx.Station.from_iata(station)
+            except BadStation as e:
+                raise commands.BadArgument(*e.args)
+
+        taf = avwx.Taf(location.icao)
+        await taf.async_update()
+        if not taf.data:
+            return await ctx.send("it looks like there's not a TAF for that location :(")
+
+        embed = discord.Embed()
+
+        now = datetime.now(tz=timezone.utc)
+
+        embed.timestamp = taf.data.time.dt
+        embed.title = f"{location.name}, {location.country} ({location.icao})"
+
+        embed.set_footer(
+            text=f"report {humanize.naturaldelta(taf.data.time.dt - now)} old, "
+            f"please only use this data for planning purposes."
+        )
+
+        embed.add_field(name="Raw", value=taf.data.sanitized)
+        embed.add_field(name="Spoken", value=taf.speech)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
