@@ -52,6 +52,7 @@ class Sugery(Cog):
                     sgv = data[0]['sgv']
                     direction = data[0]['direction']
                     battery = device[0]['uploader']['battery']
+                    charging = (battery > device[1]['uploader']['battery']) or battery == 100
                 except IndexError:
                     continue
 
@@ -84,7 +85,7 @@ class Sugery(Cog):
                 user.lastGroup = zone
 
                 await member.edit(
-                    nick=f"{name} (\N{BATTERY}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
+                    nick=f"{name} ({'\N{HIGH VOLTAGE SIGN}' if charging else '\N{BATTERY}'}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
                     reason="user's bloodsuger group or direction changed",
                 )
 
