@@ -35,6 +35,8 @@ DIR2CHAR = {
 
 BATTERYINDICATORS = " \U00002840\U000028c0\U000028c4\U000028e4\U000028e6\U000028f6\U000028f7\U000028ff"
 
+ZAPSTR = "\N{HIGH VOLTAGE SIGN}"
+BATTERYSTR = "\N{'\N{BATTERY}}"
 
 class Sugery(Cog):
     def __init__(self, bot: "Bot"):
@@ -85,7 +87,7 @@ class Sugery(Cog):
                 user.lastGroup = zone
 
                 await member.edit(
-                    nick=f"{name} ({'\N{HIGH VOLTAGE SIGN}' if charging else '\N{BATTERY}'}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
+                    nick=f"{name} ({ZAPSTR if charging else BATTERYSTR}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
                     reason="user's bloodsuger group or direction changed",
                 )
 
