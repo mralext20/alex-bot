@@ -20,7 +20,7 @@ _T = TypeVar("_T")
 
 
 class Cog(commands.Cog):
-    """ The Cog base class that all cogs should inherit from. """
+    """The Cog base class that all cogs should inherit from."""
 
     def __init__(self, bot: "Bot"):
         self.bot: "Bot" = bot
