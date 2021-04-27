@@ -105,7 +105,7 @@ class GuildConfig:
     veryCool: bool = False
     collectVoiceData: bool = True
     firstAmendment: bool = False
-    minecraft: str = None
+    minecraft: str = ""
     reactionRoles: List[ReactionRoleConfig] = field(default_factory=list)
 
     @classmethod
