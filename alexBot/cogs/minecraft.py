@@ -19,7 +19,7 @@ class Minecraft(Cog):
         # -> guild.Minecraft
         if server is None and ctx.guild is not None:
             gd = await self.bot.db.get_guild_data(ctx.guild.id)
-            server = gd.config.minecraft
+            server = gd.config.minecraft if gd.config.minecraft else None
             if server is None:
                 return await ctx.send(
                     "please provide a server via argument or with `config set guild.Minecraft <SERVER>`"
