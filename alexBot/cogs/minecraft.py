@@ -35,7 +35,7 @@ class Minecraft(Cog):
 
         embed.title = f"{mcserver.host}:{mcserver.port}"
 
-        if len(status.players.sample):
+        if status.players.sample:
             embed.add_field(name="players", value='\n'.join([player.name for player in status.players.sample]))
         embed.add_field(name="Online / Max", value=f"{status.players.online} / {status.players.max}")
 
