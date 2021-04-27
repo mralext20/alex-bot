@@ -1,11 +1,11 @@
 import logging
-
-import discord
-from discord.ext import commands
-import mcstatus
-from ..tools import Cog, get_json
 import re
 
+import discord
+import mcstatus
+from discord.ext import commands
+
+from ..tools import Cog, get_json
 
 log = logging.getLogger(__name__)
 
