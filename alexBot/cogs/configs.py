@@ -39,7 +39,7 @@ class Configs(Cog):
         await ctx.send(embed=embed)
 
     @config.command(name="set")
-    async def config_set(self, ctx: commands.Context, rawkey: str, rawvalue: str):
+    async def config_set(self, ctx: commands.Context, rawkey: str, *, rawvalue: str):
         typekey, key = rawkey.split('.')
         if typekey == "guild":
             if not ctx.author.guild_permissions.manage_guild:
@@ -85,7 +85,7 @@ class Configs(Cog):
             defaultGDC = GuildConfig()
             default = getattr(defaultGDC, key, None)
             if default is None:
-                raise commands.BadArgument("The key {key} is not a valid key on {typekey}")
+                raise commands.BadArgument(f"The key {key} is not a valid key on {typekey}")
             currGD = await self.bot.db.get_guild_data(ctx.guild.id)
             setattr(currGD.config, key, default)  # currGD.config.$KEY = default
             await self.bot.db.save_guild_data(currGD)
@@ -95,7 +95,7 @@ class Configs(Cog):
             defaultUD = UserData()
             default = getattr(defaultUD.config, key, None)  # default = defaultUD.config.$KEY or None
             if default is None:
-                raise commands.BadArgument("The key {key} is not a valid key on {typekey}")
+                raise commands.BadArgument(f"The key {key} is not a valid key on {typekey}")
             ud = await self.bot.db.get_user_data(ctx.author.id)
             setattr(ud.config, key, default)  # ud.config.$KEY = defualt
             await self.bot.db.save_user_data(ctx.author.id, ud)
