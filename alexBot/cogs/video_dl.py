@@ -123,7 +123,7 @@ class Video_DL(Cog):
                         loop.create_task(message.add_reaction('🪄'))  # magic wand
 
                         async with self.encode_lock:
-                            task = partial(self.transcode_shrink, message.id, message.guild.filesize_limit)
+                            task = partial(self.transcode_shrink, message.id, message.guild.filesize_limit * 0.95)
                             await self.bot.loop.run_in_executor(None, task)
 
                     # file is MESSAGE.ID.mp4, need to create discord.File and upload it to channel then delete out.mp4
