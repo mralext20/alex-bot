@@ -86,11 +86,14 @@ class Sugery(Cog):
                 if battery < 20 and not zone == user.lastGroup:
                     await member.send(f"ur battery dyin friendo: {battery}%")
                 user.lastGroup = zone
-
-                await member.edit(
-                    nick=f"{name} ({ZAPSTR if charging else BATTERYSTR}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
-                    reason="user's bloodsuger group or direction changed",
-                )
+                try:
+                    await member.edit(
+                        nick=f"{name} ({ZAPSTR if charging else BATTERYSTR}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
+                        reason="user's bloodsuger group or direction changed",
+                    )
+                except Exception as e:
+                    log.error(f"cannot update {member}; {e.args[0]}")
+                    continue
 
     @sugery_update.before_loop
     async def before_sugery(self):
