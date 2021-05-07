@@ -25,6 +25,9 @@ class CommandErrorHandler(Cog):
         if isinstance(error, commands.MaxConcurrencyReached):
             msg = f"{ctx.command} is currently being ran. please wait for it to finish."
 
+        if isinstance(error, commands.CommandOnCooldown):
+            msg = f"{ctx.command} is being used too oftan, try again later"
+
         if isinstance(error, commands.DisabledCommand):
             msg = f'{ctx.command} has been disabled.'
 
