@@ -9,6 +9,7 @@ from alexBot.tools import Cog
 
 class Ringing(Cog):
     @commands.max_concurrency(1, per=commands.BucketType.channel)
+    @commands.cooldown(1, 5 * 60, commands.BucketType.user)
     @commands.command()
     async def ring(self, ctx: commands.Context, target: discord.Member):
         """Alerts another member of the server that you want someone to talk to. requires that you're in a voice channel."""
