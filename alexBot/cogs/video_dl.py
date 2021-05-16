@@ -24,7 +24,7 @@ REGEXES = [
     re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/[a-zA-Z0-9#-_!*\(\),]{6,}'),
     re.compile(r'https?://twitter\.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
-    re.compile(r'https?://(?:www\.)instagram\.com/(?:p|reel)/[a-zA-Z0-9-_]{11}/i'),
+    re.compile(r'https?://(?:www\.)instagram\.com/(?:p|reel)/[a-zA-Z0-9-_]{11}/'),
 ]
 
 MAX_VIDEO_LENGTH = 5 * 60  # 5 Minutes
