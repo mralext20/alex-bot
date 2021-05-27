@@ -41,7 +41,8 @@ class Flight(Cog):
 
         metar = avwx.Metar(location.icao)
 
-        await metar.async_update()
+        if not await metar.async_update():
+            return await ctx.send(f"can not retrive metar data for {location.name}")
 
         embed = discord.Embed(color=self.flightrule_color.get(metar.data.flight_rules, discord.Color.default()))
 
@@ -127,9 +128,8 @@ class Flight(Cog):
                 raise commands.BadArgument(*e.args)
 
         taf = avwx.Taf(location.icao)
-        await taf.async_update()
-        if not taf.data:
-            return await ctx.send("it looks like there's not a TAF for that location :(")
+        if not await taf.async_update():
+            return await ctx.send(f"cannot get TAF for {location.name}")
 
         embed = discord.Embed()
 
