@@ -56,6 +56,10 @@ class Fun(Cog):
                 if self.last_posted.get(message.channel.id, time.time() - 60 * 60 * 24) < time.time() - 60 * 5:
                     await message.reply("https://xkcd.com/1357/", mention_author=True)
                     self.last_posted[message.channel.id] = time.time()
+        # bespoke thing, maybe make config and guild based in the future
+        if message.channel.id == 847555306166943755:
+            await message.add_reaction("<:greentick:567088336166977536>")
+            await message.add_reaction("<:redtick:567088349484023818>")
 
 
 def setup(bot):
