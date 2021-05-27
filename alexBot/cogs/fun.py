@@ -58,7 +58,7 @@ class Fun(Cog):
                     self.last_posted[message.channel.id] = time.time()
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
-            if '?' not in message.content:
+            if '?' != message.content[-1]:
                 await message.delete()
             await message.add_reaction("<:greentick:567088336166977536>")
             await message.add_reaction("<:redtick:567088349484023818>")
