@@ -83,7 +83,20 @@ class Fun(Cog):
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
             if not message.content.endswith('?'):
-                await message.delete()
+                matches = self.EMOJI_REGEX.findall(message.content)
+                if matches:
+                    emojis = [
+                        PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
+                        for e in matches
+                    ]
+
+                    for emoji in emojis:
+                        try:
+                            await message.add_reaction(emoji)
+                        except discord.DiscordException:
+                            pass
+                else:
+                    await message.delete()
             await message.add_reaction("<:greentick:567088336166977536>")
             await message.add_reaction("<:redtick:567088349484023818>")
 
