@@ -6,7 +6,6 @@ from typing import Dict
 import discord
 from discord import PartialEmoji
 from discord.ext import commands
-
 from emoji_data import EmojiSequence
 
 from ..tools import Cog, get_json
