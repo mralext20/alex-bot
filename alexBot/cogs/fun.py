@@ -7,6 +7,8 @@ import discord
 from discord import PartialEmoji
 from discord.ext import commands
 
+from emoji_data import EmojiSequence
+
 from ..tools import Cog, get_json
 
 log = logging.getLogger(__name__)
@@ -67,7 +69,8 @@ class Fun(Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.location == "dev" or message.guild is None:
-            return
+            ...
+            # return
         cfg = (await self.bot.db.get_guild_data(message.guild.id)).config
         if cfg.ayy:
             if ayygen.fullmatch(message.content):
@@ -83,20 +86,27 @@ class Fun(Cog):
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
             if not message.content.endswith('?'):
+                emojis = []
                 matches = self.EMOJI_REGEX.findall(message.content)
                 if matches:
                     emojis = [
                         PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
                         for e in matches
                     ]
+                emojis += EmojiSequence.pattern.findall(message.content)
 
-                    for emoji in emojis:
-                        try:
-                            await message.add_reaction(emoji)
-                        except discord.DiscordException:
-                            pass
-                else:
+                if not emojis:
                     await message.delete()
+                    return
+
+                for emoji in emojis:
+                    try:
+                        await message.add_reaction(emoji)
+                    except discord.DiscordException:
+                        pass
+
+                return
+
             await message.add_reaction("<:greentick:567088336166977536>")
             await message.add_reaction("<:redtick:567088349484023818>")
 

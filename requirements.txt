@@ -16,3 +16,4 @@ pytz
 avwx-engine~=1.6.5
 git+git://github.com/mralext20/geomag#egg=geomag
 mcstatus~=5.1.4
+emoji-data
