@@ -70,8 +70,7 @@ class Fun(Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.location == "dev" or message.guild is None:
-            ...
-            # return
+            return
         cfg = (await self.bot.db.get_guild_data(message.guild.id)).config
         if cfg.ayy:
             if ayygen.fullmatch(message.content):
