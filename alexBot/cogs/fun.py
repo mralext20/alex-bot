@@ -13,6 +13,8 @@ from ..tools import Cog, get_json
 log = logging.getLogger(__name__)
 ayygen = re.compile("[aA][yY][Yy][yY]*")
 
+VOTE_EMOJIS = ["<:greentick:567088336166977536>", "<:redtick:567088349484023818>"]
+
 
 class Fun(Cog):
     last_posted: Dict[int, float] = {}
@@ -84,30 +86,35 @@ class Fun(Cog):
                     self.last_posted[message.channel.id] = time.time()
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
-            if not message.content.endswith('?'):
-                emojis = []
-                matches = self.EMOJI_REGEX.findall(message.content)
-                if matches:
-                    emojis = [
-                        PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
-                        for e in matches
-                    ]
-                emojis += EmojiSequence.pattern.findall(message.content)
 
-                if not emojis:
-                    await message.delete()
-                    return
+            emojis = VOTE_EMOJIS
+            raw_emojis = EmojiSequence.pattern.findall(message.content)
+            matches = self.EMOJI_REGEX.findall(message.content)
+            if matches or raw_emojis:
+                emojis = [
+                    PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
+                    for e in matches
+                ]
+                emojis += raw_emojis
+
+            if message.content.endswith('?') or emojis != VOTE_EMOJIS:
 
                 for emoji in emojis:
                     try:
                         await message.add_reaction(emoji)
                     except discord.DiscordException:
+                        if isinstance(emoji, PartialEmoji):
+                            # steal the emoji temporarily to react with it
+                            data = await emoji.url.read()
+                            nerdiowo = self.bot.get_guild(791528974442299412)
+                            uploaded = await nerdiowo.create_custom_emoji(
+                                name=emoji.name, image=data, reason="temporily added for #everybody-votes"
+                            )
+                            await message.add_reaction(uploaded)
+                            await uploaded.delete(reason="removed from temp addition")
                         pass
 
                 return
-
-            await message.add_reaction("<:greentick:567088336166977536>")
-            await message.add_reaction("<:redtick:567088349484023818>")
 
 
 def setup(bot):
