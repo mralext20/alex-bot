@@ -114,6 +114,8 @@ class Fun(Cog):
                         pass
 
                 return
+            else:
+                await message.delete()
 
 
 def setup(bot):
