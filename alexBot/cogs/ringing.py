@@ -37,9 +37,12 @@ class Ringing(Cog):
         ringRate: RingRate = RingRate(),
     ):
         times = 0
+        allowed_mentions = discord.AllowedMentions(users=[target])
+
         while await self.running(target, times, ringRate, sentinalMessage):
             await channel.send(
-                f"HELLO, {target.mention}! {initiator.name.upper()} WANTS YOU TO JOIN {initiator.voice.channel.mention}!"
+                f"HELLO, {target.mention}! {initiator.name.upper()} WANTS YOU TO JOIN {initiator.voice.channel.mention}!",
+                allowed_mentions=allowed_mentions,
             )
             await asyncio.sleep(ringRate.rate)
             times += 1

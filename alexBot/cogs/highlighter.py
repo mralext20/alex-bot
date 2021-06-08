@@ -32,7 +32,8 @@ class Highlighter(Cog):
                         f"\n{message.jump_url}\n\n{message.content[:500]}"
                     )
 
-                await self.bot.owner.send(tosend)
+                allowed_mentions = discord.AllowedMentions(users=True)
+                await self.bot.owner.send(tosend, allowed_mentions=allowed_mentions)
 
 
 def setup(bot):

@@ -71,8 +71,10 @@ class CommandErrorHandler(Cog):
                 f":{actual_trace}"
             )
 
+        allowed_mentions = discord.AllowedMentions(users=[ctx.bot.owner])
+
         try:
-            await ctx.send(msg)
+            await ctx.send(msg, allowed_mentions=allowed_mentions)
         except discord.HTTPException:
             await ctx.send('error message too long')
 
