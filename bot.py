@@ -29,9 +29,12 @@ intents.members = True
 intents.presences = True
 
 
+allowed_mentions = discord.AllowedMentions.none()
+
+
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=config.prefix, intents=intents, **kwargs)
+        super().__init__(command_prefix=config.prefix, intents=intents, allowed_mentions=allowed_mentions, **kwargs)
         self.session = None
         self.logger = logging.getLogger("bot")
         self.config: config = config
