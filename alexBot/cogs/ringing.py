@@ -15,12 +15,17 @@ class Ringing(Cog):
         """Alerts another member of the server that you want someone to talk to. requires that you're in a voice channel."""
         if not ctx.author.voice:
             await ctx.send("cannot ring: you are not in a voice channel")
+            ctx.command.reset_cooldown(ctx)
             return
+
         if target.voice:
             await ctx.send("cannot ring: they are already in voice")
+            ctx.command.reset_cooldown(ctx)
             return
+
         if not (await self.bot.db.get_user_data(target.id)).config.ringable:
             await ctx.send("cannot ring: they do not want to be rung")
+            ctx.command.reset_cooldown(ctx)
             return
 
         ringRate = self.bot.config.ringRates[target.status]

@@ -38,6 +38,7 @@ class CommandErrorHandler(Cog):
             msg = f'{ctx.command} can not be used in Private Messages.'
 
         elif isinstance(error, commands.BadArgument):
+            ctx.command.reset_cooldown(ctx)
             msg = f'Bad argument: {error} See {ctx.prefix}help {ctx.command} for help!'
             log.warning(f"bad argument on {ctx.command}: {error}")
 
