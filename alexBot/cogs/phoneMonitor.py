@@ -1,9 +1,8 @@
+import asyncio
 import logging
 from typing import TYPE_CHECKING
 
-import asyncio
 from discord.ext import tasks
-
 
 from ..tools import Cog
 
