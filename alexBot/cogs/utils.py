@@ -14,18 +14,6 @@ DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
-    """The description for Utils goes here."""
-
-    @commands.command(aliases=['p'])
-    async def ping(self, ctx: commands.Context):
-        """returns the webscocket and rest ping times."""
-        start = await ctx.send(f"Pong! WS: {ctx.bot.latency * 1000:.2f} ms,..")
-        a = start.created_at
-        now = datetime.datetime.utcnow()
-        ping = now - a
-
-        await start.edit(content=f"Pong! WS: {ctx.bot.latency * 1000:.2f} ms, rest: {ping.microseconds / 1000:.2f} ms")
-
     @commands.command()
     async def time(self, ctx: commands.Context):
         """Displays the time in alaska"""
