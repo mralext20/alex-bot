@@ -8,11 +8,14 @@ from urllib.parse import urlparse
 if TYPE_CHECKING:
     from bot import Bot
 
+import re
 from logging import getLogger
 
 import aiohttp
+import discord
 import xmltodict
 from discord.ext import commands
+from discord.ext.commands.converter import IDConverter
 
 log = getLogger(__name__)
 
@@ -125,3 +128,23 @@ def grouper(iterable: Iterable[_T], n: int) -> Generator[Iterable[_T], None, Non
 def transform_neosdb(url: str) -> str:
     url = urlparse(url)
     return f"https://cloudxstorage.blob.core.windows.net/assets{posixpath.splitext(url.path)[0]}"
+
+
+class ObjectConverter(IDConverter):
+    """Converts to a :class:`~discord.Object`.
+    The argument must follow the valid ID or mention formats (e.g. `<@80088516616269824>`).
+
+
+    The lookup strategy is as follows (in order):
+    1. Lookup by ID.
+    2. Lookup by member, role, or channel mention.
+    """
+
+    async def convert(self, ctx: commands.Context, argument: str) -> discord.Object:
+        match = self._get_id_match(argument) or re.match(r'<(?:@(?:!|&)?|#)([0-9]{15,20})>$', argument)
+
+        if match is None:
+            raise commands.errors.BadArgument(f"{argument} does not follow a valid ID or mention format.")
+        result = int(match.group(1))
+
+        return discord.Object(id=result)

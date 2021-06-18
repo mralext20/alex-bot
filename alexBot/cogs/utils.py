@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import asyncio
 import datetime
-import re
 
 import discord
 import humanize
 from discord.ext import commands
 
-from ..tools import Cog
+from ..tools import Cog, ObjectConverter
 
 DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
@@ -21,21 +19,27 @@ class Utils(Cog):
         await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
     @commands.command(aliases=['diff'])
-    async def difference(self, ctx: commands.Context, object_one: int, object_two: int = None):
+    async def difference(self, ctx: commands.Context, one: ObjectConverter, two: ObjectConverter = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
-        one = discord.utils.snowflake_time(object_one)
-        now = False
-        if object_two is None:
-            object_two = ctx.message.id
+        if two is None:
             now = True
-        two = discord.utils.snowflake_time(object_two)
-        if one > two:
-            diff = one - two
+            two = ctx.message
         else:
-            diff = two - one
-        await ctx.send(
-            f'time difference from {f"`{two}`" if not now else "Now"} to `{one}` is `{diff}` (around {humanize.naturaldelta(diff)}).'
-        )
+            now = False
+
+        if one.created_at > two.created_at:
+            earlier_first = False
+            diff = one.created_at - two.created_at
+        else:
+            earlier_first = True
+            diff = two.created_at - one.created_at
+
+        embed = discord.Embed()
+        embed.add_field(name=f"{'Earlier' if earlier_first else 'Later'} (`{one.id}`)", value=f"`{one.created_at}`")
+        embed.add_field(name=f"{'Later' if earlier_first else 'Earlier'} (`{two.id}`)", value=f"`{two.created_at}`")
+        embed.add_field(name="Difference", value=f"`{diff}` ({humanize.naturaldelta(diff)})")
+
+        await ctx.send(embed=embed)
 
     @commands.command(name='info', aliases='source about git'.split())
     async def info(self, ctx):
