@@ -83,7 +83,13 @@ class Sugery(Cog):
                         f"additionally, your phone battery is {battery}. \n"
                         f"the direction is {direction} ({DIR2CHAR[direction]})"
                     )
-                if battery < 20 and not zone == user.lastGroup:
+                if user.constantAlerts and zone != SugeryZone.NORMAL:
+                    # we need to send a message to the constant alert reciver.
+                    alert = self.bot.get_user(user.constantAlerts)
+                    alert.send(
+                        f"ALERT!! {member.name} is currently in the {zone.name.lower()} zone! their SGV is {sgv}."
+                    )
+                if battery < 30 and not zone == user.lastGroup:
                     await member.send(f"ur battery dyin friendo: {battery}%")
                 user.lastGroup = zone
                 try:
