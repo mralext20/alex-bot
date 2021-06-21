@@ -160,6 +160,15 @@ class SugeryZone(enum.Enum):
     VERYHIGH = enum.auto()
 
 
+SugeryTranslations = {
+    SugeryZone.VERYLOW: "Sehr Niedrig",
+    SugeryZone.LOW: "Niedrig",
+    SugeryZone.NORMAL: "Normal",
+    SugeryZone.HIGH: "Hoch",
+    SugeryZone.VERYHIGH: "Sehr Hoch",
+}
+
+
 @dataclass
 class SugeryUser:
     guild: int

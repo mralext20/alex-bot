@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import aiohttp
 from discord.ext import tasks
 
-from alexBot.classes import SugeryZone, Thresholds
+from alexBot.classes import SugeryTranslations, SugeryZone, Thresholds
 
 from ..tools import Cog, get_json
 
@@ -87,7 +87,7 @@ class Sugery(Cog):
                     # we need to send a message to the constant alert reciver.
                     alert = self.bot.get_user(user.constantAlerts)
                     await alert.send(
-                        f"ALERT!! {member.name} is currently in the {zone.name.lower()} zone! their SGV is {sgv}."
+                        f"ALARM!! Mounir's Blutzuckerswert ist zu {SugeryTranslations[zone]} Der Blutzuckerwert ist {sgv}."
                     )
                 if battery < 30 and not zone == user.lastGroup:
                     await member.send(f"ur battery dyin friendo: {battery}%")
