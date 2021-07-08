@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import traceback
+import random
 
 import discord
 from discord.ext import commands
@@ -26,7 +27,10 @@ class CommandErrorHandler(Cog):
             msg = f"{ctx.command} is currently being ran. please wait for it to finish."
 
         if isinstance(error, commands.CommandOnCooldown):
-            msg = f"{ctx.command} is being used too often, try again later"
+            if ctx.author.id == 335928292542513162 and random.random < 0.2:
+                msg = "DAWN PLS"
+            else:
+                msg = f"{ctx.command} is being used too often, try again later"
 
         if isinstance(error, commands.DisabledCommand):
             msg = f'{ctx.command} has been disabled.'
