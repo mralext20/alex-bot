@@ -24,10 +24,13 @@ class CommandErrorHandler(Cog):
             msg = f"timed out. you can start again with {ctx.prefix}{ctx.command}"
 
         if isinstance(error, commands.MaxConcurrencyReached):
-            msg = f"{ctx.command} is currently being ran. please wait for it to finish."
+            if ctx.author.id == 335928292542513162 and random.random() < 0.2:
+                msg = "DAWN PLS"
+            else:
+                msg = f"{ctx.command} is currently being ran. please wait for it to finish."
 
         if isinstance(error, commands.CommandOnCooldown):
-            if ctx.author.id == 335928292542513162 and random.random < 0.2:
+            if ctx.author.id == 335928292542513162 and random.random() < 0.2:
                 msg = "DAWN PLS"
             else:
                 msg = f"{ctx.command} is being used too often, try again later"
