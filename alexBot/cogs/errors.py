@@ -6,7 +6,7 @@ import traceback
 import discord
 from discord.ext import commands
 
-from ..tools import Cog, is_in_channel, is_in_guild
+from ..tools import Cog
 
 log = logging.getLogger(__name__)
 
