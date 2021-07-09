@@ -1,7 +1,7 @@
 import asyncio
 import logging
-import traceback
 import random
+import traceback
 
 import discord
 from discord.ext import commands
