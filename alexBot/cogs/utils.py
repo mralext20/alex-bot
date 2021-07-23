@@ -26,17 +26,26 @@ class Utils(Cog):
             two = ctx.message
         else:
             now = False
-
         if one.created_at > two.created_at:
             earlier_first = False
-            diff = one.created_at - two.created_at
+            diff = one.created_at.replace(tzinfo=datetime.timezone.utc) - two.created_at.replace(
+                tzinfo=datetime.timezone.utc
+            )
         else:
             earlier_first = True
-            diff = two.created_at - one.created_at
+            diff = two.created_at.replace(tzinfo=datetime.timezone.utc) - one.created_at.replace(
+                tzinfo=datetime.timezone.utc
+            )
 
         embed = discord.Embed()
-        embed.add_field(name=f"{'Earlier' if earlier_first else 'Later'} (`{one.id}`)", value=f"`{one.created_at}`")
-        embed.add_field(name=f"{'Later' if earlier_first else 'Earlier'} (`{two.id}`)", value=f"`{two.created_at}`")
+        embed.add_field(
+            name=f"{'Earlier' if earlier_first else 'Later'} (`{one.id}`)",
+            value=f"`{one.created_at.replace(tzinfo=datetime.timezone.utc)}`, <t:{one.created_at.replace(tzinfo=datetime.timezone.utc).timestamp():.0f}> - <t:{one.created_at.replace(tzinfo=datetime.timezone.utc).timestamp():.0f}:R>",
+        )
+        embed.add_field(
+            name=f"{'Later' if earlier_first else 'Earlier'} (`{two.id}`)",
+            value=f"`{two.created_at.replace(tzinfo=datetime.timezone.utc)}`, <t:{two.created_at.replace(tzinfo=datetime.timezone.utc).timestamp():.0f}> -  <t:{two.created_at.replace(tzinfo=datetime.timezone.utc).timestamp():.0f}:R>",
+        )
         embed.add_field(name="Difference", value=f"`{diff}` ({humanize.naturaldelta(diff)})")
 
         await ctx.send(embed=embed)
