@@ -85,7 +85,9 @@ class Fun(Cog):
                     self.last_posted[message.channel.id] = time.time()
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
-
+            if message.content.endswith('??'):
+                # don't do anything, question is intending a thread
+                return
             emojis = VOTE_EMOJIS
             raw_emojis = EmojiSequence.pattern.findall(message.content)
             matches = self.EMOJI_REGEX.findall(message.content)
