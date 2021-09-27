@@ -115,6 +115,7 @@ class Utils(Cog):
                 vc.play(
                     discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3"))
                 )
+                vc.source.volume = 0.25
 
 
 def setup(bot):
