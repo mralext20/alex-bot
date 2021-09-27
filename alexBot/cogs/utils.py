@@ -105,7 +105,7 @@ class Utils(Cog):
         await ctx.send(":ok_hand:")
 
     @Cog.listener()
-    async def on_voice_state_update(self, before: Optional[VoiceState], after: Optional[VoiceState]):
+    async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
         if after is None:
             return
         if after.channel.id == 889031486978785312:
