@@ -4,9 +4,9 @@ import datetime
 from typing import Optional
 
 import discord
-from discord.member import VoiceState
 import humanize
 from discord.ext import commands
+from discord.member import VoiceState
 
 from ..tools import Cog, ObjectConverter
 
