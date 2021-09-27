@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+from typing import Optional
 
 import discord
+from discord.member import VoiceState
 import humanize
 from discord.ext import commands
 
@@ -101,6 +103,18 @@ class Utils(Cog):
         for user in ctx.author.voice.channel.members:
             ctx.bot.loop.create_task(user.move_to(target, reason=f"as requested by {ctx.author}"))
         await ctx.send(":ok_hand:")
+
+    @Cog.listener()
+    async def on_voice_state_update(self, before: Optional[VoiceState], after: Optional[VoiceState]):
+        if after is None:
+            return
+        if after.channel.id == 889031486978785312:
+            # check for existing instance and close
+            if not after.channel.guild.voice_client:
+                vc = await after.channel.connect()
+                vc.play(
+                    discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3"))
+                )
 
 
 def setup(bot):
