@@ -110,7 +110,7 @@ class Utils(Cog):
             return
         if after.channel.id == 889031486978785312:
             # check for existing instance and close
-            if (not after.channel.guild.voice_client) or after.channel.guild.voice_client.is_connected():
+            if (not after.channel.guild.voice_client) or (not after.channel.guild.voice_client.is_connected()):
                 vc = await after.channel.connect()
                 vc.play(
                     discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3"))
