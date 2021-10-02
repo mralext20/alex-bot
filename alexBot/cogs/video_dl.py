@@ -3,6 +3,7 @@ import logging
 import math
 import os
 import re
+import requests
 import shutil
 import subprocess
 from functools import partial
@@ -21,7 +22,7 @@ REGEXES = [
     re.compile(r'https?://vm\.tiktok\.com/[a-zA-Z0-9#-_!*\(\),]{6,}/'),
     re.compile(r'https?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
-    re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/[a-zA-Z0-9#-_!*\(\),]{6,}'),
+    re.compile(r'https?://w{0,3}\.?reddit\.com\/(?:r\/\w+\/)?comments\/[\w]+\/\w+\b(?!\/\w)'),
     re.compile(r'https?://twitter\.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
     re.compile(r'https?://(?:www\.)instagram\.com/(?:p|reel)/[a-zA-Z0-9-_]{11}/'),
@@ -87,10 +88,12 @@ class Video_DL(Cog):
             return
 
         matches = None
-
-        for regex in REGEXES:
+        convert_reddit = False
+        
+        for i,regex in enumerate(REGEXES):
             matches = regex.match(message.content)
             if matches:
+                convert_reddit = i == 3
                 break
 
         if matches is None:
@@ -98,6 +101,10 @@ class Video_DL(Cog):
 
         match = matches.group(0)
         log.info(f'collecting {match} for {message.author}')
+        
+        if convert_reddit:
+            resp = requests.get(url=match + '.json', headers={'User-Agent': 'AlexBot/0.0.1'})
+            match = resp.json()[0]['data']['children'][0]['data']['url_overridden_by_dest']
         async with message.channel.typing():
             try:
 
