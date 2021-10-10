@@ -1,7 +1,6 @@
 import logging
 from typing import Dict
 
-
 import discord
 from discord import PartialEmoji
 from discord.ext import commands
