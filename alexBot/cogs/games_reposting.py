@@ -33,6 +33,7 @@ class GamesReposting(Cog):
                 avatar_url=message.author.avatar_url,
                 files=additional_content,
                 embeds=message.embeds,
+                allowed_mentions=discord.AllowedMentions.none(),
             )
 
             self.linked[message.id] = msg
