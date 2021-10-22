@@ -18,3 +18,4 @@ git+git://github.com/mralext20/geomag#egg=geomag
 pytz
 youtube_dl
 emoji-data
+httpx
