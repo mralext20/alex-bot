@@ -1,4 +1,5 @@
 import asyncio
+import httpx
 import logging
 import math
 import os
@@ -16,12 +17,11 @@ from youtube_dl import DownloadError, YoutubeDL
 from ..tools import Cog, is_in_channel, is_in_guild, timing
 
 log = logging.getLogger(__name__)
-
+REDDIT_REGEX = re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/[\w]+\/\w+\b(?!\/\w)')
 REGEXES = [
     re.compile(r'https?://vm\.tiktok\.com/[a-zA-Z0-9#-_!*\(\),]{6,}/'),
     re.compile(r'https?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
-    re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/[a-zA-Z0-9#-_!*\(\),]{6,}'),
     re.compile(r'https?://twitter\.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
     re.compile(r'https?://(?:www\.)instagram\.com/(?:p|reel)/[a-zA-Z0-9-_]{11}/'),
@@ -78,6 +78,33 @@ class Video_DL(Cog):
         except KeyError:
             return "audio"
 
+    async def convert_reddit(self, message: discord.Message):
+        matches = REDDIT_REGEX.match(message.content)
+        if matches:
+            async with httpx.AsyncClient() as session:
+                resp = await session.get(url=matches.group(0) + '.json', headers={'User-Agent': 'AlexBot:v1.0.0'})
+                data = resp.json()[0]['data']['children'][0]['data']
+                # handle gallery
+                if 'gallery_data' in data:
+                    image_ids = [item['media_id'] for item in data['gallery_data']['items']]
+                    counter = 0
+                    resp_text = ''
+                    for image_id in image_ids:
+                        image_type = data['media_metadata'][image_id]['m'].split('/')[1]
+                        if counter == 5:
+                            await message.reply(resp_text)
+                            resp_text = ''
+                        resp_text += f'https://i.redd.it/{image_id}.{image_type}\n'
+                        counter += 1
+                    await message.reply(resp_text)
+                # handle videos
+                elif data['domain'] == 'v.redd.it':
+                    return data['url_overridden_by_dest']
+                # everything else
+                else:
+                    await message.reply(data['url_overridden_by_dest'])
+        return None
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         loop = asyncio.get_running_loop()
@@ -85,11 +112,11 @@ class Video_DL(Cog):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
-
+        content = (await self.convert_reddit(message)) or message.content
         matches = None
 
         for regex in REGEXES:
-            matches = regex.match(message.content)
+            matches = regex.match(content)
             if matches:
                 break
 
@@ -98,6 +125,7 @@ class Video_DL(Cog):
 
         match = matches.group(0)
         log.info(f'collecting {match} for {message.author}')
+
         async with message.channel.typing():
             try:
 
