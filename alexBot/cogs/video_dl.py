@@ -1,5 +1,4 @@
 import asyncio
-import httpx
 import logging
 import math
 import os
@@ -9,6 +8,7 @@ import subprocess
 from functools import partial
 
 import discord
+import httpx
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
