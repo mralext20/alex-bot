@@ -113,7 +113,10 @@ class Utils(Cog):
             if (not after.channel.guild.voice_client) or (not after.channel.guild.voice_client.is_connected()):
                 vc = await after.channel.connect()
                 vc.play(
-                    discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3"))
+                    # discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3"))
+                    discord.PCMVolumeTransformer(
+                        discord.FFmpegPCMAudio("http://71.127.174.26:8020/hollyfm1")
+                    )  # HAPPY HOLIDAYS!
                 )
                 vc.source.volume = 0.25
 
