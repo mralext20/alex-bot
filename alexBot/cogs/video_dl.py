@@ -17,7 +17,7 @@ from youtube_dl import DownloadError, YoutubeDL
 from ..tools import Cog, is_in_channel, is_in_guild, timing
 
 log = logging.getLogger(__name__)
-REDDIT_REGEX = re.compile(r'https?://(?:\w{,32}\.)?reddit\.com\/(?:r\/\w+\/)?comments\/[\w]+\/\w+\b(?!\/\w)')
+REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
 REGEXES = [
     re.compile(r'https?://vm\.tiktok\.com/[a-zA-Z0-9#-_!*\(\),]{6,}/'),
     re.compile(r'https?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
