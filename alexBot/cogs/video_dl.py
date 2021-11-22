@@ -92,6 +92,7 @@ class Video_DL(Cog):
                     for image_id in image_ids:
                         image_type = data['media_metadata'][image_id]['m'].split('/')[1]
                         if counter == 5:
+                            counter = 0
                             await message.reply(resp_text)
                             resp_text = ''
                         resp_text += f'https://i.redd.it/{image_id}.{image_type}\n'
