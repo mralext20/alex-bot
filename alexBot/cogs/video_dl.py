@@ -96,7 +96,7 @@ class Video_DL(Cog):
                             await message.reply(resp_text)
                             resp_text = ''
                         resp_text += f'https://i.redd.it/{image["media_id"]}.{image_type}'
-                        if caption := image('caption'):
+                        if caption := image.get('caption'):
                             resp_text += f' ; {caption}'
                         if link := image.get('outbound_url'):
                             resp_text += f' ; {link}'
