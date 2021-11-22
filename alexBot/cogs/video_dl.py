@@ -86,16 +86,22 @@ class Video_DL(Cog):
                 data = resp.json()[0]['data']['children'][0]['data']
                 # handle gallery
                 if 'gallery_data' in data:
-                    image_ids = [item['media_id'] for item in data['gallery_data']['items']]
+                    images = [item for item in data['gallery_data']['items']]
                     counter = 0
                     resp_text = ''
-                    for image_id in image_ids:
-                        image_type = data['media_metadata'][image_id]['m'].split('/')[1]
+                    for image in images:
+                        image_type = data['media_metadata'][image['media_id']]['m'].split('/')[1]
                         if counter == 5:
                             counter = 0
                             await message.reply(resp_text)
                             resp_text = ''
-                        resp_text += f'https://i.redd.it/{image_id}.{image_type}\n'
+                        resp_text += f'https://i.redd.it/{image["media_id"]}.{image_type}'
+                        if caption := image['caption']:
+                            resp_text += f' ; {caption}'
+                        if link := image['outbound_url']:
+                            resp_text += f' ; {link}'
+
+                        resp_text += '\n'
                         counter += 1
                     await message.reply(resp_text)
                 # handle videos
