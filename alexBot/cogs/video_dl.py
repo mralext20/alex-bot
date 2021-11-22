@@ -99,7 +99,7 @@ class Video_DL(Cog):
                         if caption := image.get('caption'):
                             resp_text += f' ; {caption}'
                         if link := image.get('outbound_url'):
-                            resp_text += f' ; {link}'
+                            resp_text += f' ; <{link}>'
 
                         resp_text += '\n'
                         counter += 1
