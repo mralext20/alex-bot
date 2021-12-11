@@ -3,6 +3,7 @@ from typing import Dict
 
 import discord
 from discord import PartialEmoji
+from discord.enums import MessageType
 from discord.ext import commands
 from discord.message import Message
 from discord.webhook import AsyncWebhookAdapter, WebhookMessage
@@ -27,7 +28,7 @@ class GamesReposting(Cog):
             additional_content = [await x.to_file() for x in message.attachments]
 
             msg = await self.webhook.send(
-                content=message.content,
+                content=message.system_content if message.is_system else message.content,
                 wait=True,
                 username=message.author.name,
                 avatar_url=message.author.avatar_url,
