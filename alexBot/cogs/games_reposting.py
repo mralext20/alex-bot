@@ -1,17 +1,18 @@
 import logging
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 import discord
-from discord import PartialEmoji
-from discord.enums import MessageType
-from discord.ext import commands
+
 from discord.message import Message
 from discord.webhook import AsyncWebhookAdapter, WebhookMessage
-from emoji_data import EmojiSequence
+
 
 from ..tools import Cog
 
 log = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from bot import Bot
 
 
 class GamesReposting(Cog):
