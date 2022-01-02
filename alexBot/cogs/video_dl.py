@@ -56,7 +56,9 @@ class Video_DL(Cog):
                 raise NotAVideo(data['url'])
         except KeyError:
             pass
-        return REGEXES[5].sub('', data['title'])
+        return REGEXES[5].sub(
+            '', f"{data['title']} - {data['description']}" if data.get('description') else data['title']
+        )
 
     @staticmethod
     def download_audio(url, id):
