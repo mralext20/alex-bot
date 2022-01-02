@@ -1,11 +1,9 @@
 import logging
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import discord
-
 from discord.message import Message
 from discord.webhook import AsyncWebhookAdapter, WebhookMessage
-
 
 from ..tools import Cog
 
