@@ -19,8 +19,8 @@ from ..tools import Cog, is_in_channel, is_in_guild, timing
 log = logging.getLogger(__name__)
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
 REGEXES = [
-    re.compile(r'https?://vm\.tiktok\.com/[a-zA-Z0-9#-_!*\(\),]{6,}/'),
-    re.compile(r'https?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
+    re.compile(r'DISABLEDhttps?://vm\.tiktok\.com/[a-zA-Z0-9#-_!*\(\),]{6,}/'),
+    re.compile(r'DISABLEDhttps?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
     re.compile(r'https?://twitter\.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
