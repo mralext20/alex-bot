@@ -12,7 +12,7 @@ import httpx
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
-from youtube_dlc import DownloadError, YoutubeDL
+from youtube_dl import DownloadError, YoutubeDL
 
 from ..tools import Cog, is_in_channel, is_in_guild, timing
 
@@ -22,7 +22,6 @@ TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/vm\.tiktok\.com\/[a-zA-Z0-9#-_!*\(\
 TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
 REGEXES = [
     re.compile(r'https?:\/\/(?:.{3,42}\.)?tiktokcdn-\w{1,8}.com\/\w+/\w+/video/tos/\w+/[^/]+/[^/]+/\?.+vr='),
-    re.compile(r'DISABLEDhttps?://(?:w{3}\.)tiktok.com/@.*/video/\d{18,20}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
     re.compile(r'https?://twitter\.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
@@ -58,7 +57,7 @@ class Video_DL(Cog):
                 raise NotAVideo(data['url'])
         except KeyError:
             pass
-        return REGEXES[5].sub(
+        return REGEXES[4].sub(
             '', f"{data['title']} - {data['description']}" if data.get('description') else data['title']
         )
 
@@ -123,22 +122,24 @@ class Video_DL(Cog):
         if matches:
             async with httpx.AsyncClient() as session:
                 resp = await session.get(url=matches.group(0), headers={'User-Agent': 'AlexBot:v1.0.0'})
-                text = str(resp.next_request.url)
+                text = str(resp.url)
         # match full tiktok link and get video download link
         matches = TIKTOK_REGEX.match(text)
         if matches:
-            video_params= '/'.join(matches.group(0).split('/')[-3::2])
+            video_params = '/'.join(matches.group(0).split('/')[-3::2])
             async with httpx.AsyncClient() as session:
                 # this User-Agent is required because the API will not respond to other headers
                 resp = await session.get(
-                    url='https://www.tiktok.com/node/share/video/' + video_params, 
-                    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+                    url='https://www.tiktok.com/node/share/video/' + video_params,
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    },
                 )
                 data = resp.json()
                 video_url = data["itemInfo"]["itemStruct"]["video"]["downloadAddr"]
                 return video_url
         return None
-            
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         loop = asyncio.get_running_loop()
