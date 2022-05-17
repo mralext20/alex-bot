@@ -117,6 +117,9 @@ class Fun(Cog):
 
                 return
             else:
+                await message.author.send(
+                    f"Your message was deleted. please end it with a `?`\n\nYour original content is here:`{message.content}`"
+                )
                 await message.delete()
 
 
