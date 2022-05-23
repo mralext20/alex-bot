@@ -114,7 +114,7 @@ for name in config.logging:
 
 with setup_logging(webhooks=webhooks, silenced=['discord', 'websockets', 'aiosqlite']):
     bot = Bot()
-    
+
     try:
         loop.run_until_complete(bot.start(config.token))
     except KeyboardInterrupt:

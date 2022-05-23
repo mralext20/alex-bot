@@ -20,8 +20,9 @@ class GamesReposting(Cog):
 
     @Cog.listener()
     async def on_ready(self):
-        self.webhook = discord.Webhook.from_url(self.bot.config.nerdiowo_announcements_webhook, session=self.bot.session)
-        
+        self.webhook = discord.Webhook.from_url(
+            self.bot.config.nerdiowo_announcements_webhook, session=self.bot.session
+        )
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
