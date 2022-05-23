@@ -48,6 +48,6 @@ class Data(Cog):
             await conn.commit()
 
 
-def setup(bot):
-    bot.add_cog(Data(bot))
+async def setup(bot):
+    await bot.add_cog(Data(bot))
     bot.db = bot.get_cog('Data')

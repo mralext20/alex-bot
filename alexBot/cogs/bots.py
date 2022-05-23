@@ -105,5 +105,5 @@ class Bots(Cog):
         return member.guild == min(guilds, key=lambda x: x.id)
 
 
-def setup(bot):
-    bot.add_cog(Bots(bot))
+async def setup(bot):
+    await bot.add_cog(Bots(bot))

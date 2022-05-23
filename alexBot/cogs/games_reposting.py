@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Dict
 
 import discord
 from discord.message import Message
-from discord.webhook import AsyncWebhookAdapter, WebhookMessage
+from discord.webhook import WebhookMessage
 
 from ..tools import Cog
 
@@ -20,12 +20,13 @@ class GamesReposting(Cog):
 
     @Cog.listener()
     async def on_ready(self):
-        self.webhook = discord.Webhook.from_url(
-            self.bot.config.nerdiowo_announcements_webhook, adapter=AsyncWebhookAdapter(session=self.bot.session)
-        )
+        self.webhook = discord.Webhook.from_url(self.bot.config.nerdiowo_announcements_webhook, session=self.bot.session)
+        
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
+        if message.channel == discord.DMChannel:
+            return
         if message.channel.category_id == 896853287108759615:
             additional_content = [await x.to_file() for x in message.attachments]
 
@@ -48,5 +49,5 @@ class GamesReposting(Cog):
                 await self.linked[before.id].edit(content=after.content)
 
 
-def setup(bot):
-    bot.add_cog(GamesReposting(bot))
+async def setup(bot):
+    await bot.add_cog(GamesReposting(bot))

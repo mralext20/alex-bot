@@ -4,7 +4,7 @@ import time
 from typing import Dict
 
 import discord
-from discord import PartialEmoji
+from discord import MessageType, PartialEmoji
 from discord.ext import commands
 from emoji_data import EmojiSequence
 
@@ -116,12 +116,12 @@ class Fun(Cog):
                         pass
 
                 return
-            else:
+            elif message.type == MessageType.thread_creat:
                 await message.author.send(
                     f"Your message was deleted. please end it with a `?`\n\nYour original content is here:`{message.content}`"
                 )
                 await message.delete()
 
 
-def setup(bot):
-    bot.add_cog(Fun(bot))
+async def setup(bot):
+    await bot.add_cog(Fun(bot))

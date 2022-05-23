@@ -66,5 +66,5 @@ class Ringing(Cog):
         return newSentinalMessage.reactions[0].count < 2
 
 
-def setup(bot):
-    bot.add_cog(Ringing(bot))
+async def setup(bot):
+    await bot.add_cog(Ringing(bot))

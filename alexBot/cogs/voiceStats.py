@@ -93,5 +93,5 @@ class VoiceStats(Cog):
         return any([len([m for m in vc.members if not m.bot]) > 0 for vc in guild.voice_channels])
 
 
-def setup(bot):
-    bot.add_cog(VoiceStats(bot))
+async def setup(bot):
+    await bot.add_cog(VoiceStats(bot))

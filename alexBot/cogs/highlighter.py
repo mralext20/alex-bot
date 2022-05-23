@@ -36,5 +36,5 @@ class Highlighter(Cog):
                 await self.bot.owner.send(tosend, allowed_mentions=allowed_mentions)
 
 
-def setup(bot):
-    bot.add_cog(Highlighter(bot))
+async def setup(bot):
+    await bot.add_cog(Highlighter(bot))

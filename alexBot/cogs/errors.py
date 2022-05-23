@@ -87,5 +87,5 @@ class CommandErrorHandler(Cog):
             await ctx.send('error message too long')
 
 
-def setup(bot: commands.Bot):
-    bot.add_cog(CommandErrorHandler(bot))
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CommandErrorHandler(bot))

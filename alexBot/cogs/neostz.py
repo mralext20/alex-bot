@@ -8,7 +8,6 @@ from typing import Dict, List, Optional
 
 import discord
 import pytz
-from discord.embeds import EmptyEmbed
 from discord.ext import commands
 
 from ..classes import NeosTZData, NeosUser
@@ -76,13 +75,13 @@ class NeosTZ(Cog):
             try:
                 return neosUserCache[name]
             except KeyError:
-                data = await self.bot.session.get(f"https://www.neosvr-api.com/api/users/{name}")
+                data = await self.bot.session.get(f"https://www.api.neos.com/api/users/{name}")
                 try:
                     users = [NeosUser(await data.json())]
                 except KeyError:
                     raise ValueError("Not Found")
         else:
-            data = await self.bot.session.get("https://www.neosvr-api.com/api/users", params={'name': name})
+            data = await self.bot.session.get("https://www.api.neos.com/api/users", params={'name': name})
             try:
                 users = [NeosUser(data) for data in (await data.json())]
             except KeyError:
@@ -186,5 +185,5 @@ class NeosTZ(Cog):
             await ctx.send('updated!')
 
 
-def setup(bot):
-    bot.add_cog(NeosTZ(bot))
+async def setup(bot):
+    await bot.add_cog(NeosTZ(bot))

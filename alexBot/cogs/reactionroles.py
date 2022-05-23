@@ -52,7 +52,7 @@ class ReactionRoles(Cog):
                 rr.reaction: rr.role,
             }
 
-    @commands.commands()
+    @commands.command()
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.has_guild_permissions(manage_roles=True)
     async def add_reaction_role(self, ctx: commands.Context):
@@ -105,7 +105,7 @@ class ReactionRoles(Cog):
         except asyncio.TimeoutError:
             await ctx.send("timed out.")
 
-    @commands.commands()
+    @commands.command()
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.has_guild_permissions(manage_roles=True)
     async def remove_reaction_role(self, ctx: commands.Context):
@@ -134,6 +134,6 @@ class ReactionRoles(Cog):
         await ctx.send("you didn't remove any reaction roles.")
 
 
-def setup(bot):
+async def setup(bot):
     return
-    bot.add_cog(ReactionRoles(bot))
+    await bot.add_cog(ReactionRoles(bot))

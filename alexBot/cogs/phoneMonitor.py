@@ -39,7 +39,7 @@ class PhoneMonitor(Cog):
         self.phone_update.cancel()
 
 
-def setup(bot: "Bot"):
+async def setup(bot: "Bot"):
     if bot.location == "dev":
         return
-    bot.add_cog(PhoneMonitor(bot))
+    await bot.add_cog(PhoneMonitor(bot))

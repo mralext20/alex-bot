@@ -271,5 +271,5 @@ class Video_DL(Cog):
                         os.remove(f"{ctx.message.id}.m4a")
 
 
-def setup(bot):
-    bot.add_cog(Video_DL(bot))
+async def setup(bot):
+    await bot.add_cog(Video_DL(bot))

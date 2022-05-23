@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import aiohttp
-import aiosqlite
 import discord
 from discord.ext import commands
 
@@ -24,9 +23,7 @@ cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__
 log = logging.getLogger(__name__)
 
 
-intents = discord.Intents.default()
-intents.members = True
-intents.presences = True
+intents = discord.Intents.all()
 
 
 allowed_mentions = discord.AllowedMentions.none()
@@ -42,7 +39,7 @@ class Bot(commands.Bot):
         self.db: "Data" = None
         self.owner = None
         logging.getLogger('discord.gateway').setLevel(logging.ERROR)
-        self.loop.create_task(self.cogSetup())
+        self.setup_hook = self.cogSetup
         self.minecraft = True
 
     async def on_ready(self):
@@ -53,11 +50,12 @@ class Bot(commands.Bot):
         self.session = aiohttp.ClientSession()
 
     async def cogSetup(self):
-        self.load_extension("alexBot.data")
+        await self.load_extension("alexBot.data")
+        await self.load_extension('jishaku')
         self.db: "Data" = self.get_cog('Data')
         for cog in cogs:
             try:
-                self.load_extension(f"alexBot.cogs.{cog}")
+                await self.load_extension(f"alexBot.cogs.{cog}")
                 log.info(f'loaded {cog}')
             except Exception as e:
                 log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
@@ -112,11 +110,11 @@ for name in config.logging:
         continue
 
     url = config.logging[name]
-    webhooks[level] = discord.Webhook.from_url(url, adapter=discord.AsyncWebhookAdapter(session))
+    webhooks[level] = discord.Webhook.from_url(url, session=session)
 
 with setup_logging(webhooks=webhooks, silenced=['discord', 'websockets', 'aiosqlite']):
     bot = Bot()
-    bot.load_extension('jishaku')
+    
     try:
         loop.run_until_complete(bot.start(config.token))
     except KeyboardInterrupt:

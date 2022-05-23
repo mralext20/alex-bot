@@ -106,5 +106,5 @@ class Configs(Cog):
             )
 
 
-def setup(bot):
-    bot.add_cog(Configs(bot))
+async def setup(bot):
+    await bot.add_cog(Configs(bot))

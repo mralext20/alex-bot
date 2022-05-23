@@ -1,4 +1,4 @@
-discord.py[voice]~=1.7.2
+git+https://github.com/rapptz/discord.py#egg=discord.py[voice]
 aiohttp~=3.7.4
 aiosqlite~=0.15.0
 certifi~=2020.6.20
