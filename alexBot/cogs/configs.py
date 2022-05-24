@@ -31,7 +31,7 @@ class Configs(Cog):
             for key in gdc:
                 if isinstance(gdc[key], list):
                     continue
-                embed.add_field(name=f"guild.{key}", value=gdc[key])
+                embed.add_field(name=f"guild.{key}", value=gdc[key] if gdc[key] else "*unset*")
 
         uc = dataclasses.asdict((await self.bot.db.get_user_data(ctx.author.id)).config)
         [embed.add_field(name=f"user.{name}", value=uc[name]) for name in uc]
