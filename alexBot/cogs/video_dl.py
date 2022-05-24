@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 from functools import partial
+from typing import List
 
 import discord
 import httpx
@@ -160,7 +161,7 @@ class Video_DL(Cog):
 
         match = matches.group(0)
         log.info(f'collecting {match} for {message.author}')
-
+        uploaded = None
         async with message.channel.typing():
             try:
 
@@ -194,7 +195,7 @@ class Video_DL(Cog):
                     # file is MESSAGE.ID.mp4, need to create discord.File and upload it to channel then delete out.mp4
                     file = discord.File(f'{message.id}.mp4', 'vid.mp4')
                     loop.create_task(message.add_reaction('📤'))
-                    await message.reply(title, file=file, mention_author=False)
+                    uploaded = await message.reply(title, file=file, mention_author=False)
                     loop.create_task(message.remove_reaction('📤', self.bot.user))
                     try:
                         await message.add_reaction('✅')
@@ -214,6 +215,24 @@ class Video_DL(Cog):
 
                 if os.path.exists(f'{message.id}.mp4'):
                     os.remove(f'{message.id}.mp4')
+                if uploaded:
+                    try:
+                        await uploaded.add_reaction("🗑️")
+                    except DiscordException:
+                        return
+
+                    def check(reaction: discord.Reaction, user: discord.User):
+                        if reaction.emoji != "🗑️":
+                            return False
+                        member = message.guild.get_member(user.id)
+                        return reaction.message.id == uploaded.id and user.id == message.author.id or member.guild_permissions.manage_messages
+                    try:
+                        await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
+                    except asyncio.TimeoutError:
+                        await uploaded.remove_reaction("🗑️", self.bot.user)
+                    else:
+                        # if we are here, someone with the power to do so want's to delete the upload
+                        await uploaded.delete()
 
     @staticmethod
     @timing(log=log)
@@ -243,13 +262,12 @@ class Video_DL(Cog):
         finally:
             if os.path.exists('in.mp4'):
                 os.remove('in.mp4')
-
+ 
     @commands.command()
     @is_in_guild(791528974442299412)
-    @is_in_channel(791530687102451712)
     async def mirror(self, ctx: commands.Context, url: str):
         """Mirrors a youtube-dl compatible URL to a discord file upload.
-        also connects to your voice channel, requests the bot play the song, and leaves."""
+       also connects to your voice channel, requests the bot play the song, and leaves."""
         async with self.mirror_upload_lock:
             async with ctx.typing():
                 try:
