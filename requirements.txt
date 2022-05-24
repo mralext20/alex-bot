@@ -14,7 +14,7 @@ python-slugify[unidecode]~=4.0.1
 avwx-engine~=1.6.5
 mcstatus~=5.1.4
 
-git+git://github.com/mralext20/geomag#egg=geomag
+git+https://github.com/mralext20/geomag#egg=geomag
 pytz
 youtube_dlc
 emoji-data
