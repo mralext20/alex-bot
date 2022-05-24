@@ -225,7 +225,12 @@ class Video_DL(Cog):
                         if reaction.emoji != "🗑️":
                             return False
                         member = message.guild.get_member(user.id)
-                        return reaction.message.id == uploaded.id and user.id == message.author.id or member.guild_permissions.manage_messages
+                        return (
+                            reaction.message.id == uploaded.id
+                            and user.id == message.author.id
+                            or member.guild_permissions.manage_messages
+                        )
+
                     try:
                         await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
                     except asyncio.TimeoutError:
@@ -262,12 +267,12 @@ class Video_DL(Cog):
         finally:
             if os.path.exists('in.mp4'):
                 os.remove('in.mp4')
- 
+
     @commands.command()
     @is_in_guild(791528974442299412)
     async def mirror(self, ctx: commands.Context, url: str):
         """Mirrors a youtube-dl compatible URL to a discord file upload.
-       also connects to your voice channel, requests the bot play the song, and leaves."""
+        also connects to your voice channel, requests the bot play the song, and leaves."""
         async with self.mirror_upload_lock:
             async with ctx.typing():
                 try:

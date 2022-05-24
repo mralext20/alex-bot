@@ -125,7 +125,7 @@ class Fun(Cog):
                     )
                 except discord.DiscordException:
                     pass
-                
+
                 await message.delete()
 
 
