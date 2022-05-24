@@ -116,10 +116,16 @@ class Fun(Cog):
                         pass
 
                 return
-            elif message.type == MessageType.thread_creat:
-                await message.author.send(
-                    f"Your message was deleted. please end it with a `?`\n\nYour original content is here:`{message.content}`"
-                )
+            elif message.type == MessageType.thread_created:
+                return
+            else:
+                try:
+                    await message.author.send(
+                        f"Your message was deleted. please end it with a `?`\n\nYour original content is here:`{message.content}`"
+                    )
+                except discord.DiscordException:
+                    pass
+                
                 await message.delete()
 
 
