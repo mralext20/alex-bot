@@ -29,7 +29,7 @@ class Flight(Cog):
         """
         returns the METAR for a given station.
         """
-        await ctx.trigger_typing()
+        await ctx.typing()
         station = station.upper()
         try:
             location = avwx.Station.from_icao(station)
@@ -117,7 +117,7 @@ class Flight(Cog):
         """
         returns the METAR for a given station.
         """
-        await ctx.trigger_typing()
+        await ctx.typing()
         station = station.upper()
         try:
             location = avwx.Station.from_icao(station)

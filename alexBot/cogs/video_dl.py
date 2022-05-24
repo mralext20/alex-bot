@@ -165,7 +165,7 @@ class Video_DL(Cog):
             try:
 
                 if match:
-                    await message.channel.trigger_typing()
+                    await message.channel.typing()
                     try:
                         await message.add_reaction('📥')
                     except discord.Forbidden:
