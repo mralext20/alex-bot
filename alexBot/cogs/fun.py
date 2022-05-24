@@ -117,7 +117,7 @@ class Fun(Cog):
 
                 return
             elif message.type == MessageType.thread_created:
-                await message.delete() # thread creation messages delete without sending a message
+                await message.delete()  # thread creation messages delete without sending a message
             else:
                 try:
                     await message.author.send(
