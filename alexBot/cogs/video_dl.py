@@ -216,7 +216,6 @@ class Video_DL(Cog):
                 if os.path.exists(f'{message.id}.mp4'):
                     os.remove(f'{message.id}.mp4')
 
-
         if uploaded:
             try:
                 await uploaded.add_reaction("🗑️")
@@ -224,11 +223,7 @@ class Video_DL(Cog):
                 return
 
             def check(reaction: discord.Reaction, user: discord.User):
-                return (
-                    reaction.emoji == "🗑️"
-                    and user.id == message.author.id
-                    and reaction.message.id == message.id
-                )
+                return reaction.emoji == "🗑️" and user.id == message.author.id and reaction.message.id == message.id
 
             try:
                 await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
