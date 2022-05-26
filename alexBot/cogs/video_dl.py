@@ -222,14 +222,8 @@ class Video_DL(Cog):
                         return
 
                     def check(reaction: discord.Reaction, user: discord.User):
-                        if reaction.emoji != "🗑️":
-                            return False
-                        member = message.guild.get_member(user.id)
-                        return (
-                            reaction.message.id == uploaded.id
-                            and user.id == message.author.id
-                            or member.guild_permissions.manage_messages
-                        )
+                        return reaction.emoji == "🗑️" and user.id == message.author.id and reaction.message.id == message.id
+
 
                     try:
                         await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
