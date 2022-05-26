@@ -215,26 +215,28 @@ class Video_DL(Cog):
 
                 if os.path.exists(f'{message.id}.mp4'):
                     os.remove(f'{message.id}.mp4')
-                if uploaded:
-                    try:
-                        await uploaded.add_reaction("🗑️")
-                    except DiscordException:
-                        return
 
-                    def check(reaction: discord.Reaction, user: discord.User):
-                        return (
-                            reaction.emoji == "🗑️"
-                            and user.id == message.author.id
-                            and reaction.message.id == message.id
-                        )
 
-                    try:
-                        await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
-                    except asyncio.TimeoutError:
-                        await uploaded.remove_reaction("🗑️", self.bot.user)
-                    else:
-                        # if we are here, someone with the power to do so want's to delete the upload
-                        await uploaded.delete()
+        if uploaded:
+            try:
+                await uploaded.add_reaction("🗑️")
+            except DiscordException:
+                return
+
+            def check(reaction: discord.Reaction, user: discord.User):
+                return (
+                    reaction.emoji == "🗑️"
+                    and user.id == message.author.id
+                    and reaction.message.id == message.id
+                )
+
+            try:
+                await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
+            except asyncio.TimeoutError:
+                await uploaded.remove_reaction("🗑️", self.bot.user)
+            else:
+                # if we are here, someone with the power to do so want's to delete the upload
+                await uploaded.delete()
 
     @staticmethod
     @timing(log=log)
