@@ -1,10 +1,9 @@
-import asyncio
 import logging
 from typing import TYPE_CHECKING
 
 from discord.ext import tasks
-
-from ..tools import Cog
+from collections import defaultdict
+from ..tools import Cog, get_json
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -12,10 +11,9 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-TABLE = {
-    0: "Alex's Phone is At Home",
-    1: "Alex's Phone is Away From Home",
-}
+TABLE = defaultdict(lambda: "Alex is Away")
+TABLE['home'] = "Alex is At Home"
+TABLE['walmart'] = "Alex is At Work"
 
 
 class PhoneMonitor(Cog):
@@ -23,11 +21,15 @@ class PhoneMonitor(Cog):
         super().__init__(bot)
         self.phone_update.start()
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=1)
     async def phone_update(self):
-        ping = await asyncio.create_subprocess_shell("ping -c 1 192.168.1.150 -W 1")
-        ret = await ping.wait()
-        log.debug(f"detected phone, ret = {ret}, table is {TABLE[ret]}")
+        ret = await get_json(
+            self.bot.session,
+            f"{self.bot.config.hass_host}/api/states/{self.bot.config.hass_target}",
+            headers={'Authorization': self.bot.config.hass_token},
+        )
+        ret = ret['state']
+        log.debug(f"asked HA, ret = {ret}, table is {TABLE[ret]}")
         alex = self.bot.get_guild(791528974442299412).me
         await alex.edit(nick=TABLE[ret])
 

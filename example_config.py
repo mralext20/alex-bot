@@ -7,6 +7,13 @@ import discord
 from alexBot.classes import RingRate, SugeryUser, SugeryZone
 from alexBot.cogs.sugery import Sugery
 
+
+hass_token = os.environ.get('HASS_TOKEN')
+
+hass_host = os.environ.get('HASS_HOST')
+
+hass_target = os.environ.get('HASS_TARGET')
+
 token = os.environ.get('BOT_TOKEN')
 
 cat_token = os.environ.get('THECATAPI_KEY')

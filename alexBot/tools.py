@@ -45,9 +45,9 @@ async def get_text(session: aiohttp.ClientSession, url: str) -> str:
         return await content.text()
 
 
-async def get_json(session: aiohttp.ClientSession, url: str) -> dict:
+async def get_json(session: aiohttp.ClientSession, url: str, **kwargs) -> dict:
     log.debug(f"fetched json: {url}")
-    async with session.get(url) as content:
+    async with session.get(url, **kwargs) as content:
         return await content.json()
 
 
