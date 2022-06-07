@@ -1,8 +1,8 @@
 import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING
-import aiohttp
 
+import aiohttp
 from discord.ext import tasks
 
 from ..tools import Cog, get_json
@@ -19,7 +19,6 @@ TABLE['walmart'] = "Alex is At Work"
 
 
 class PhoneMonitor(Cog):
-    
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.session: aiohttp.ClientSession = None
