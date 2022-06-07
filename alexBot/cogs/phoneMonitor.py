@@ -1,8 +1,9 @@
 import logging
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from discord.ext import tasks
-from collections import defaultdict
+
 from ..tools import Cog, get_json
 
 if TYPE_CHECKING:
