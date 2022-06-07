@@ -1,6 +1,7 @@
 import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING
+import aiohttp
 
 from discord.ext import tasks
 
@@ -18,14 +19,16 @@ TABLE['walmart'] = "Alex is At Work"
 
 
 class PhoneMonitor(Cog):
+    
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
+        self.session: aiohttp.ClientSession = None
         self.phone_update.start()
 
     @tasks.loop(minutes=1)
     async def phone_update(self):
         ret = await get_json(
-            self.bot.session,
+            self.session,
             f"{self.bot.config.hass_host}/api/states/{self.bot.config.hass_target}",
             headers={'Authorization': self.bot.config.hass_token},
         )
@@ -36,9 +39,11 @@ class PhoneMonitor(Cog):
 
     @phone_update.before_loop
     async def before_phone_updates(self):
+        self.session = aiohttp.ClientSession()
         await self.bot.wait_until_ready()
 
-    def cog_unload(self):
+    async def cog_unload(self):
+        await self.session.close()
         self.phone_update.cancel()
 
 
