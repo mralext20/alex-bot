@@ -17,7 +17,8 @@ class GamesReposting(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.linked: Dict[int, WebhookMessage] = {}
-
+        self.webhook: discord.Webhook = None
+    
     @Cog.listener()
     async def on_ready(self):
         self.webhook = discord.Webhook.from_url(
@@ -26,16 +27,18 @@ class GamesReposting(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.channel == discord.DMChannel:
+        if not self.webhook:
+            await self.on_ready()
+        if isinstance(message.channel, discord.TextChannel):
             return
         if message.channel.category_id == 896853287108759615:
             additional_content = [await x.to_file() for x in message.attachments]
 
             msg = await self.webhook.send(
-                content=message.system_content if message.is_system else message.content,
+                content=message.system_content or '',
                 wait=True,
                 username=message.author.name,
-                avatar_url=message.author.avatar_url,
+                avatar_url=message.author.display_avatar.url,
                 files=additional_content,
                 embeds=message.embeds,
                 allowed_mentions=discord.AllowedMentions.none(),
