@@ -18,7 +18,7 @@ class GamesReposting(Cog):
         super().__init__(bot)
         self.linked: Dict[int, WebhookMessage] = {}
         self.webhook: discord.Webhook = None
-    
+
     @Cog.listener()
     async def on_ready(self):
         self.webhook = discord.Webhook.from_url(
