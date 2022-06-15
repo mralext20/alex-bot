@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING, Dict, Optional
-import aiohttp
 
+import aiohttp
 import discord
 from discord.message import Message
 from discord.webhook import WebhookMessage
