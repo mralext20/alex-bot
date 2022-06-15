@@ -34,6 +34,19 @@ class GamesReposting(Cog):
             wh = discord.Webhook.from_url(self.bot.config.nerdiowo_announcements_webhook, session=self.session)
             additional_content = [await x.to_file() for x in message.attachments]
 
+            if len(message.system_content) > 1999:
+                await wh.send(content=message.system_content[:1999], wait=False)
+                await wh.send(
+                    content=message.system_content[2000:],
+                    wait=False,
+                    username=message.author.name,
+                    avatar_url=message.author.display_avatar.url,
+                    files=additional_content,
+                    embeds=message.embeds,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                )
+                # i'm going to assume that if a message is LONG AF that it was checked for style / etc and won't be edited. :shrug:
+
             msg = await wh.send(
                 content=message.system_content or '',
                 wait=True,
@@ -50,7 +63,8 @@ class GamesReposting(Cog):
     async def on_message_edit(self, before: Message, after: Message):
         if before.id in self.linked:
             if before.content != after.content:
-                await self.linked[before.id].edit(content=after.content)
+                
+                await self.linked[before.id].edit(content=after.content, attachments=[] if after.attachments else discord.utils.MISSING)
 
 
 async def setup(bot):
