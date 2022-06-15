@@ -1,5 +1,6 @@
 import logging
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
+import aiohttp
 
 import discord
 from discord.message import Message
@@ -17,24 +18,23 @@ class GamesReposting(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.linked: Dict[int, WebhookMessage] = {}
-        self.webhook: discord.Webhook = None
-    
-    @Cog.listener()
-    async def on_ready(self):
-        self.webhook = discord.Webhook.from_url(
-            self.bot.config.nerdiowo_announcements_webhook, session=self.bot.session
-        )
+        self.session: Optional[aiohttp.ClientSession] = None
+
+    async def cog_unload(self):
+        await self.session.close()
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        if not self.webhook:
-            await self.on_ready()
-        if isinstance(message.channel, discord.TextChannel):
+        if not isinstance(message.channel, discord.TextChannel):
             return
         if message.channel.category_id == 896853287108759615:
+            if not self.session:
+                self.session = aiohttp.ClientSession()
+
+            wh = discord.Webhook.from_url(self.bot.config.nerdiowo_announcements_webhook, session=self.session)
             additional_content = [await x.to_file() for x in message.attachments]
 
-            msg = await self.webhook.send(
+            msg = await wh.send(
                 content=message.system_content or '',
                 wait=True,
                 username=message.author.name,
