@@ -1,8 +1,10 @@
 import logging
 import math
+from this import d
 from typing import TYPE_CHECKING
 
 import aiohttp
+import discord
 from discord.ext import tasks
 
 from alexBot.classes import SugeryTranslations, SugeryZone, Thresholds
@@ -43,6 +45,32 @@ class Sugery(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.sugery_update.start()
+        self.users = [x.user for x in bot.config.suggery]
+
+    @Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if isinstance(message.channel, discord.DMChannel) and message.author.id in self.users:
+            # get the user
+
+            user = discord.utils.find(lambda x: x.user == message.author.id, self.bot.config.suggery)
+            if not user:
+                return
+            async with aiohttp.ClientSession() as session:
+                data = await get_json(session, f"{user.baseURL}/api/v1/entries/current.json")
+                device = await get_json(session, f"{user.baseURL}/api/v1/deviceStatus.json")
+                log.debug(f"fetching {user.user}'s current data..")
+                try:
+                    sgv = data[0]['sgv']
+                    direction = data[0]['direction']
+                    battery = device[0]['uploader']['battery']
+                    charging = (battery > device[1]['uploader']['battery']) or battery == 100
+                except IndexError:
+                    await message.channel.send("error :shrug:")
+                    return
+
+                await message.channel.send(f"{battery=}, {charging=}( based on previous batery reading of {device[1]['uploader']['battery']}), {sgv=}, {direction=} ({DIR2CHAR[direction]})")
+
+
 
     @tasks.loop(minutes=5)
     async def sugery_update(self):
