@@ -1,11 +1,11 @@
 import logging
 import math
-from this import d
 from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
 from discord.ext import tasks
+from this import d
 
 from alexBot.classes import SugeryTranslations, SugeryZone, Thresholds
 
@@ -68,9 +68,9 @@ class Sugery(Cog):
                     await message.channel.send("error :shrug:")
                     return
 
-                await message.channel.send(f"{battery=}, {charging=}( based on previous batery reading of {device[1]['uploader']['battery']}), {sgv=}, {direction=} ({DIR2CHAR[direction]})")
-
-
+                await message.channel.send(
+                    f"{battery=}, {charging=}( based on previous batery reading of {device[1]['uploader']['battery']}), {sgv=}, {direction=} ({DIR2CHAR[direction]})"
+                )
 
     @tasks.loop(minutes=5)
     async def sugery_update(self):
