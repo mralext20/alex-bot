@@ -34,7 +34,7 @@ class Fun(Cog):
         ]
 
         emoji = emojis[index]
-        data = await emoji.url.read()
+        data = await emoji.read()
         nerdiowo = ctx.bot.get_guild(791528974442299412)
         uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
         try:
@@ -83,6 +83,7 @@ class Fun(Cog):
                 if self.last_posted.get(message.channel.id, time.time() - 60 * 60 * 24) < time.time() - 60 * 5:
                     await message.reply("https://xkcd.com/1357/", mention_author=True)
                     self.last_posted[message.channel.id] = time.time()
+
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
             if message.content.endswith('??'):
@@ -106,7 +107,7 @@ class Fun(Cog):
                     except discord.DiscordException:
                         if isinstance(emoji, PartialEmoji):
                             # steal the emoji temporarily to react with it
-                            data = await emoji.url.read()
+                            data = await emoji.read()
                             nerdiowo = self.bot.get_guild(791528974442299412)
                             uploaded = await nerdiowo.create_custom_emoji(
                                 name=emoji.name, image=data, reason="temporily added for #everybody-votes"
