@@ -24,7 +24,6 @@ class PhoneMonitor(Cog):
         self.session: aiohttp.ClientSession = None
         self.phone_update.start()
 
-
     @tasks.loop(minutes=1)
     async def phone_update(self):
         ret = await get_json(
