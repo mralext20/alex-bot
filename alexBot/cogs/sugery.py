@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 import aiohttp
 import discord
 from discord.ext import tasks
-from this import d
 
 from alexBot.classes import SugeryTranslations, SugeryZone, Thresholds
 
