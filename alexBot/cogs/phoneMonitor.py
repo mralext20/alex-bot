@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 TABLE = defaultdict(lambda: "Alex is Away")
 TABLE['home'] = "Alex is At Home"
-TABLE['walmart'] = "Alex is At Work"
+TABLE['Walmart'] = "Alex is At Work"
 
 
 class PhoneMonitor(Cog):
@@ -23,6 +23,7 @@ class PhoneMonitor(Cog):
         super().__init__(bot)
         self.session: aiohttp.ClientSession = None
         self.phone_update.start()
+
 
     @tasks.loop(minutes=1)
     async def phone_update(self):
