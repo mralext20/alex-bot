@@ -2,8 +2,8 @@ import logging
 import re
 import time
 from typing import Dict
-import aiohttp
 
+import aiohttp
 import discord
 from discord import MessageType, PartialEmoji, app_commands, ui
 from discord.ext import commands
@@ -17,13 +17,10 @@ ayygen = re.compile("[aA][yY][Yy][yY]*")
 VOTE_EMOJIS = ["<:greentick:567088336166977536>", "<:yellowtick:872631240010899476>", "<:redtick:567088349484023818>"]
 
 
-
-
-
 class Fun(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
-        self.last_posted: Dict[int,float] = {}
+        self.last_posted: Dict[int, float] = {}
         self.stealEmojiMenu = app_commands.ContextMenu(
             name='Steal Emojis',
             callback=self.stealEmoji,
@@ -34,21 +31,22 @@ class Fun(Cog):
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
 
-
     async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
         raw_emojis = self.EMOJI_REGEX.findall(message.content)
-        emojis = [
-            PartialEmoji.from_str(e)
-            for e in raw_emojis
-        ]
+        emojis = [PartialEmoji.from_str(e) for e in raw_emojis]
         bot = self.bot
 
         class IndexSelector(ui.Modal, title="Which emoji?"):
-            index = ui.Select(max_values=25, options=[discord.SelectOption(label=e.name, value=str(index), emoji=e) for index, e in enumerate(emojis)])
+            index = ui.Select(
+                max_values=25,
+                options=[
+                    discord.SelectOption(label=e.name, value=str(index), emoji=e) for index, e in enumerate(emojis)
+                ],
+            )
 
             async def on_submit(self, interaction: discord.Interaction):
                 await interaction.response.send_message("i'll get right on that!", ephemeral=True)
-                
+
                 nerdiowo = bot.get_guild(791528974442299412)
                 for i in self.index.values:
                     index = int(i)
@@ -58,7 +56,6 @@ class Fun(Cog):
                     await interaction.followup.send(f"{uploaded}", ephemeral=True)
 
         await interaction.response.send_modal(IndexSelector())
-
 
     @app_commands.command(name="cat")
     async def slash_cat(self, interaction: discord.Interaction):
@@ -115,10 +112,7 @@ class Fun(Cog):
             raw_emojis = EmojiSequence.pattern.findall(message.content)
             matches = self.EMOJI_REGEX.findall(message.content)
             if matches or raw_emojis:
-                emojis = [
-                    PartialEmoji.from_str(e)
-                    for e in matches
-                ]
+                emojis = [PartialEmoji.from_str(e) for e in matches]
                 emojis += raw_emojis
 
             if message.content.endswith('?') or emojis != VOTE_EMOJIS:

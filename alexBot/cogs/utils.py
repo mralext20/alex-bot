@@ -21,7 +21,7 @@ class Utils(Cog):
         await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
     @commands.command(aliases=['diff'])
-    async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object]= None):
+    async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
         two = two or ctx.message
         if two is None:
