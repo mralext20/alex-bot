@@ -45,11 +45,8 @@ class Fun(Cog):
             index = ui.Select(
                 max_values=len(emojis),
                 options=[
-                    discord.SelectOption(
-                        label=e.name,
-                        value=str(index),
-                        emoji=PartialEmoji.from_dict(e.to_dict())
-                    ) for index, e in enumerate(emojis)
+                    discord.SelectOption(label=e.name, value=str(index), emoji=PartialEmoji.from_dict(e.to_dict()))
+                    for index, e in enumerate(emojis)
                 ],
             )
 
