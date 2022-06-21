@@ -25,7 +25,7 @@ class Fun(Cog):
             name='Steal Emojis',
             callback=self.stealEmoji,
         )
-        self.EMOJI_REGEX = re.compile(r"<a?:[a-zA-Z0-9_]{2,32}:[0-9]{18,22}>")
+        self.EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
         self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
 
     async def cog_unload(self) -> None:
@@ -33,7 +33,7 @@ class Fun(Cog):
 
     async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
         raw_emojis = self.EMOJI_REGEX.findall(message.content)
-        emojis = [PartialEmoji.from_str(e) for e in raw_emojis]
+        emojis = [PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2]) for e in raw_emojis]
         if len(emojis) == 0:
             await interaction.response.send_message("there's no Emoji to steal :(", ephemeral=True)
         bot = self.bot
@@ -114,7 +114,7 @@ class Fun(Cog):
             raw_emojis = EmojiSequence.pattern.findall(message.content)
             matches = self.EMOJI_REGEX.findall(message.content)
             if matches or raw_emojis:
-                emojis = [PartialEmoji.from_str(e) for e in matches]
+                emojis = [PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2]) for e in matches]
                 emojis += raw_emojis
 
             if message.content.endswith('?') or emojis != VOTE_EMOJIS:
