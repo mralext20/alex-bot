@@ -8,7 +8,7 @@ import humanize
 from discord.ext import commands
 from discord.member import VoiceState
 
-from ..tools import Cog, ObjectConverter
+from ..tools import Cog
 
 DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
@@ -21,13 +21,14 @@ class Utils(Cog):
         await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
 
     @commands.command(aliases=['diff'])
-    async def difference(self, ctx: commands.Context, one: ObjectConverter, two: ObjectConverter = None):
+    async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object]= None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
+        two = two or ctx.message
         if two is None:
-            now = True
             two = ctx.message
         else:
             now = False
+
         if one.created_at > two.created_at:
             earlier_first = False
             diff = one.created_at.replace(tzinfo=datetime.timezone.utc) - two.created_at.replace(
@@ -56,7 +57,7 @@ class Utils(Cog):
     async def info(self, ctx):
         """general bot information"""
         ret = discord.Embed()
-        ret.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
+        ret.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar.url)
         ret.add_field(name='Support Server', value='[link](https://discord.gg/jMwPFqp)')
         ret.add_field(name='Source Code', value='[github](https://github.com/mralext20/alex-bot)')
         ret.add_field(name='Servers', value=str(len(self.bot.guilds)))
@@ -69,7 +70,7 @@ class Utils(Cog):
         if invite.revoked:
             return await ctx.send("That invite is revoked...")
         ret = discord.Embed()
-        ret.set_thumbnail(url=invite.guild.icon_url)
+        ret.set_thumbnail(url=invite.guild.icon.url)
         ret.title = invite.guild.name
         ret.add_field(name='aprox members', value=invite.approximate_member_count, inline=True)
         ret.add_field(name='Aprox Present Members', value=invite.approximate_presence_count, inline=True)

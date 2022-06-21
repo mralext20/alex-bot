@@ -12,7 +12,6 @@ from discord.ext import commands
 
 import config
 from alexBot.channel_logging import setup_logging
-from alexBot.tools import metar_only_in_vasa
 
 if TYPE_CHECKING:
     from alexBot.data import Data
@@ -46,7 +45,6 @@ class Bot(commands.Bot):
         log.info(f'Logged on as {self.user} ({self.user.id})')
         self.owner = (await self.application_info()).owner
         log.info(f'owner is {self.owner} ({self.owner.id})')
-        self.add_check(metar_only_in_vasa)
         self.session = aiohttp.ClientSession()
 
     async def cogSetup(self):

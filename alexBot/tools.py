@@ -15,7 +15,6 @@ import aiohttp
 import discord
 import xmltodict
 from discord.ext import commands
-from discord.ext.commands.converter import IDConverter
 
 log = getLogger(__name__)
 
@@ -27,16 +26,6 @@ class Cog(commands.Cog):
 
     def __init__(self, bot: "Bot"):
         self.bot: "Bot" = bot
-
-
-class BoolConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str):
-        if argument[0].lower() == "f":
-            return False
-        elif argument[0].lower() == "t":
-            return True
-        else:
-            raise commands.BadArgument(f'can not convert {argument} to True or False')
 
 
 async def get_text(session: aiohttp.ClientSession, url: str) -> str:
@@ -55,24 +44,6 @@ async def get_xml(session: aiohttp.ClientSession, url: str) -> dict:
     log.debug(f"fetched xml: {url}")
     async with session.get(url) as content:
         return xmltodict.parse(await content.text())
-
-
-def metar_only_in_vasa(ctx: commands.Context):
-    try:
-        return not (
-            ctx.guild.id == 377567755743789064
-            and ctx.command.name
-            not in [
-                'help',
-                'invite',
-                'info',
-                'metar',
-                'taf',
-                'jsk',
-            ]
-        )
-    except AttributeError:
-        return True
 
 
 def is_in_guild(guild_id):
@@ -129,22 +100,3 @@ def transform_neosdb(url: str) -> str:
     url = urlparse(url)
     return f"https://cloudxstorage.blob.core.windows.net/assets{posixpath.splitext(url.path)[0]}"
 
-
-class ObjectConverter(IDConverter):
-    """Converts to a :class:`~discord.Object`.
-    The argument must follow the valid ID or mention formats (e.g. `<@80088516616269824>`).
-
-
-    The lookup strategy is as follows (in order):
-    1. Lookup by ID.
-    2. Lookup by member, role, or channel mention.
-    """
-
-    async def convert(self, ctx: commands.Context, argument: str) -> discord.Object:
-        match = self._get_id_match(argument) or re.match(r'<(?:@(?:!|&)?|#)([0-9]{15,20})>$', argument)
-
-        if match is None:
-            raise commands.errors.BadArgument(f"{argument} does not follow a valid ID or mention format.")
-        result = int(match.group(1))
-
-        return discord.Object(id=result)
