@@ -34,11 +34,13 @@ class Fun(Cog):
     async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
         raw_emojis = self.EMOJI_REGEX.findall(message.content)
         emojis = [PartialEmoji.from_str(e) for e in raw_emojis]
+        if len(emojis) == 0:
+            await interaction.response.send_message("there's no Emoji to steal :(", ephemeral=True)
         bot = self.bot
 
         class IndexSelector(ui.Modal, title="Which emoji?"):
             index = ui.Select(
-                max_values=25,
+                max_values=len(emojis),
                 options=[
                     discord.SelectOption(label=e.name, value=str(index), emoji=e) for index, e in enumerate(emojis)
                 ],
