@@ -33,7 +33,10 @@ class Fun(Cog):
 
     async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
         raw_emojis = self.EMOJI_REGEX.findall(message.content)
-        emojis = [PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2]) for e in raw_emojis]
+        emojis = [
+            PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
+            for e in raw_emojis
+        ]
         if len(emojis) == 0:
             await interaction.response.send_message("there's no Emoji to steal :(", ephemeral=True)
         bot = self.bot
@@ -114,7 +117,10 @@ class Fun(Cog):
             raw_emojis = EmojiSequence.pattern.findall(message.content)
             matches = self.EMOJI_REGEX.findall(message.content)
             if matches or raw_emojis:
-                emojis = [PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2]) for e in matches]
+                emojis = [
+                    PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
+                    for e in matches
+                ]
                 emojis += raw_emojis
 
             if message.content.endswith('?') or emojis != VOTE_EMOJIS:
