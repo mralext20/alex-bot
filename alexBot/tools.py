@@ -99,4 +99,3 @@ def grouper(iterable: Iterable[_T], n: int) -> Generator[Iterable[_T], None, Non
 def transform_neosdb(url: str) -> str:
     url = urlparse(url)
     return f"https://cloudxstorage.blob.core.windows.net/assets{posixpath.splitext(url.path)[0]}"
-
