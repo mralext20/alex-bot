@@ -2,9 +2,10 @@ import logging
 import re
 import time
 from typing import Dict
+import aiohttp
 
 import discord
-from discord import MessageType, PartialEmoji
+from discord import MessageType, PartialEmoji, app_commands, ui
 from discord.ext import commands
 from emoji_data import EmojiSequence
 
@@ -16,56 +17,76 @@ ayygen = re.compile("[aA][yY][Yy][yY]*")
 VOTE_EMOJIS = ["<:greentick:567088336166977536>", "<:yellowtick:872631240010899476>", "<:redtick:567088349484023818>"]
 
 
+
+
+
 class Fun(Cog):
-    last_posted: Dict[int, float] = {}
+    def __init__(self, bot: "Bot"):
+        super().__init__(bot)
+        self.last_posted: Dict[int,float] = {}
+        self.stealEmojiMenu = app_commands.ContextMenu(
+            name='Steal Emojis',
+            callback=self.stealEmoji,
+        )
+        self.EMOJI_REGEX = re.compile(r"<a?:[a-zA-Z0-9_]{2,32}:[0-9]{18,22}>")
 
-    EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
+    async def cog_unload(self) -> None:
+        self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
 
-    @commands.command(aliases=["emojiSteal"])
-    @commands.is_owner()
-    async def stealEmoji(self, ctx: commands.Context, index: int = 0):
-        if not ctx.message.reference:
-            raise commands.BadArgument("you need to reply to a message")
-        target = ctx.message.reference.resolved
-        raw_emojis = self.EMOJI_REGEX.findall(target.content)
+
+    async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
+        raw_emojis = self.EMOJI_REGEX.findall(message.content)
         emojis = [
-            PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
+            PartialEmoji.from_str(e)
             for e in raw_emojis
         ]
+        bot = self.bot
 
-        emoji = emojis[index]
-        data = await emoji.read()
-        nerdiowo = ctx.bot.get_guild(791528974442299412)
-        uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
-        try:
-            await ctx.reply(f"{uploaded}")
-        except discord.errors.Forbidden:
-            await ctx.author.send(f"{uploaded}")
+        class IndexSelector(ui.Modal, title="Which emoji?"):
+            index = ui.Select(max_values=25, options=[discord.SelectOption(label=e.name, value=str(index), emoji=e) for index, e in enumerate(emojis)])
 
-    @commands.command()
-    async def cat(self, ctx: commands.Context):
+            async def on_submit(self, interaction: discord.Interaction):
+                await interaction.response.send_message("i'll get right on that!", ephemeral=True)
+                
+                nerdiowo = bot.get_guild(791528974442299412)
+                for i in self.index.values:
+                    index = int(i)
+                    emoji = emojis[index]
+                    data = await emoji.read()
+                    uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
+                    await interaction.followup.send(f"{uploaded}", ephemeral=True)
+
+        await interaction.response.send_modal(IndexSelector())
+
+
+    @app_commands.command(name="cat")
+    async def slash_cat(self, interaction: discord.Interaction):
         """Posts a pretty photo of a cat"""
-        cat = await get_json(
-            self.bot.session,
-            f"https://thecatapi.com/api/images/get?format=json" f"&api_key={self.bot.config.cat_token}",
-        )
-        cat = cat[0]
-        embed = discord.Embed()
-        embed.set_image(url=cat["url"])
-        embed.url = "http://thecatapi.com"
-        embed.title = "cat provided by the cat API"
-        await ctx.send(embed=embed)
+        async with aiohttp.ClientSession() as session:
+            self.bot.loop.create_task(interaction.response.defer(thinking=True))
+            cat = await get_json(
+                session,
+                f"https://thecatapi.com/api/images/get?format=json" f"&api_key={self.bot.config.cat_token}",
+            )
+            cat = cat[0]
+            embed = discord.Embed()
+            embed.set_image(url=cat["url"])
+            embed.url = "http://thecatapi.com"
+            embed.title = "cat provided by the cat API"
+            await interaction.followup.send(embed=embed)
 
-    @commands.command()
-    async def dog(self, ctx: commands.Context):
+    @app_commands.command(name="dog")
+    async def dog(self, interaction: discord.Interaction):
         """Posts a pretty picture of a dog."""
-        dog = None
-        while dog is None or dog["url"][-3:].lower() == "mp4":
-            dog = await get_json(self.bot.session, "https://random.dog/woof.json")
-            log.debug(dog["url"])
-        ret = discord.Embed()
-        ret.set_image(url=dog["url"])
-        await ctx.send(embed=ret)
+        self.bot.loop.create_task(interaction.response.defer(thinking=True))
+        async with aiohttp.ClientSession() as session:
+            dog = None
+            while dog is None or dog["url"][-3:].lower() == "mp4":
+                dog = await get_json(session, "https://random.dog/woof.json")
+                log.debug(dog["url"])
+            ret = discord.Embed()
+            ret.set_image(url=dog["url"])
+            await interaction.followup.send(embed=ret)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -94,7 +115,7 @@ class Fun(Cog):
             matches = self.EMOJI_REGEX.findall(message.content)
             if matches or raw_emojis:
                 emojis = [
-                    PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
+                    PartialEmoji.from_str(e)
                     for e in matches
                 ]
                 emojis += raw_emojis
