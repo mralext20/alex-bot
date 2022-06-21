@@ -29,6 +29,7 @@ class Fun(Cog):
             callback=self.stealEmoji,
         )
         self.EMOJI_REGEX = re.compile(r"<a?:[a-zA-Z0-9_]{2,32}:[0-9]{18,22}>")
+        self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
