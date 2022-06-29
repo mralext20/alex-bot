@@ -1,10 +1,10 @@
 import random
 from typing import Dict, List
 
-from discord import Member, ButtonStyle, Interaction, app_commands, ui
 import discord
-from ..tools import Cog
+from discord import ButtonStyle, Interaction, Member, app_commands, ui
 
+from ..tools import Cog
 
 RANDOM_ARTICLES = ["The Statue Of Liberty", "The Eifle Tower", "Bass Pro Shop Pyramid", "The Taj Mahal", "Fortnite"]
 
@@ -17,21 +17,25 @@ class ArticalModal(ui.Modal, title="My Article Is..."):
 
 
 class FinishView(ui.View):
-    def __init__(self, articleOwner:Member, tomId):
+    def __init__(self, articleOwner: Member, tomId):
         super().__init__(timeout=840)
         self.tomId = tomId
-        self.articleOwner:Member = articleOwner
+        self.articleOwner: Member = articleOwner
 
     @ui.button(label="the answer was...")
     async def answer(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.response.send_message(f"the article was chosen by {self.articleOwner.display_name}", ephemeral=interaction.user.id != self.tomId)
+        await interaction.response.send_message(
+            f"the article was chosen by {self.articleOwner.display_name}", ephemeral=interaction.user.id != self.tomId
+        )
         if interaction.user.id == self.tomId:
             self.stop()
+
 
 class nOfThesePeopleAreLying(Cog):
     class ImPlaying(ui.View):
         players: List[Interaction] = []
         orig = None
+
         @ui.button(label="I'm playing!")
         async def playerConfirm(self, interaction: Interaction, button: ui.Button):
             if interaction.user.id in [p.user.id for p in self.players]:
@@ -40,14 +44,15 @@ class nOfThesePeopleAreLying(Cog):
             await interaction.response.send_message("i got you!", ephemeral=True)
             if len(self.players) == 3:
                 self.startGame.disabled = False
-            await self.orig(content=f"are you playing? hit 'I'm Playing'! I've Got {len(self.players)} players so far!", view=self)
+            await self.orig(
+                content=f"are you playing? hit 'I'm Playing'! I've Got {len(self.players)} players so far!", view=self
+            )
 
         @ui.button(label="Let's Play!", style=ButtonStyle.green, disabled=True)
         async def startGame(self, interaction: Interaction, button: ui.Button):
             await interaction.response.defer(ephemeral=True)
             self.stop()
 
-   
     class Articles(ui.View):
         def __init__(self, players: List[Interaction], tomId):
             super().__init__(timeout=None)
@@ -55,7 +60,9 @@ class nOfThesePeopleAreLying(Cog):
             self.players = players
             self.player_ids = [p.user.id for p in self.players]
             self.tomId = tomId
-            self.add_item(ui.Button(label="Random Wikipedia Article", url="https://en.wikipedia.org/wiki/Special:Random"))
+            self.add_item(
+                ui.Button(label="Random Wikipedia Article", url="https://en.wikipedia.org/wiki/Special:Random")
+            )
 
         @ui.button(label="My Articles is...", style=ButtonStyle.green)
         async def articlesSet(self, interaction: discord.Interaction, button: ui.Button):
@@ -63,7 +70,9 @@ class nOfThesePeopleAreLying(Cog):
             if interaction.user.id not in self.player_ids:
                 return await interaction.response.send_message("You're not playing!", ephemeral=True)
             if interaction.user.id == self.tomId:
-                return await interaction.response.send_message("You are playing as Tom, and don't pick an article.", ephemeral=True)
+                return await interaction.response.send_message(
+                    "You are playing as Tom, and don't pick an article.", ephemeral=True
+                )
             if interaction.user.id in self.articles:
                 return await interaction.response.send_message("You arleady responded!", ephemeral=True)
             await interaction.response.send_modal(m)
@@ -71,7 +80,6 @@ class nOfThesePeopleAreLying(Cog):
                 self.articles[interaction.user.id] = m.article.value
             if len(self.players) == len(self.articles):
                 self.stop()
-
 
     @app_commands.guilds(discord.Object(791528974442299412))
     @app_commands.command(name="n-of-these-people-are-lying")
@@ -84,7 +92,10 @@ class nOfThesePeopleAreLying(Cog):
         tom = players.pop(random.randrange(len(players)))
 
         articles = self.Articles(players, tom.user.id)
-        await interaction.followup.send(f"alright! i need {', '.join([player.user.display_name for player in players])} to each go to wikipedia and grab a random article, then let me know the name of it. {tom.user.display_name} will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.", view=articles)
+        await interaction.followup.send(
+            f"alright! i need {', '.join([player.user.display_name for player in players])} to each go to wikipedia and grab a random article, then let me know the name of it. {tom.user.display_name} will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
+            view=articles,
+        )
 
         await articles.wait()
 
