@@ -6,7 +6,6 @@ import re
 import shutil
 import subprocess
 from functools import partial
-from typing import List
 
 import discord
 import httpx
@@ -15,7 +14,7 @@ from discord.ext import commands
 from slugify import slugify
 from youtube_dlc import DownloadError, YoutubeDL
 
-from ..tools import Cog, is_in_channel, is_in_guild, timing
+from ..tools import Cog, is_in_guild, timing
 
 log = logging.getLogger(__name__)
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
@@ -219,6 +218,7 @@ class Video_DL(Cog):
         if uploaded:
             try:
                 await uploaded.add_reaction("🗑️")
+                await message.edit(suppress=True)
             except DiscordException:
                 return
 
