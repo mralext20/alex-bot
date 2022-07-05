@@ -12,7 +12,7 @@ import httpx
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
-from youtube_dlc import DownloadError, YoutubeDL
+from youtube_dl import DownloadError, YoutubeDL
 
 from ..tools import Cog, is_in_guild, timing
 

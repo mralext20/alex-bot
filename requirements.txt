@@ -16,6 +16,6 @@ mcstatus~=5.1.4
 
 git+https://github.com/mralext20/geomag#egg=geomag
 pytz
-youtube_dlc
+youtube_dl
 emoji-data
 httpx
