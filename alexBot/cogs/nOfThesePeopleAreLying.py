@@ -33,8 +33,10 @@ class FinishView(ui.View):
 
 class nOfThesePeopleAreLying(Cog):
     class ImPlaying(ui.View):
-        players: List[Interaction] = []
-        orig = None
+        def __init__(self, *, timeout=180):
+            super().__init__(timeout=timeout)
+            self.players: List[Interaction] = []
+            self.orig = None
 
         @ui.button(label="I'm playing!")
         async def playerConfirm(self, interaction: Interaction, button: ui.Button):
@@ -56,7 +58,7 @@ class nOfThesePeopleAreLying(Cog):
     class Articles(ui.View):
         def __init__(self, players: List[Interaction], tomId):
             super().__init__(timeout=None)
-            self.articles: Dict[int, str] = {}
+            self.articles: Dict[int, str] = dict()
             self.players = players
             self.player_ids = [p.user.id for p in self.players]
             self.tomId = tomId
@@ -93,7 +95,7 @@ class nOfThesePeopleAreLying(Cog):
 
         articles = self.Articles(players, tom.user.id)
         await interaction.followup.send(
-            f"alright! i need {', '.join([player.user.display_name for player in players])} to each go to wikipedia and grab a random article, then let me know the name of it. {tom.user.display_name} will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
+            f"alright! i need {', '.join([f'**{player.user.display_name}**' for player in players])} to each go to wikipedia and grab a random article, then let me know the name of it. {tom.user.display_name} will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
             view=articles,
         )
 
@@ -101,6 +103,7 @@ class nOfThesePeopleAreLying(Cog):
 
         uid, article = random.choice(list(articles.articles.items()))
         finish = FinishView(interaction.guild.get_member(uid), tom.user.id)
+        await tom.followup.send(f"We're {interaction.guild.name} and this is {len(v.players) - 1} of these people are lying because {len(v.players) - 1} of them will be. Currently the rest of the voice call is finding an article; after they have found an article and submitted it's name to Alexbot it Will randomly select one of the names. After the title has been selected one of the people will be telling the truth and the rest will be lying. It is your job to correctly guess who is telling the truth. If you guess who wrong, the person who deceive you will get the point.", ephemeral=True)
         await interaction.followup.send(f"Alright, out of everyone's Articles, we got... {article}!", view=finish)
 
 
