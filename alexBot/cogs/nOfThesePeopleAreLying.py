@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 from urllib.parse import urlparse
 
 import discord
-from discord import ButtonStyle, Interaction, Member, app_commands, ui
+from discord import ButtonStyle, Interaction, Member, Message, app_commands, ui
 
 from ..tools import Cog
 
@@ -57,7 +57,7 @@ class nOfThesePeopleAreLying(Cog):
             if len(self.players) > 2:
                 self.startGame.disabled = False
             await self.orig(
-                content=f"are you playing? hit 'I'm Playing'! I've Got {len(self.players)} players so far!", view=self
+                content=f"are you playing? hit 'I'm Playing'! I've Got ', '.join([f'**{player.user.display_name}**' for player in players]) players so far!", view=self
             )
 
         @ui.button(label="Let's Play!", style=ButtonStyle.green, disabled=True)
@@ -66,12 +66,13 @@ class nOfThesePeopleAreLying(Cog):
             self.stop()
 
     class Articles(ui.View):
-        def __init__(self, players: List[Interaction], tomId):
+        def __init__(self, players: List[Interaction], tom: Member):
             super().__init__(timeout=None)
+            self.message:Message = None
             self.articles: Dict[int, Tuple[str, str]] = dict()
             self.players = players
             self.player_ids = [p.user.id for p in self.players]
-            self.tomId = tomId
+            self.tom:Member = tom
             self.add_item(
                 ui.Button(label="Random Wikipedia Article", url="https://en.wikipedia.org/wiki/Special:RandomRootpage")
             )
@@ -79,7 +80,7 @@ class nOfThesePeopleAreLying(Cog):
         @ui.button(label="My Articles is...", style=ButtonStyle.green)
         async def articlesSet(self, interaction: discord.Interaction, button: ui.Button):
             m = ArticalModal()
-            if interaction.user.id == self.tomId:
+            if interaction.user.id == self.tom.id:
                 return await interaction.response.send_message(
                     "You are playing as Tom, and don't pick an article.", ephemeral=True
                 )
@@ -90,6 +91,9 @@ class nOfThesePeopleAreLying(Cog):
             await interaction.response.send_modal(m)
             if not await m.wait():  # this is dum
                 self.articles[interaction.user.id] = (m.article.value, m.link.value)
+
+                await self.message.edit(content=f"alright! i need {', '.join([f'**{player.user.display_name}**' for player in self.players])} to each go to wikipedia and grab a random article, then let me know the name of it. **{self.tom.display_name}** will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
+                view=self)
             if len(self.players) == len(self.articles):
                 self.stop()
 
@@ -103,13 +107,15 @@ class nOfThesePeopleAreLying(Cog):
         players = v.players
         tom = players.pop(random.randrange(len(players)))
 
-        articles = self.Articles(players, tom.user.id)
-        await interaction.followup.send(
+        articles = self.Articles(players, tom.user)
+        
+        articles.message = await interaction.followup.send(
             f"alright! i need {', '.join([f'**{player.user.display_name}**' for player in players])} to each go to wikipedia and grab a random article, then let me know the name of it. **{tom.user.display_name}** will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
             view=articles,
+            wait=True
         )
         await tom.followup.send(
-            f"We're {interaction.guild.name} and this is {len(v.players) - 1} of these people are lying because {len(v.players) - 1} of them will be. Currently the rest of the voice call is finding an article; after they have found an article and submitted it's name to Alexbot it Will randomly select one of the names. After the title has been selected one of the people will be telling the truth and the rest will be lying. It is your job to correctly guess who is telling the truth.",
+            f"We're {interaction.guild.name} and this is {len(v.players) - 1} of these people are lying because {len(v.players) - 1} of them will be.\n\n Currently the rest of the voice call is finding an article; after they have found an article and submitted it's name to Alexbot it Will randomly select one of the names. After the title has been selected one of the people will be telling the truth and the rest will be lying. It is your job to correctly guess who is telling the truth.",
             ephemeral=True,
         )
 
