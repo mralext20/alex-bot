@@ -103,7 +103,10 @@ class nOfThesePeopleAreLying(Cog):
 
         uid, article = random.choice(list(articles.articles.items()))
         finish = FinishView(interaction.guild.get_member(uid), tom.user.id)
-        await tom.followup.send(f"We're {interaction.guild.name} and this is {len(v.players) - 1} of these people are lying because {len(v.players) - 1} of them will be. Currently the rest of the voice call is finding an article; after they have found an article and submitted it's name to Alexbot it Will randomly select one of the names. After the title has been selected one of the people will be telling the truth and the rest will be lying. It is your job to correctly guess who is telling the truth. If you guess who wrong, the person who deceive you will get the point.", ephemeral=True)
+        await tom.followup.send(
+            f"We're {interaction.guild.name} and this is {len(v.players) - 1} of these people are lying because {len(v.players) - 1} of them will be. Currently the rest of the voice call is finding an article; after they have found an article and submitted it's name to Alexbot it Will randomly select one of the names. After the title has been selected one of the people will be telling the truth and the rest will be lying. It is your job to correctly guess who is telling the truth. If you guess who wrong, the person who deceive you will get the point.",
+            ephemeral=True,
+        )
         await interaction.followup.send(f"Alright, out of everyone's Articles, we got... {article}!", view=finish)
 
 
