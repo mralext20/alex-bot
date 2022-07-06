@@ -12,9 +12,7 @@ RANDOM_ARTICLES = ["The Statue Of Liberty", "The Eifle Tower", "Bass Pro Shop Py
 
 class ArticalModal(ui.Modal, title="My Article Is..."):
     article = ui.TextInput(label="Article Name", placeholder=random.choice(RANDOM_ARTICLES))
-    link = ui.TextInput(
-        label="Article URL", placeholder="https://en.wikipedia.org/wiki/Statue_of_Liberty"
-    )
+    link = ui.TextInput(label="Article URL", placeholder="https://en.wikipedia.org/wiki/Statue_of_Liberty")
 
     async def on_submit(self, interaction: discord.Interaction):
         # validate link
