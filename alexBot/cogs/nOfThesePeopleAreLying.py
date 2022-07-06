@@ -1,5 +1,6 @@
 import random
 from typing import Dict, List, Tuple
+from urllib.parse import urlparse
 
 import discord
 from discord import ButtonStyle, Interaction, Member, app_commands, ui
@@ -12,10 +13,15 @@ RANDOM_ARTICLES = ["The Statue Of Liberty", "The Eifle Tower", "Bass Pro Shop Py
 class ArticalModal(ui.Modal, title="My Article Is..."):
     article = ui.TextInput(label="Article Name", placeholder=random.choice(RANDOM_ARTICLES))
     link = ui.TextInput(
-        label="Article Link", placeholder=random.choice("https://en.wikipedia.org/wiki/Statue_of_Liberty")
+        label="Article URL", placeholder="https://en.wikipedia.org/wiki/Statue_of_Liberty"
     )
 
     async def on_submit(self, interaction: discord.Interaction):
+        # validate link
+        parsed = urlparse(self.link.value)
+        if not parsed.scheme in ["http", "https"]:
+            self.title = "please format your URL correctly"
+            await interaction.response.send_modal(self)
         await interaction.response.defer()
 
 
