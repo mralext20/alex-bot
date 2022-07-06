@@ -67,7 +67,7 @@ class nOfThesePeopleAreLying(Cog):
             self.player_ids = [p.user.id for p in self.players]
             self.tomId = tomId
             self.add_item(
-                ui.Button(label="Random Wikipedia Article", url="https://en.wikipedia.org/wiki/Special:Random")
+                ui.Button(label="Random Wikipedia Article", url="https://en.wikipedia.org/wiki/Special:RandomRootpage")
             )
 
         @ui.button(label="My Articles is...", style=ButtonStyle.green)
