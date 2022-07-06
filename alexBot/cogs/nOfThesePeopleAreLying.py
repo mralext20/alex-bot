@@ -1,5 +1,5 @@
 import random
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import discord
 from discord import ButtonStyle, Interaction, Member, app_commands, ui
@@ -11,20 +11,20 @@ RANDOM_ARTICLES = ["The Statue Of Liberty", "The Eifle Tower", "Bass Pro Shop Py
 
 class ArticalModal(ui.Modal, title="My Article Is..."):
     article = ui.TextInput(label="Article Name", placeholder=random.choice(RANDOM_ARTICLES))
+    link = ui.TextInput(
+        label="Article Link", placeholder=random.choice("https://en.wikipedia.org/wiki/Statue_of_Liberty")
+    )
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
 
 class FinishView(ui.View):
-    def __init__(self, articleOwner: Member, tomId, articleTitle:str):
+    def __init__(self, articleOwner: Member, tomId, article_items: Tuple[str, str]):
         super().__init__(timeout=840)
         self.tomId = tomId
         self.articleOwner: Member = articleOwner
-        self.add_item(
-                ui.Button(label=articleTitle, url=f"https://en.wikipedia.org/wiki/{articleTitle}")
-            )
-
+        self.add_item(ui.Button(label=article_items[0], url=article_items[1]))
 
     @ui.button(label="the answer was...")
     async def answer(self, interaction: discord.Interaction, button: ui.Button):
@@ -48,7 +48,7 @@ class nOfThesePeopleAreLying(Cog):
                 return await interaction.response.send_message("you've already joined!", ephemeral=True)
             self.players.append(interaction)
             await interaction.response.send_message("i got you!", ephemeral=True)
-            if len(self.players) >2:
+            if len(self.players) > 2:
                 self.startGame.disabled = False
             await self.orig(
                 content=f"are you playing? hit 'I'm Playing'! I've Got {len(self.players)} players so far!", view=self
@@ -62,7 +62,7 @@ class nOfThesePeopleAreLying(Cog):
     class Articles(ui.View):
         def __init__(self, players: List[Interaction], tomId):
             super().__init__(timeout=None)
-            self.articles: Dict[int, str] = dict()
+            self.articles: Dict[int, Tuple[str, str]] = dict()
             self.players = players
             self.player_ids = [p.user.id for p in self.players]
             self.tomId = tomId
@@ -83,7 +83,7 @@ class nOfThesePeopleAreLying(Cog):
                 return await interaction.response.send_message("You arleady responded!", ephemeral=True)
             await interaction.response.send_modal(m)
             if not await m.wait():  # this is dum
-                self.articles[interaction.user.id] = m.article.value
+                self.articles[interaction.user.id] = (m.article.value, m.link.value)
             if len(self.players) == len(self.articles):
                 self.stop()
 
@@ -109,9 +109,11 @@ class nOfThesePeopleAreLying(Cog):
 
         await articles.wait()
 
-        uid, article = random.choice(list(articles.articles.items()))
-        finish = FinishView(interaction.guild.get_member(uid), tom.user.id, article)
-        await interaction.followup.send(f"Alright, out of everyone's Articles, we got... {article}!", view=finish)
+        uid, article_items = random.choice(list(articles.articles.items()))
+        finish = FinishView(interaction.guild.get_member(uid), tom.user.id, article_items)
+        await interaction.followup.send(
+            f"Alright, out of everyone's Articles, we got... {article_items[0]}!", view=finish
+        )
 
 
 async def setup(bot):
