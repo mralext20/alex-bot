@@ -17,14 +17,11 @@ class ArticalModal(ui.Modal, title="My Article Is..."):
 
 
 class FinishView(ui.View):
-    def __init__(self, articleOwner: Member, tomId, articleTitle:str):
+    def __init__(self, articleOwner: Member, tomId, articleTitle: str):
         super().__init__(timeout=840)
         self.tomId = tomId
         self.articleOwner: Member = articleOwner
-        self.add_item(
-                ui.Button(label=articleTitle, url=f"https://en.wikipedia.org/wiki/{articleTitle}")
-            )
-
+        self.add_item(ui.Button(label=articleTitle, url=f"https://en.wikipedia.org/wiki/{articleTitle}"))
 
     @ui.button(label="the answer was...")
     async def answer(self, interaction: discord.Interaction, button: ui.Button):
@@ -48,7 +45,7 @@ class nOfThesePeopleAreLying(Cog):
                 return await interaction.response.send_message("you've already joined!", ephemeral=True)
             self.players.append(interaction)
             await interaction.response.send_message("i got you!", ephemeral=True)
-            if len(self.players) >2:
+            if len(self.players) > 2:
                 self.startGame.disabled = False
             await self.orig(
                 content=f"are you playing? hit 'I'm Playing'! I've Got {len(self.players)} players so far!", view=self
