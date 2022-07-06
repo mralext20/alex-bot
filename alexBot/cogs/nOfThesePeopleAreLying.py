@@ -17,10 +17,14 @@ class ArticalModal(ui.Modal, title="My Article Is..."):
 
 
 class FinishView(ui.View):
-    def __init__(self, articleOwner: Member, tomId):
+    def __init__(self, articleOwner: Member, tomId, articleTitle:str):
         super().__init__(timeout=840)
         self.tomId = tomId
         self.articleOwner: Member = articleOwner
+        self.add_item(
+                ui.Button(label=articleTitle, url=f"https://en.wikipedia.org/wiki/{articleTitle}")
+            )
+
 
     @ui.button(label="the answer was...")
     async def answer(self, interaction: discord.Interaction, button: ui.Button):
@@ -44,7 +48,7 @@ class nOfThesePeopleAreLying(Cog):
                 return await interaction.response.send_message("you've already joined!", ephemeral=True)
             self.players.append(interaction)
             await interaction.response.send_message("i got you!", ephemeral=True)
-            if len(self.players) == 3:
+            if len(self.players) >2:
                 self.startGame.disabled = False
             await self.orig(
                 content=f"are you playing? hit 'I'm Playing'! I've Got {len(self.players)} players so far!", view=self
@@ -69,12 +73,12 @@ class nOfThesePeopleAreLying(Cog):
         @ui.button(label="My Articles is...", style=ButtonStyle.green)
         async def articlesSet(self, interaction: discord.Interaction, button: ui.Button):
             m = ArticalModal()
-            if interaction.user.id not in self.player_ids:
-                return await interaction.response.send_message("You're not playing!", ephemeral=True)
             if interaction.user.id == self.tomId:
                 return await interaction.response.send_message(
                     "You are playing as Tom, and don't pick an article.", ephemeral=True
                 )
+            if interaction.user.id not in self.player_ids:
+                return await interaction.response.send_message("You're not playing!", ephemeral=True)
             if interaction.user.id in self.articles:
                 return await interaction.response.send_message("You arleady responded!", ephemeral=True)
             await interaction.response.send_modal(m)
@@ -95,18 +99,18 @@ class nOfThesePeopleAreLying(Cog):
 
         articles = self.Articles(players, tom.user.id)
         await interaction.followup.send(
-            f"alright! i need {', '.join([f'**{player.user.display_name}**' for player in players])} to each go to wikipedia and grab a random article, then let me know the name of it. {tom.user.display_name} will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
+            f"alright! i need {', '.join([f'**{player.user.display_name}**' for player in players])} to each go to wikipedia and grab a random article, then let me know the name of it. **{tom.user.display_name}** will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
             view=articles,
+        )
+        await tom.followup.send(
+            f"We're {interaction.guild.name} and this is {len(v.players) - 1} of these people are lying because {len(v.players) - 1} of them will be. Currently the rest of the voice call is finding an article; after they have found an article and submitted it's name to Alexbot it Will randomly select one of the names. After the title has been selected one of the people will be telling the truth and the rest will be lying. It is your job to correctly guess who is telling the truth.",
+            ephemeral=True,
         )
 
         await articles.wait()
 
         uid, article = random.choice(list(articles.articles.items()))
-        finish = FinishView(interaction.guild.get_member(uid), tom.user.id)
-        await tom.followup.send(
-            f"We're {interaction.guild.name} and this is {len(v.players) - 1} of these people are lying because {len(v.players) - 1} of them will be. Currently the rest of the voice call is finding an article; after they have found an article and submitted it's name to Alexbot it Will randomly select one of the names. After the title has been selected one of the people will be telling the truth and the rest will be lying. It is your job to correctly guess who is telling the truth. If you guess who wrong, the person who deceive you will get the point.",
-            ephemeral=True,
-        )
+        finish = FinishView(interaction.guild.get_member(uid), tom.user.id, article)
         await interaction.followup.send(f"Alright, out of everyone's Articles, we got... {article}!", view=finish)
 
 
