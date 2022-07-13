@@ -8,11 +8,9 @@ from urllib.parse import urlparse
 if TYPE_CHECKING:
     from bot import Bot
 
-import re
 from logging import getLogger
 
 import aiohttp
-import discord
 import xmltodict
 from discord.ext import commands
 
