@@ -153,7 +153,7 @@ class Video_DL(Cog):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
-        
+
         ttt = await self.convert_tiktok(message)
 
         content = (await self.convert_reddit(message)) or ttt or message.content
