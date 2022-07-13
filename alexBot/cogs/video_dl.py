@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 from functools import partial
+from typing import Optional
 
 import discord
 import httpx
@@ -17,6 +18,9 @@ from youtube_dl import DownloadError, YoutubeDL
 from ..tools import Cog, is_in_guild, timing
 
 log = logging.getLogger(__name__)
+
+FIREFOX_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0'
+
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
 TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9#-_!*\(\),]{6,}/')
 TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
@@ -115,24 +119,26 @@ class Video_DL(Cog):
                     await message.reply(data['url_overridden_by_dest'])
         return None
 
-    async def convert_tiktok(self, message: discord.Message):
+    async def convert_tiktok(self, message: discord.Message) -> Optional[str]:
         text = message.content
         # convert short links to full links
         matches = TIKTOK_SHORT_REGEX.match(text)
         if matches:
+            log.debug("Converting short TikTok link to full link")
             async with httpx.AsyncClient() as session:
-                resp = await session.get(url=matches.group(0), headers={'User-Agent': 'AlexBot:v1.0.0'})
-                text = str(resp.url)
+                resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
+                text = str(resp.next_request.url)
         # match full tiktok link and get video download link
         matches = TIKTOK_REGEX.match(text)
         if matches:
+            log.debug("Converting TikTok link to video link")
             video_params = '/'.join(matches.group(0).split('/')[-3::2])
             async with httpx.AsyncClient() as session:
                 # this User-Agent is required because the API will not respond to other headers
                 resp = await session.get(
                     url='https://www.tiktok.com/node/share/video/' + video_params,
                     headers={
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                        'User-Agent': FIREFOX_UA,
                     },
                 )
                 data = resp.json()
@@ -147,7 +153,10 @@ class Video_DL(Cog):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
-        content = (await self.convert_reddit(message)) or (await self.convert_tiktok(message)) or message.content
+        
+        ttt = await self.convert_tiktok(message)
+
+        content = (await self.convert_reddit(message)) or ttt or message.content
         matches = None
 
         for regex in REGEXES:
@@ -155,10 +164,13 @@ class Video_DL(Cog):
             if matches:
                 break
 
-        if matches is None:
+        if matches is None and not ttt:
             return
 
-        match = matches.group(0)
+        if ttt:
+            match = ttt
+        else:
+            match = matches.group(0)
         log.info(f'collecting {match} for {message.author}')
         uploaded = None
         async with message.channel.typing():
