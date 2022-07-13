@@ -6,7 +6,7 @@ import re
 import shutil
 import subprocess
 from functools import partial
-from typing import Optional
+from typing import Optional, Tuple
 
 import discord
 import httpx
@@ -119,7 +119,7 @@ class Video_DL(Cog):
                     await message.reply(data['url_overridden_by_dest'])
         return None
 
-    async def convert_tiktok(self, message: discord.Message) -> Optional[str]:
+    async def convert_tiktok(self, message: discord.Message) -> Optional[Tuple[str, str]]:
         text = message.content
         # convert short links to full links
         matches = TIKTOK_SHORT_REGEX.match(text)
@@ -143,7 +143,8 @@ class Video_DL(Cog):
                 )
                 data = resp.json()
                 video_url = data["itemInfo"]["itemStruct"]["video"]["downloadAddr"]
-                return video_url
+                title = data['seoProps']['metaParams']['title']
+                return video_url, title
         return None
 
     @Cog.listener()
@@ -154,7 +155,12 @@ class Video_DL(Cog):
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
         
-        ttt = await self.convert_tiktok(message)
+        pack = await self.convert_tiktok(message)
+        override_title = None
+        ttt = None
+        if pack:
+            ttt = pack[0]
+            override_title = pack[1]
 
         content = (await self.convert_reddit(message)) or ttt or message.content
         matches = None
@@ -186,6 +192,7 @@ class Video_DL(Cog):
                     task = partial(self.download_video, match, message.id)
                     try:
                         title = await self.bot.loop.run_in_executor(None, task)
+                        title = override_title if override_title else title
                     except NotAVideo as e:
                         if e.args[0]:
                             await message.reply(e, mention_author=False)
