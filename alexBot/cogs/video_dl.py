@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 FIREFOX_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0'
 
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
-TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9#-_!*\(\),]{6,}/')
+TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
 TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
 REGEXES = [
     re.compile(r'https?:\/\/(?:.{3,42}\.)?tiktokcdn-\w{1,8}.com\/\w+/\w+/video/tos/\w+/[^/]+/[^/]+/\?.+vr='),
@@ -154,7 +154,6 @@ class Video_DL(Cog):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
-        
         pack = await self.convert_tiktok(message)
         override_title = None
         ttt = None
