@@ -236,9 +236,12 @@ class Video_DL(Cog):
         if uploaded:
             try:
                 await uploaded.add_reaction("🗑️")
-                await message.edit(suppress=True)
             except DiscordException:
                 return
+            try:
+                await message.edit(suppress=True)
+            except DiscordException:
+                pass
 
             def check(reaction: discord.Reaction, user: discord.User):
                 return reaction.emoji == "🗑️" and user.id == message.author.id and reaction.message.id == message.id
