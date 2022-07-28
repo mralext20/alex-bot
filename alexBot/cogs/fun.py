@@ -20,13 +20,20 @@ VOTE_EMOJIS = ["<:greentick:567088336166977536>", "<:yellowtick:8726312400108994
 class Fun(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
+        self.EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
         self.last_posted: Dict[int, float] = {}
+
         self.stealEmojiMenu = app_commands.ContextMenu(
             name='Steal Emojis',
             callback=self.stealEmoji,
         )
-        self.EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
+        self.vcShakeCommand = app_commands.Command(
+            name='vcshake',
+            callback=self.vcShake,
+            description=self.vcShake.__doc__,
+        )
         self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
+        self.bot.tree.add_command(self.vcShakeCommand, guild=discord.Object(791528974442299412))
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
@@ -91,6 +98,37 @@ class Fun(Cog):
             ret = discord.Embed()
             ret.set_image(url=dog["url"])
             await interaction.followup.send(embed=ret)
+
+    async def vcShake(self, interaction: discord.Interaction):
+        """'shake' a user in voice as a fruitless attempt to get their attention."""
+        if not interaction.guild.me.guild_permissions.move_members:
+            await interaction.response.send_message("I don't have the permissions to do that.")
+            return
+
+        if interaction.message.author.voice is None or interaction.message.guild.afk_channel is None or interaction.message.author.voice.channel == interaction.message.guild.afk_channel:
+            await interaction.response.send_message("you're not in a voice channel or your channels are invalid. try creating an AFK channel", ephemeral=True)
+            return
+
+        current = interaction.message.author.voice.channel
+        target = interaction.message.guild.afk_channel 
+        class UserSelector(ui.Modal, title="Which User?"):
+            user = ui.Select(
+                max_values=1,
+                options=[
+                    discord.SelectOption(label=m.display_name, value=str(m.id))
+                    for m in interaction.message.author.voice.channel.members
+                ],
+            )
+
+            async def on_submit(self, interaction: discord.Interaction):
+                user = interaction.guild.get_member(int(self.user.values[0]))
+                await interaction.response.send_message("shaking...", ephemeral=True)
+                for _ in range(4):
+                    await user.move_to(target)
+                    await user.move_to(current)
+
+
+        await interaction.response.send_modal(UserSelector())
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
