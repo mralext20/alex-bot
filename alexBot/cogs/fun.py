@@ -105,12 +105,20 @@ class Fun(Cog):
             await interaction.response.send_message("I don't have the permissions to do that.")
             return
 
-        if interaction.message.author.voice is None or interaction.message.guild.afk_channel is None or interaction.message.author.voice.channel == interaction.message.guild.afk_channel:
-            await interaction.response.send_message("you're not in a voice channel or your channels are invalid. try creating an AFK channel", ephemeral=True)
+        if (
+            interaction.message.author.voice is None
+            or interaction.message.guild.afk_channel is None
+            or interaction.message.author.voice.channel == interaction.message.guild.afk_channel
+        ):
+            await interaction.response.send_message(
+                "you're not in a voice channel or your channels are invalid. try creating an AFK channel",
+                ephemeral=True,
+            )
             return
 
         current = interaction.message.author.voice.channel
-        target = interaction.message.guild.afk_channel 
+        target = interaction.message.guild.afk_channel
+
         class UserSelector(ui.Modal, title="Which User?"):
             user = ui.Select(
                 max_values=1,
@@ -126,7 +134,6 @@ class Fun(Cog):
                 for _ in range(4):
                     await user.move_to(target)
                     await user.move_to(current)
-
 
         await interaction.response.send_modal(UserSelector())
 
