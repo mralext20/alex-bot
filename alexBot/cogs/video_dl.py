@@ -113,7 +113,10 @@ class Video_DL(Cog):
                     await message.reply(resp_text)
                 # handle videos
                 elif data['domain'] == 'v.redd.it':
-                    return data['url_overridden_by_dest'], f"{data['title']} \N{BULLET} {data['subreddit_name_prefixed']}"
+                    return (
+                        data['url_overridden_by_dest'],
+                        f"{data['title']} \N{BULLET} {data['subreddit_name_prefixed']}",
+                    )
                 # everything else
                 else:
                     await message.reply(data['url_overridden_by_dest'])
