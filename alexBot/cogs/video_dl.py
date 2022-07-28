@@ -85,7 +85,7 @@ class Video_DL(Cog):
         except KeyError:
             return "audio"
 
-    async def convert_reddit(self, message: discord.Message):
+    async def convert_reddit(self, message: discord.Message) -> Optional[Tuple[str, str]]:
         matches = REDDIT_REGEX.match(message.content)
         if matches:
             async with httpx.AsyncClient() as session:
@@ -113,7 +113,7 @@ class Video_DL(Cog):
                     await message.reply(resp_text)
                 # handle videos
                 elif data['domain'] == 'v.redd.it':
-                    return data['url_overridden_by_dest']
+                    return data['url_overridden_by_dest'], f"{data['title']} \N{BULLET} {data['subreddit_name_prefixed']}"
                 # everything else
                 else:
                     await message.reply(data['url_overridden_by_dest'])
@@ -154,14 +154,14 @@ class Video_DL(Cog):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
-        pack = await self.convert_tiktok(message)
+        pack = await self.convert_tiktok(message) or await self.convert_reddit(message)
         override_title = None
         ttt = None
         if pack:
             ttt = pack[0]
             override_title = pack[1]
 
-        content = (await self.convert_reddit(message)) or ttt or message.content
+        content = ttt or message.content
         matches = None
 
         for regex in REGEXES:
@@ -256,7 +256,7 @@ class Video_DL(Cog):
 
     @staticmethod
     @timing(log=log)
-    def transcode_shrink(id, limit: int):
+    def transcode_shrink(id, limit: float):
         shutil.copyfile(f'{id}.mp4', 'in.mp4')
         os.remove(f'{id}.mp4')
         limit = limit * 8
