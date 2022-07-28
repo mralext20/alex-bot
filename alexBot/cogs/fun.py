@@ -115,11 +115,12 @@ class Fun(Cog):
                 ephemeral=True,
             )
             return
-        valid_targets = [m for m in interaction.user.voice.channel.members if not m.bot and not m.id == interaction.user.id]
+        valid_targets = [
+            m for m in interaction.user.voice.channel.members if not m.bot and not m.id == interaction.user.id
+        ]
         if len(valid_targets) == 0:
             await interaction.response.send_message("noone is in this channel except bots", ephemeral=True)
             return
-
 
         current = interaction.user.voice.channel
         target = interaction.guild.afk_channel
@@ -127,10 +128,7 @@ class Fun(Cog):
         class UserSelector(ui.Modal, title="Which User?"):
             user = ui.Select(
                 max_values=1,
-                options=[
-                    discord.SelectOption(label=m.display_name, value=str(m.id))
-                    for m in valid_targets
-                ],
+                options=[discord.SelectOption(label=m.display_name, value=str(m.id)) for m in valid_targets],
             )
 
             async def on_submit(self, interaction: discord.Interaction):
