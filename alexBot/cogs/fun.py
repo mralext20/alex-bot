@@ -106,9 +106,9 @@ class Fun(Cog):
             return
 
         if (
-            interaction.message.author.voice is None
-            or interaction.message.guild.afk_channel is None
-            or interaction.message.author.voice.channel == interaction.message.guild.afk_channel
+            interaction.user.voice is None
+            or interaction.guild.afk_channel is None
+            or interaction.user.voice.channel == interaction.guild.afk_channel
         ):
             await interaction.response.send_message(
                 "you're not in a voice channel or your channels are invalid. try creating an AFK channel",
@@ -116,15 +116,15 @@ class Fun(Cog):
             )
             return
 
-        current = interaction.message.author.voice.channel
-        target = interaction.message.guild.afk_channel
+        current = interaction.user.voice.channel
+        target = interaction.guild.afk_channel
 
         class UserSelector(ui.Modal, title="Which User?"):
             user = ui.Select(
                 max_values=1,
                 options=[
                     discord.SelectOption(label=m.display_name, value=str(m.id))
-                    for m in interaction.message.author.voice.channel.members
+                    for m in interaction.user.voice.channel.members
                 ],
             )
 
