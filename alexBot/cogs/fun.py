@@ -116,7 +116,9 @@ class Fun(Cog):
             )
             return
         valid_targets = [
-            m for m in interaction.user.voice.channel.members if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
+            m
+            for m in interaction.user.voice.channel.members
+            if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
         ]
         if len(valid_targets) == 0:
             await interaction.response.send_message("noone is in this channel who are valid targets", ephemeral=True)
@@ -134,7 +136,9 @@ class Fun(Cog):
             async def on_submit(self, interaction: discord.Interaction):
                 user = interaction.guild.get_member(int(self.user.values[0]))
                 await interaction.response.send_message(f"shaking {user.mention}...")
-                await interaction.guild.get_channel(974472799093661826).send(f"shaking {user.display_name} for {interaction.user.display_name}")
+                await interaction.guild.get_channel(974472799093661826).send(
+                    f"shaking {user.display_name} for {interaction.user.display_name}"
+                )
                 for _ in range(4):
                     await user.move_to(target, reason="shake requested by {interaction.user.display_name}")
                     await user.move_to(current, reason="shake requested by {interaction.user.display_name}")
