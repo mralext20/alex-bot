@@ -197,6 +197,8 @@ class Video_DL(Cog):
                         title = await self.bot.loop.run_in_executor(None, task)
                         title = override_title if override_title else title
                     except NotAVideo as e:
+                        if os.path.exists(f'{message.id}.mp4'):
+                        os.remove(f'{message.id}.mp4')
                         if e.args[0]:
                             await message.reply(e, mention_author=False)
                             try:
@@ -249,6 +251,8 @@ class Video_DL(Cog):
 
             def check(reaction: discord.Reaction, user: discord.User):
                 return reaction.emoji == "🗑️" and user.id == message.author.id and reaction.message.id == message.id
+
+
 
             try:
                 await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
