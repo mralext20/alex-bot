@@ -251,8 +251,6 @@ class Video_DL(Cog):
             def check(reaction: discord.Reaction, user: discord.User):
                 return reaction.emoji == "🗑️" and user.id == message.author.id and reaction.message.id == message.id
 
-
-
             try:
                 await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
             except asyncio.TimeoutError:
