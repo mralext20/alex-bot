@@ -10,6 +10,7 @@ from typing import Optional, Tuple
 
 import discord
 import httpx
+import aiohttp
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
@@ -24,10 +25,12 @@ FIREFOX_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
 TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
 TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
+TWITTER_REGEX = re.compile(r'https?:\/\/twitter\.com\/([a-zA-Z0-9#-_!*\(\),]{0,20})\/status\/(\d{0,25})\??[a-zA-Z0-9#-_!*\(\),]*')
+
 REGEXES = [
     re.compile(r'https?:\/\/(?:.{3,42}\.)?tiktokcdn-\w{1,8}.com\/\w+/\w+/video/tos/\w+/[^/]+/[^/]+/\?.+vr='),
     re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
-    re.compile(r'https?://twitter\.com\/[a-zA-Z0-9#-_!*\(\),]{0,20}/status/\d{0,25}\??[a-zA-Z0-9#-_!*\(\),]*'),
+    re.compile(r'https?://video.twimg.com/ext_tw_video/\S*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
     re.compile(r'https?://(?:www\.)instagram\.com/(?:p|reel)/[a-zA-Z0-9-_]{11}/'),
     re.compile(r'https?:\/\/clips.twitch.tv\/[a-zA-Z0-9-]{0,64}'),
@@ -84,6 +87,19 @@ class Video_DL(Cog):
             return data['title']
         except KeyError:
             return "audio"
+
+    async def convert_twitter(self, message: discord.Message) -> Optional[Tuple[str, str]]:
+        matches = TWITTER_REGEX.match(message.content)
+        if matches:
+            async with aiohttp.ClientSession() as client:
+                resp = await client.get(f'https://api.fxtwitter.com/{matches.group(1)}/status/{matches.group(2)}')
+                data = await resp.json()
+                2 + 2 
+                if data.get('tweet') and data['tweet'].get('media') and data['tweet']['media'].get('video'):
+                    # we have a video! let's download it
+                    return data['tweet']['media']['video']['url'], f"{data['tweet']['author']['name']} - {data['tweet']['text']}"
+                elif data.get('tweet') and data['tweet'].get('quote'):
+                    await self.on_message(await message.channel.send(data['tweet']['quote']['url']), override=True, new_deleter=message.author.id)
 
     async def convert_reddit(self, message: discord.Message) -> Optional[Tuple[str, str]]:
         matches = REDDIT_REGEX.match(message.content)
@@ -151,13 +167,13 @@ class Video_DL(Cog):
         return None
 
     @Cog.listener()
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message, override=False, new_deleter=None):
         loop = asyncio.get_running_loop()
-        if message.guild is None or message.author == self.bot.user:
+        if message.guild is None or (message.author == self.bot.user and not override):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
-        pack = await self.convert_tiktok(message) or await self.convert_reddit(message)
+        pack = await self.convert_tiktok(message) or await self.convert_reddit(message) or await self.convert_twitter(message)
         override_title = None
         ttt = None
         if pack:
@@ -249,7 +265,7 @@ class Video_DL(Cog):
                 pass
 
             def check(reaction: discord.Reaction, user: discord.User):
-                return reaction.emoji == "🗑️" and user.id == message.author.id and reaction.message.id == message.id
+                return reaction.emoji == "🗑️" and user.id in [message.author.id, new_deleter] and reaction.message.id == uploaded.id
 
             try:
                 await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
