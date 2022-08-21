@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 FIREFOX_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0'
 
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
+REDDIT_APP_REGEX = re.compile(r'https?:\/\/reddit\.app\.link\/[a-zA-Z0-9]{0,20}')
 TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
 TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
 TWITTER_REGEX = re.compile(r'https?:\/\/twitter\.com\/([a-zA-Z0-9#-_!*\(\),]{0,20})\/status\/(\d{0,25})\??[a-zA-Z0-9#-_!*\(\),]*')
@@ -94,13 +95,21 @@ class Video_DL(Cog):
             async with aiohttp.ClientSession() as client:
                 resp = await client.get(f'https://api.fxtwitter.com/{matches.group(1)}/status/{matches.group(2)}')
                 data = await resp.json()
-                2 + 2 
                 if data.get('tweet') and data['tweet'].get('media') and data['tweet']['media'].get('video'):
                     # we have a video! let's download it
                     return data['tweet']['media']['video']['url'], f"{data['tweet']['author']['name']} - {data['tweet']['text']}"
                 elif data.get('tweet') and data['tweet'].get('quote'):
                     await self.on_message(await message.channel.send(data['tweet']['quote']['url']), override=True, new_deleter=message.author.id)
 
+    async def convert_reddit_app(self, message: discord.Message) -> Optional[Tuple[str, str]]:
+        matches = REDDIT_APP_REGEX.match(message.content)
+        if matches: 
+            # get the forwarded url
+            async with httpx.AsyncClient() as session:
+                resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
+                message.content = str(resp.next_request.url)
+
+                
     async def convert_reddit(self, message: discord.Message) -> Optional[Tuple[str, str]]:
         matches = REDDIT_REGEX.match(message.content)
         if matches:
@@ -173,6 +182,8 @@ class Video_DL(Cog):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
+        await self.convert_reddit_app(message) # convert reddit app links to full links
+
         pack = await self.convert_tiktok(message) or await self.convert_reddit(message) or await self.convert_twitter(message)
         override_title = None
         ttt = None
