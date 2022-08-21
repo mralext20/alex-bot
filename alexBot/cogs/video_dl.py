@@ -112,13 +112,12 @@ class Video_DL(Cog):
 
     async def convert_reddit_app(self, message: discord.Message) -> Optional[Tuple[str, str]]:
         matches = REDDIT_APP_REGEX.match(message.content)
-        if matches: 
+        if matches:
             # get the forwarded url
             async with httpx.AsyncClient() as session:
                 resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
                 message.content = str(resp.next_request.url)
 
-                
     async def convert_reddit(self, message: discord.Message) -> Optional[Tuple[str, str]]:
         matches = REDDIT_REGEX.match(message.content)
         if matches:
@@ -192,7 +191,7 @@ class Video_DL(Cog):
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
 
-        await self.convert_reddit_app(message) # convert reddit app links to full links
+        await self.convert_reddit_app(message)  # convert reddit app links to full links
 
         pack = (
             await self.convert_tiktok(message)
