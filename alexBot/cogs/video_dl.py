@@ -8,9 +8,9 @@ import subprocess
 from functools import partial
 from typing import Optional, Tuple
 
+import aiohttp
 import discord
 import httpx
-import aiohttp
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
@@ -26,7 +26,9 @@ REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:
 REDDIT_APP_REGEX = re.compile(r'https?:\/\/reddit\.app\.link\/[a-zA-Z0-9]{0,20}')
 TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
 TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
-TWITTER_REGEX = re.compile(r'https?:\/\/twitter\.com\/([a-zA-Z0-9#-_!*\(\),]{0,20})\/status\/(\d{0,25})\??[a-zA-Z0-9#-_!*\(\),]*')
+TWITTER_REGEX = re.compile(
+    r'https?:\/\/twitter\.com\/([a-zA-Z0-9#-_!*\(\),]{0,20})\/status\/(\d{0,25})\??[a-zA-Z0-9#-_!*\(\),]*'
+)
 
 REGEXES = [
     re.compile(r'https?:\/\/(?:.{3,42}\.)?tiktokcdn-\w{1,8}.com\/\w+/\w+/video/tos/\w+/[^/]+/[^/]+/\?.+vr='),
@@ -97,9 +99,16 @@ class Video_DL(Cog):
                 data = await resp.json()
                 if data.get('tweet') and data['tweet'].get('media') and data['tweet']['media'].get('video'):
                     # we have a video! let's download it
-                    return data['tweet']['media']['video']['url'], f"{data['tweet']['author']['name']} - {data['tweet']['text']}"
+                    return (
+                        data['tweet']['media']['video']['url'],
+                        f"{data['tweet']['author']['name']} - {data['tweet']['text']}",
+                    )
                 elif data.get('tweet') and data['tweet'].get('quote'):
-                    await self.on_message(await message.channel.send(data['tweet']['quote']['url']), override=True, new_deleter=message.author.id)
+                    await self.on_message(
+                        await message.channel.send(data['tweet']['quote']['url']),
+                        override=True,
+                        new_deleter=message.author.id,
+                    )
 
     async def convert_reddit_app(self, message: discord.Message) -> Optional[Tuple[str, str]]:
         matches = REDDIT_APP_REGEX.match(message.content)
@@ -182,9 +191,14 @@ class Video_DL(Cog):
             return
         if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
             return
+
         await self.convert_reddit_app(message) # convert reddit app links to full links
 
-        pack = await self.convert_tiktok(message) or await self.convert_reddit(message) or await self.convert_twitter(message)
+        pack = (
+            await self.convert_tiktok(message)
+            or await self.convert_reddit(message)
+            or await self.convert_twitter(message)
+        )
         override_title = None
         ttt = None
         if pack:
@@ -276,7 +290,11 @@ class Video_DL(Cog):
                 pass
 
             def check(reaction: discord.Reaction, user: discord.User):
-                return reaction.emoji == "🗑️" and user.id in [message.author.id, new_deleter] and reaction.message.id == uploaded.id
+                return (
+                    reaction.emoji == "🗑️"
+                    and user.id in [message.author.id, new_deleter]
+                    and reaction.message.id == uploaded.id
+                )
 
             try:
                 await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)
