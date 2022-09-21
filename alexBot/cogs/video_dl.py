@@ -168,18 +168,13 @@ class Video_DL(Cog):
         matches = TIKTOK_REGEX.match(text)
         if matches:
             log.debug("Converting TikTok link to video link")
-            video_params = '/'.join(matches.group(0).split('/')[-3::2])
+            video_params=matches.group(0).split('/')[-1]
             async with httpx.AsyncClient() as session:
-                # this User-Agent is required because the API will not respond to other headers
-                resp = await session.get(
-                    url='https://www.tiktok.com/node/share/video/' + video_params,
-                    headers={
-                        'User-Agent': FIREFOX_UA,
-                    },
-                )
+                resp = await session.get(url=f'https://api.tiktokv.com/aweme/v1/multi/aweme/detail/?aweme_ids=%5B{video_params}%5D&version_code=26.2.0&app_name=musical_ly&channel=App&device_id=null&os_version=14.4.2&device_platform=iphone&device_type=iPhone9', 
+                                         headers={"User-Agent":"TikTok 26.2.0 rv:262018 (iPhone; iOS 14.4.2; en_US) Cronet"})
                 data = resp.json()
-                video_url = data["itemInfo"]["itemStruct"]["video"]["downloadAddr"]
-                title = data['seoProps']['metaParams']['title']
+                video_url = data["aweme_details"][0]["video"]["download_addr"]['url_list'][2]
+                title = data["aweme_details"][0]['music']['title']
                 return video_url, title
         return None
 
