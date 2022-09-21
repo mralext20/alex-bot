@@ -164,6 +164,9 @@ class Fun(Cog):
 
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
+            if message.type == MessageType.thread_created:
+                await message.delete()  # thread creation messages delete without sending a message
+                return
             if message.content.endswith('??'):
                 # don't do anything, question is intending a thread
                 return
@@ -195,8 +198,6 @@ class Fun(Cog):
                         pass
 
                 return
-            elif message.type == MessageType.thread_created:
-                await message.delete()  # thread creation messages delete without sending a message
             else:
                 try:
                     await message.author.send(
