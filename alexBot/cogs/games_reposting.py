@@ -35,7 +35,13 @@ class GamesReposting(Cog):
             additional_content = [await x.to_file() for x in message.attachments]
 
             if len(message.system_content) > 1999:
-                await wh.send(content=message.system_content[:1999], wait=False)
+                await wh.send(
+                    content=message.system_content[:1999],
+                    wait=False,
+                    username=message.author.name,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                    avatar_url=message.author.display_avatar.url,
+                )
                 await wh.send(
                     content=message.system_content[2000:],
                     wait=False,
