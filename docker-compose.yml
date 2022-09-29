@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  alexbot:
+    build: .
+    volumes:
+      - ./:/alexbot
+    command: python bot.py
+    restart: unless-stopped
