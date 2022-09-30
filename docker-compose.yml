@@ -1,4 +1,4 @@
-version: '2'
+version: '3.4'
 
 services:
   alexbot:
@@ -6,4 +6,8 @@ services:
     volumes:
       - ./:/alexbot
     command: python bot.py
+    restart: unless-stopped
+  firefox:
+    image: selenium/standalone-firefox
+    shm_size: 2gb
     restart: unless-stopped
