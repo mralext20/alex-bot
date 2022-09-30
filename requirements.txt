@@ -1,7 +1,6 @@
 git+https://github.com/rapptz/discord.py#egg=discord.py[voice]
 aiohttp~=3.7.4
 aiosqlite~=0.15.0
-certifi~=2020.6.20
 chardet~=3.0.4
 idna~=2.10
 multidict~=4.7.6
@@ -13,6 +12,7 @@ jishaku~=2.0
 python-slugify[unidecode]~=4.0.1
 avwx-engine~=1.6.5
 mcstatus~=5.1.4
+arsenic
 
 git+https://github.com/mralext20/geomag#egg=geomag
 pytz

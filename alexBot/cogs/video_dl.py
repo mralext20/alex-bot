@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import math
 import os
@@ -15,6 +16,9 @@ from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
 from youtube_dl import DownloadError, YoutubeDL
+
+import arsenic, arsenic.browsers, arsenic.services
+
 
 from ..tools import Cog, is_in_guild, timing
 
@@ -54,6 +58,8 @@ class NotAVideo(Exception):
 class Video_DL(Cog):
     encode_lock = asyncio.Lock()
     mirror_upload_lock = asyncio.Lock()
+
+
 
     @staticmethod
     def download_video(url, id):
@@ -164,24 +170,23 @@ class Video_DL(Cog):
             async with httpx.AsyncClient() as session:
                 resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
                 text = str(resp.next_request.url)
-        # match full tiktok link and get video download link
         matches = TIKTOK_REGEX.match(text)
         if matches:
-            log.debug("Converting TikTok link to video link")
-            video_params = matches.group(0).split('/')[-1]
-            async with httpx.AsyncClient() as session:
-                resp = await session.get(
-                    url=f'https://api.tiktokv.com/aweme/v1/multi/aweme/detail/?aweme_ids=%5B{video_params}%5D&version_code=26.2.0&app_name=musical_ly&channel=App&device_id=null&os_version=14.4.2&device_platform=iphone&device_type=iPhone9',
-                    headers={"User-Agent": "TikTok 26.2.0 rv:262018 (iPhone; iOS 14.4.2; en_US) Cronet"},
-                )
-                data = resp.json()
-                video_url = data["aweme_details"][0]["video"]["download_addr"]['url_list'][2]
-                title = data["aweme_details"][0]['music']['title']
+            async with arsenic.get_session(arsenic.services.Remote("http://firefox:4444/wd/hub"), arsenic.browsers.Firefox()) as arsenic_session:
+                log.debug("Converting TikTok link to video link")
+                video_params = '/'.join(matches.group(0).split('/')[-3::2])
+                await arsenic_session.get(f'view-source:https://www.tiktok.com/node/share/video/{video_params}')
+                raw_data = await arsenic_session.get_element("#viewsource > pre:nth-child(1)")
+                data = json.loads(await raw_data.get_text())
+                video_url = data["itemInfo"]["itemStruct"]["video"]["downloadAddr"]
+                title = data['seoProps']['metaParams']['title']
                 return video_url, title
         return None
 
     @Cog.listener()
     async def on_message(self, message: discord.Message, override=False, new_deleter=None):
+        
+
         loop = asyncio.get_running_loop()
         if message.guild is None or (message.author == self.bot.user and not override):
             return
