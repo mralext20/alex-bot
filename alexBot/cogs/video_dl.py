@@ -10,15 +10,15 @@ from functools import partial
 from typing import Optional, Tuple
 
 import aiohttp
+import arsenic
+import arsenic.browsers
+import arsenic.services
 import discord
 import httpx
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
 from youtube_dl import DownloadError, YoutubeDL
-
-import arsenic, arsenic.browsers, arsenic.services
-
 
 from ..tools import Cog, is_in_guild, timing
 
@@ -58,8 +58,6 @@ class NotAVideo(Exception):
 class Video_DL(Cog):
     encode_lock = asyncio.Lock()
     mirror_upload_lock = asyncio.Lock()
-
-
 
     @staticmethod
     def download_video(url, id):
@@ -172,7 +170,9 @@ class Video_DL(Cog):
                 text = str(resp.next_request.url)
         matches = TIKTOK_REGEX.match(text)
         if matches:
-            async with arsenic.get_session(arsenic.services.Remote("http://firefox:4444/wd/hub"), arsenic.browsers.Firefox()) as arsenic_session:
+            async with arsenic.get_session(
+                arsenic.services.Remote("http://firefox:4444/wd/hub"), arsenic.browsers.Firefox()
+            ) as arsenic_session:
                 log.debug("Converting TikTok link to video link")
                 video_params = '/'.join(matches.group(0).split('/')[-3::2])
                 await arsenic_session.get(f'view-source:https://www.tiktok.com/node/share/video/{video_params}')
@@ -185,7 +185,6 @@ class Video_DL(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message, override=False, new_deleter=None):
-        
 
         loop = asyncio.get_running_loop()
         if message.guild is None or (message.author == self.bot.user and not override):
