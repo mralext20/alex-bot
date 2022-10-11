@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
-# cogs = ['video_dl']  # used to test single cog at a time
+# cogs = ['fun', 'errors']  # used to test single cog at a time
 log = logging.getLogger(__name__)
 
 
