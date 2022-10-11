@@ -94,7 +94,9 @@ class Fun(Cog):
             ret.set_image(url=dog["url"])
             await interaction.followup.send(embed=ret)
 
-    @app_commands.command(name="vcshake", description="'shake' a user in voice as a fruitless attempt to get their attention.")
+    @app_commands.command(
+        name="vcshake", description="'shake' a user in voice as a fruitless attempt to get their attention."
+    )
     @app_commands.guilds(791528974442299412)
     async def vcShake(self, interaction: discord.Interaction):
         """'shake' a user in voice as a fruitless attempt to get their attention."""
@@ -124,7 +126,6 @@ class Fun(Cog):
         current = interaction.user.voice.channel
         target = interaction.guild.afk_channel
 
-
         class UserSelectorDropdown(discord.ui.Select):
             def __init__(self):
                 options = [discord.SelectOption(label=m.display_name, value=str(m.id)) for m in valid_targets]
@@ -132,7 +133,9 @@ class Fun(Cog):
 
             async def callback(self, interaction: discord.Interaction):
                 user = interaction.guild.get_member(int(self.values[0]))
-                await interaction.response.send_message(f"shaking {user.mention} at request of {interaction.user.display_name}...")
+                await interaction.response.send_message(
+                    f"shaking {user.mention} at request of {interaction.user.display_name}..."
+                )
                 await interaction.guild.get_channel(974472799093661826).send(
                     f"shaking {user.display_name} for {interaction.user.display_name}"
                 )
@@ -144,7 +147,6 @@ class Fun(Cog):
             def __init__(self):
                 super().__init__()
                 self.add_item(UserSelectorDropdown())
-
 
         await interaction.response.send_message(view=UserSelector(), ephemeral=True)
 
