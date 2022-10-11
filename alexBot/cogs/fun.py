@@ -27,13 +27,8 @@ class Fun(Cog):
             name='Steal Emojis',
             callback=self.stealEmoji,
         )
-        self.vcShakeCommand = app_commands.Command(
-            name='vcshake',
-            callback=self.vcShake,
-            description=self.vcShake.__doc__,
-        )
+
         self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
-        self.bot.tree.add_command(self.vcShakeCommand, guild=discord.Object(791528974442299412))
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
@@ -99,6 +94,8 @@ class Fun(Cog):
             ret.set_image(url=dog["url"])
             await interaction.followup.send(embed=ret)
 
+    @app_commands.command(name="vcshake", description="'shake' a user in voice as a fruitless attempt to get their attention.")
+    @app_commands.guilds(791528974442299412)
     async def vcShake(self, interaction: discord.Interaction):
         """'shake' a user in voice as a fruitless attempt to get their attention."""
         if not interaction.guild.me.guild_permissions.move_members:
@@ -127,15 +124,15 @@ class Fun(Cog):
         current = interaction.user.voice.channel
         target = interaction.guild.afk_channel
 
-        class UserSelector(ui.Modal, title="Which User?"):
-            user = ui.Select(
-                max_values=1,
-                options=[discord.SelectOption(label=m.display_name, value=str(m.id)) for m in valid_targets],
-            )
 
-            async def on_submit(self, interaction: discord.Interaction):
-                user = interaction.guild.get_member(int(self.user.values[0]))
-                await interaction.response.send_message(f"shaking {user.mention}...")
+        class UserSelectorDropdown(discord.ui.Select):
+            def __init__(self):
+                options = [discord.SelectOption(label=m.display_name, value=str(m.id)) for m in valid_targets]
+                super().__init__(placeholder="Select a user to shake...", min_values=1, max_values=1, options=options)
+
+            async def callback(self, interaction: discord.Interaction):
+                user = interaction.guild.get_member(int(self.values[0]))
+                await interaction.response.send_message(f"shaking {user.mention} at request of {interaction.user.display_name}...")
                 await interaction.guild.get_channel(974472799093661826).send(
                     f"shaking {user.display_name} for {interaction.user.display_name}"
                 )
@@ -143,7 +140,13 @@ class Fun(Cog):
                     await user.move_to(target, reason="shake requested by {interaction.user.display_name}")
                     await user.move_to(current, reason="shake requested by {interaction.user.display_name}")
 
-        await interaction.response.send_modal(UserSelector())
+        class UserSelector(ui.View):
+            def __init__(self):
+                super().__init__()
+                self.add_item(UserSelectorDropdown())
+
+
+        await interaction.response.send_message(view=UserSelector(), ephemeral=True)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
