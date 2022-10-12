@@ -43,27 +43,30 @@ class Fun(Cog):
             await interaction.response.send_message("there's no Emoji to steal :(", ephemeral=True)
         bot = self.bot
 
-        class IndexSelector(ui.Modal, title="Which emoji?"):
-            index = ui.Select(
-                max_values=len(emojis),
-                options=[
+        class IndexSelector(ui.Select):
+            def __init__(self):
+                super().__init__(placeholder="Select Emoji to steal...", min_values=1,options=[
                     discord.SelectOption(label=e.name, value=str(index), emoji=PartialEmoji.from_dict(e.to_dict()))
                     for index, e in enumerate(emojis)
-                ],
-            )
+                ], max_values=len(emojis))
 
-            async def on_submit(self, interaction: discord.Interaction):
+            async def callback(self, interaction: discord.Interaction):
                 await interaction.response.send_message("i'll get right on that!", ephemeral=True)
 
                 nerdiowo = bot.get_guild(791528974442299412)
-                for i in self.index.values:
+                for i in self.values:
                     index = int(i)
                     emoji = emojis[index]
                     data = await emoji.read()
                     uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
                     await interaction.followup.send(f"{uploaded}", ephemeral=True)
 
-        await interaction.response.send_modal(IndexSelector())
+        class EmojiSelector(ui.View):
+            def __init__(self):
+                super().__init__(timeout=60)
+                self.add_item(IndexSelector())
+
+        await interaction.response.send_message(view=EmojiSelector(), ephemeral=True)
 
     @app_commands.command(name="cat")
     async def slash_cat(self, interaction: discord.Interaction):
