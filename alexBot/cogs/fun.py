@@ -45,10 +45,15 @@ class Fun(Cog):
 
         class IndexSelector(ui.Select):
             def __init__(self):
-                super().__init__(placeholder="Select Emoji to steal...", min_values=1,options=[
-                    discord.SelectOption(label=e.name, value=str(index), emoji=PartialEmoji.from_dict(e.to_dict()))
-                    for index, e in enumerate(emojis)
-                ], max_values=len(emojis))
+                super().__init__(
+                    placeholder="Select Emoji to steal...",
+                    min_values=1,
+                    options=[
+                        discord.SelectOption(label=e.name, value=str(index), emoji=PartialEmoji.from_dict(e.to_dict()))
+                        for index, e in enumerate(emojis)
+                    ],
+                    max_values=len(emojis),
+                )
 
             async def callback(self, interaction: discord.Interaction):
                 await interaction.response.send_message("i'll get right on that!", ephemeral=True)
