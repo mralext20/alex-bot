@@ -177,7 +177,8 @@ class Video_DL(Cog):
                 video_params = '/'.join(matches.group(0).split('/')[-3::2])
                 await arsenic_session.get(f'view-source:https://www.tiktok.com/node/share/video/{video_params}')
                 raw_data = await arsenic_session.get_element("#viewsource > pre:nth-child(1)")
-                data = json.loads(await raw_data.get_text())
+                x = await raw_data.get_text()
+                data = json.loads(x)
                 video_url = data["itemInfo"]["itemStruct"]["video"]["downloadAddr"]
                 title = data['seoProps']['metaParams']['title']
                 return video_url, title
