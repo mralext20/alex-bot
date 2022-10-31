@@ -163,7 +163,7 @@ class Fun(Cog):
         if self.bot.location == "dev" or message.guild is None:
             return
 
-        if message.guild.id == 791528974442299412:
+        if message.guild.id == 791528974442299412 and message.channel.category_id != 822958326249816095:
             if any(
                 [banned_phrase in message.content.lower() for banned_phrase in self.bot.config.nerdiowoBannedPhrases]
             ):
