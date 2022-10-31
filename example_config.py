@@ -22,6 +22,8 @@ prefix = "a!"
 location = "prod or dev"
 
 
+nerdiowoBannedPhrases = ['elon', 'musk', 'tesla']
+
 logging = {
     'info': 'webhook url here',
     'warning': 'webhook here too',
