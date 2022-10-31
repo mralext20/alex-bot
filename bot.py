@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from alexBot.data import Data
 
 
-cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem != "__init__"]
+cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem not in ["__init__", "sugery"]]
 # cogs = ['fun', 'errors']  # used to test single cog at a time
 log = logging.getLogger(__name__)
 
