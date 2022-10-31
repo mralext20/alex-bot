@@ -162,9 +162,11 @@ class Fun(Cog):
     async def on_message(self, message: discord.Message):
         if self.bot.location == "dev" or message.guild is None:
             return
-        
+
         if message.guild.id == 791528974442299412:
-            if any([banned_phrase in message.content.lower() for banned_phrase in self.bot.config.nerdiowoBannedPhrases]):
+            if any(
+                [banned_phrase in message.content.lower() for banned_phrase in self.bot.config.nerdiowoBannedPhrases]
+            ):
                 await message.delete()
                 await message.channel.send("BAD WORD DETECTED. MESSAGE DESTROYED.", delete_after=5)
                 return
