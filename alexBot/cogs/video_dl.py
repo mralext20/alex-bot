@@ -166,7 +166,9 @@ class Video_DL(Cog):
         matches = TIKTOK_REGEX.match(message.content) or TIKTOK_SHORT_REGEX.match(message.content)
         if matches:
             async with httpx.AsyncClient() as session:
-                resp = await session.get(url=matches.group(0), headers={'User-Agent': "Alex-bot github.com/mralext20/alex-bot"})
+                resp = await session.get(
+                    url=matches.group(0), headers={'User-Agent': "Alex-bot github.com/mralext20/alex-bot"}
+                )
                 return str(resp.next_request.url), None
         return None
 
