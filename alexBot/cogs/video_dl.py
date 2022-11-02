@@ -28,8 +28,8 @@ FIREFOX_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
 
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
 REDDIT_APP_REGEX = re.compile(r'https?:\/\/reddit\.app\.link\/[a-zA-Z0-9]{0,20}')
-TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
-TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
+TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.fftiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
+TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?fftiktok\.com\/@.+\b\/video\/[\d]+\b')
 TWITTER_REGEX = re.compile(
     r'https?:\/\/twitter\.com\/([a-zA-Z0-9#-_!*\(\),]{0,20})\/status\/(\d{0,25})\??[a-zA-Z0-9#-_!*\(\),]*'
 )
@@ -159,29 +159,15 @@ class Video_DL(Cog):
                     await message.reply(data['url_overridden_by_dest'])
         return None
 
-    async def convert_tiktok(self, message: discord.Message) -> Optional[Tuple[str, str]]:
+    async def convert_tiktok(self, message: discord.Message) -> Optional[Tuple[str, Optional[str]]]:
         text = message.content
+        message.content = message.content.replace('tiktok.com', 'fftiktok.com')
         # convert short links to full links
-        matches = TIKTOK_SHORT_REGEX.match(text)
+        matches = TIKTOK_REGEX.match(message.content) or TIKTOK_SHORT_REGEX.match(message.content)
         if matches:
-            log.debug("Converting short TikTok link to full link")
             async with httpx.AsyncClient() as session:
-                resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
-                text = str(resp.next_request.url)
-        matches = TIKTOK_REGEX.match(text)
-        if matches:
-            async with arsenic.get_session(
-                arsenic.services.Remote("http://firefox:4444/wd/hub"), arsenic.browsers.Firefox()
-            ) as arsenic_session:
-                log.debug("Converting TikTok link to video link")
-                video_params = '/'.join(matches.group(0).split('/')[-3::2])
-                await arsenic_session.get(f'view-source:https://www.tiktok.com/node/share/video/{video_params}')
-                raw_data = await arsenic_session.get_element("#viewsource > pre:nth-child(1)")
-                x = await raw_data.get_text()
-                data = json.loads(x)
-                video_url = data["itemInfo"]["itemStruct"]["video"]["downloadAddr"]
-                title = data['seoProps']['metaParams']['title']
-                return video_url, title
+                resp = await session.get(url=matches.group(0), headers={'User-Agent': "Alex-bot github.com/mralext20/alex-bot"})
+                return str(resp.next_request.url), None
         return None
 
     @Cog.listener()
