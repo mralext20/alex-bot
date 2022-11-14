@@ -183,8 +183,6 @@ class Fun(Cog):
                     await message.reply("https://xkcd.com/1357/", mention_author=True)
                     self.last_posted[message.channel.id] = time.time()
 
-        if cfg.tikTok and ('fxtwitter' in message.content or 'vxtwitter' in message.content):
-            await message.add_reaction('😢')
         # bespoke thing, maybe make config and guild based in the future
         if message.channel.id == 847555306166943755:
             if message.type == MessageType.thread_created:
