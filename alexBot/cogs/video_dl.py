@@ -72,9 +72,12 @@ class Video_DL(Cog):
                 raise NotAVideo(data['url'])
         except KeyError:
             pass
-        return (REGEXES[4].sub(
-            '', f"{data['title']} - {data['description']}" if data.get('description') else data['title']
-        ), data['extractor_key'] == 'TikTok') # force transcode tiktoks bc bad format?? idk
+        return (
+            REGEXES[4].sub(
+                '', f"{data['title']} - {data['description']}" if data.get('description') else data['title']
+            ),
+            data['extractor_key'] == 'TikTok',
+        )  # force transcode tiktoks bc bad format?? idk
 
     @staticmethod
     def download_audio(url, id):
@@ -165,9 +168,7 @@ class Video_DL(Cog):
         matches = TIKTOK_SHORT_REGEX.match(message.content)
         if matches:
             async with httpx.AsyncClient() as session:
-                resp = await session.get(
-                    url=matches.group(0), headers={'User-Agent': FIREFOX_UA}
-                )
+                resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
                 message.content = str(resp.next_request.url)
         return None
 
