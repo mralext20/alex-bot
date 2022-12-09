@@ -14,8 +14,8 @@ services:
       ]
     ports:
       - 5678:5678
-  firefox:
-    image: selenium/standalone-firefox-debug
-    shm_size: 2gb
-    ports:
-      - 5900:5900
+  # firefox:
+  #   image: selenium/standalone-firefox-debug
+  #   shm_size: 2gb
+  #   ports:
+  #     - 5900:5900

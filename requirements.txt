@@ -5,7 +5,6 @@ chardet~=3.0.4
 idna~=2.10
 multidict~=4.7.6
 urllib3~=1.26.5
-yarl~=1.5.1
 humanize~=3.9.0
 xmltodict~=0.12.0
 jishaku~=2.0
@@ -16,6 +15,6 @@ arsenic
 
 git+https://github.com/mralext20/geomag#egg=geomag
 pytz
-youtube_dl
+yt-dlp
 emoji-data
 httpx

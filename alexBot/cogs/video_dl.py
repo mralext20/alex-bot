@@ -18,7 +18,7 @@ import httpx
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
-from youtube_dl import DownloadError, YoutubeDL
+from yt_dlp import DownloadError, YoutubeDL
 
 from ..tools import Cog, is_in_guild, timing
 
@@ -28,14 +28,15 @@ FIREFOX_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
 
 REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
 REDDIT_APP_REGEX = re.compile(r'https?:\/\/reddit\.app\.link\/[a-zA-Z0-9]{0,20}')
-TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.fftiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
-TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?fftiktok\.com\/@.+\b\/video\/[\d]+\b')
+TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
+TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
 TWITTER_REGEX = re.compile(
     r'https?:\/\/twitter\.com\/([a-zA-Z0-9#-_!*\(\),]{0,20})\/status\/(\d{0,25})\??[a-zA-Z0-9#-_!*\(\),]*'
 )
 
 REGEXES = [
-    re.compile(r'https?:\/\/(?:.{3,42}\.)?tiktokcdn-\w{1,8}.com\/\w+/\w+/video/tos/\w+/[^/]+/[^/]+/\?.+vr='),
+    TIKTOK_REGEX,
+    # re.compile(r'https?:\/\/(?:.{3,42}\.)?tiktokcdn-\w{1,8}.com\/\w+/\w+/video/tos/\w+/[^/]+/[^/]+/\?.+vr='),
     re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
     re.compile(r'https?://video.twimg.com/ext_tw_video/\S*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
@@ -67,13 +68,13 @@ class Video_DL(Cog):
         except DownloadError:
             raise NotAVideo(False)
         try:
-            if data['format_id'] not in ['mp4', 'gif', 'm4a', 'mov']:
+            if data['requested_downloads'][0]['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
                 raise NotAVideo(data['url'])
         except KeyError:
             pass
-        return REGEXES[4].sub(
+        return (REGEXES[4].sub(
             '', f"{data['title']} - {data['description']}" if data.get('description') else data['title']
-        )
+        ), data['extractor_key'] == 'TikTok') # force transcode tiktoks bc bad format?? idk
 
     @staticmethod
     def download_audio(url, id):
@@ -160,16 +161,14 @@ class Video_DL(Cog):
         return None
 
     async def convert_tiktok(self, message: discord.Message) -> Optional[Tuple[str, Optional[str]]]:
-        text = message.content
-        message.content = message.content.replace('tiktok.com', 'fftiktok.com')
         # convert short links to full links
-        matches = TIKTOK_REGEX.match(message.content) or TIKTOK_SHORT_REGEX.match(message.content)
+        matches = TIKTOK_SHORT_REGEX.match(message.content)
         if matches:
             async with httpx.AsyncClient() as session:
                 resp = await session.get(
-                    url=matches.group(0), headers={'User-Agent': "Alex-bot github.com/mralext20/alex-bot"}
+                    url=matches.group(0), headers={'User-Agent': FIREFOX_UA}
                 )
-                return str(resp.next_request.url), None
+                message.content = str(resp.next_request.url)
         return None
 
     @Cog.listener()
@@ -223,7 +222,7 @@ class Video_DL(Cog):
 
                     task = partial(self.download_video, match, message.id)
                     try:
-                        title = await self.bot.loop.run_in_executor(None, task)
+                        title, force_transcode = await self.bot.loop.run_in_executor(None, task)
                         title = override_title if override_title else title
                     except NotAVideo as e:
                         if os.path.exists(f'{message.id}.mp4'):
@@ -237,7 +236,7 @@ class Video_DL(Cog):
                         return
                     loop.create_task(message.remove_reaction('📥', self.bot.user))
 
-                    if os.path.getsize(f'{message.id}.mp4') > message.guild.filesize_limit:
+                    if os.path.getsize(f'{message.id}.mp4') > message.guild.filesize_limit or force_transcode:
                         loop.create_task(message.add_reaction('🪄'))  # magic wand
 
                         async with self.encode_lock:

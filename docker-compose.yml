@@ -7,7 +7,7 @@ services:
       - ./:/alexbot
     command: python bot.py
     restart: unless-stopped
-  firefox:
-    image: selenium/standalone-firefox-debug
-    shm_size: 2gb
-    restart: unless-stopped
+  # firefox:
+  #   image: selenium/standalone-firefox-debug
+  #   shm_size: 2gb
+  #   restart: unless-stopped
