@@ -72,9 +72,7 @@ class Video_DL(Cog):
                 raise NotAVideo(data['url'])
         except KeyError:
             pass
-        return (REGEXES[4].sub(
-            '', f"{data['title']} - {data['description']}" if data.get('description') else data['title']
-        ), data['extractor_key'] == 'TikTok') # force transcode tiktoks bc bad format?? idk
+        return (f"{data['title']} - {data['description']}" if (data.get('description') and data['description'] != data['title'] ) else data['title'], data['extractor_key'] == 'TikTok')
 
     @staticmethod
     def download_audio(url, id):
