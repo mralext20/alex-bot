@@ -163,9 +163,7 @@ class Video_DL(Cog):
         matches = TIKTOK_SHORT_REGEX.match(message.content)
         if matches:
             async with httpx.AsyncClient() as session:
-                resp = await session.get(
-                    url=matches.group(0), headers={'User-Agent': FIREFOX_UA}
-                )
+                resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
                 message.content = str(resp.next_request.url)
         return None
 
