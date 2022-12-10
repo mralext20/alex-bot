@@ -72,7 +72,12 @@ class Video_DL(Cog):
                 raise NotAVideo(data['url'])
         except KeyError:
             pass
-        return (f"{data['title']} - {data['description']}" if (data.get('description') and data['description'] != data['title'] ) else data['title'], data['extractor_key'] == 'TikTok')
+        return (
+            f"{data['title']} - {data['description']}"
+            if (data.get('description') and data['description'] != data['title'])
+            else data['title'],
+            data['extractor_key'] == 'TikTok',
+        )
 
     @staticmethod
     def download_audio(url, id):
