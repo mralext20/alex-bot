@@ -4,24 +4,27 @@ from discord.ext import commands
 from alexBot.tools import Cog
 
 
+def make_callback(roleId, name):
+    async def callback(interaction: discord.Interaction):
+        assert isinstance(interaction.user, discord.Member)
+        assert isinstance(interaction.guild, discord.Guild)
+
+        if interaction.user.get_role(roleId):
+            await interaction.user.remove_roles(interaction.guild.get_role(roleId))
+            await interaction.response.send_message(f"removed the {name} role for you!", ephemeral=True)
+        else:
+            await interaction.user.add_roles(interaction.guild.get_role(roleId))
+            await interaction.response.send_message(f"added the {name} role for you!", ephemeral=True)
+    return callback
+
+
 class autoRoles(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.rolesView = discord.ui.View(timeout=None)
         for name, roleId in self.bot.config.nerdiowoRoles.items():
             btn = discord.ui.Button(label=name, custom_id=f"nerdiowo-roleRequest-{roleId}")
-
-            async def callback(interaction: discord.Interaction):
-                assert isinstance(interaction.user, discord.Member)
-                assert isinstance(interaction.guild, discord.Guild)
-
-                if interaction.user.get_role(roleId):
-                    await interaction.user.remove_roles(interaction.guild.get_role(roleId))
-                    await interaction.response.send_message(f"removed the {name} role for you!", ephemeral=True)
-                else:
-                    await interaction.user.add_roles(interaction.guild.get_role(roleId))
-                    await interaction.response.send_message(f"added the {name} role for you!", ephemeral=True)
-            btn.callback = callback
+            btn.callback = make_callback(roleId, name)
 
             self.rolesView.add_item(btn)
 
