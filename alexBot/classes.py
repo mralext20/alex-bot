@@ -134,6 +134,12 @@ class UserConfig:
     def from_dict(cls, data):
         return cls(**data)
 
+@dataclass
+class ButtonRole:
+    label: str
+    role: int
+    emoji: Optional[str] = None
+
 
 @dataclass
 class UserData:
