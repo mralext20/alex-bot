@@ -24,6 +24,18 @@ location = "prod or dev"
 
 nerdiowoBannedPhrases = ['elon', 'musk', 'tesla']
 
+nerdiowoRoles = {
+    "Texas": 1052661471034736710,
+    "Germany": 1052568850694164571,
+    "North Carolina": 1052405508277031063,
+    "Alaskan": 1052376307696148571,
+    "UK": 1052070749550153789
+}
+
+
+nerdiowoRolesMessageId = None
+
+
 logging = {
     'info': 'webhook url here',
     'warning': 'webhook here too',
