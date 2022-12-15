@@ -31,7 +31,6 @@ class autoRoles(Cog):
         if self.bot.config.nerdiowoRolesMessageId:
             self.bot.add_view(self.rolesView, message_id=self.bot.config.nerdiowoRolesMessageId)
 
-
     @commands.is_owner()
     @commands.command()
     async def roles(self, ctx: commands.Context):
