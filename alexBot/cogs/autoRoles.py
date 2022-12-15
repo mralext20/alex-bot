@@ -21,13 +21,13 @@ class autoRoles(Cog):
                 else:
                     await interaction.user.add_roles(interaction.guild.get_role(roleId))
                     await interaction.response.send_message(f"added the {name} role for you!", ephemeral=True)
+
             btn.callback = callback
 
             self.rolesView.add_item(btn)
 
         if self.bot.config.nerdiowoRolesMessageId:
             self.bot.add_view(self.rolesView, message_id=self.bot.config.nerdiowoRolesMessageId)
-
 
     @commands.is_owner()
     @commands.command()
