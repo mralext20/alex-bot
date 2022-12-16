@@ -134,6 +134,7 @@ class UserConfig:
     def from_dict(cls, data):
         return cls(**data)
 
+
 @dataclass
 class ButtonRole:
     label: str

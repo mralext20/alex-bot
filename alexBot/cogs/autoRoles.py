@@ -1,8 +1,8 @@
 from typing import List
 import discord
 from discord.ext import commands
-from alexBot.classes import ButtonRole
 
+from alexBot.classes import ButtonRole
 from alexBot.tools import Cog
 
 
@@ -30,7 +30,10 @@ class autoRoles(Cog):
         super().__init__(bot)
         self.rolesView = discord.ui.View(timeout=None)
         for btnRole in self.bot.config.nerdiowoRoles:
-            btn = discord.ui.Button(label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}")
+            btn = discord.ui.Button(
+                label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}"
+            )
+
             btn.callback = make_callback(btnRole, self.bot.config.nerdiowoRoles)
 
             self.rolesView.add_item(btn)
@@ -48,6 +51,7 @@ class autoRoles(Cog):
     async def updateRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
         await (await channel.fetch_message(self.bot.config.nerdiowoRolesMessageId)).edit(view=self.rolesView)
         await ctx.send("done")
+
 
 async def setup(bot):
     await bot.add_cog(autoRoles(bot))
