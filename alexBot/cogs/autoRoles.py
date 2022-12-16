@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 import discord
@@ -14,7 +15,7 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
 
         roles = [interaction.guild.get_role(role.role) for role in otherRoles if role.role != btnRole.role]
         if any([role.id in [r.id for r in interaction.user.roles] for role in roles]):
-            await interaction.user.remove_roles(*roles)
+            asyncio.get_event_loop().create_task(interaction.user.remove_roles(*roles))
 
         if interaction.user.get_role(btnRole.role):
             await interaction.user.remove_roles(interaction.guild.get_role(btnRole.role))
