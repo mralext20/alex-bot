@@ -1,3 +1,4 @@
+from typing import List
 import discord
 from discord.ext import commands
 from alexBot.classes import ButtonRole
@@ -5,10 +6,14 @@ from alexBot.classes import ButtonRole
 from alexBot.tools import Cog
 
 
-def make_callback(btnRole: ButtonRole):
+def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
     async def callback(interaction: discord.Interaction):
         assert isinstance(interaction.user, discord.Member)
         assert isinstance(interaction.guild, discord.Guild)
+
+        roles = [interaction.guild.get_role(role.role) for role in otherRoles if role.role != btnRole.role]
+
+        await interaction.user.remove_roles(*roles)
 
         if interaction.user.get_role(btnRole.role):
             await interaction.user.remove_roles(interaction.guild.get_role(btnRole.role))
@@ -26,7 +31,7 @@ class autoRoles(Cog):
         self.rolesView = discord.ui.View(timeout=None)
         for btnRole in self.bot.config.nerdiowoRoles:
             btn = discord.ui.Button(label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}")
-            btn.callback = make_callback(btnRole)
+            btn.callback = make_callback(btnRole, self.bot.config.nerdiowoRoles)
 
             self.rolesView.add_item(btn)
 
