@@ -12,8 +12,8 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
         assert isinstance(interaction.guild, discord.Guild)
 
         roles = [interaction.guild.get_role(role.role) for role in otherRoles if role.role != btnRole.role]
-
-        await interaction.user.remove_roles(*roles)
+        if any([role.id in [r.id for r in interaction.user.roles] for role in roles]):
+            await interaction.user.remove_roles(*roles)
 
         if interaction.user.get_role(btnRole.role):
             await interaction.user.remove_roles(interaction.guild.get_role(btnRole.role))
