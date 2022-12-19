@@ -35,7 +35,6 @@ class FeedReader(Cog):
     async def before_feedUpdate(self):
         await self.bot.wait_until_ready()
 
-
     def cog_unload(self):
         self.feedUpdate.cancel()
 
