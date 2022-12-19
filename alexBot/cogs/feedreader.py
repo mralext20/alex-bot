@@ -29,7 +29,7 @@ class FeedReader(Cog):
                     else:
                         await self.bot.get_channel(feedData.channel).send(format)
 
-                    await self.bot.db.save_feed_data(f"{feedData.channel}-{feedData.feedUrl}", feed.id)
+                    await self.bot.db.save_feed_data(f"{feedData.channel}-{feedData.feedUrl}", feed.entries[0].id)
 
     @feedUpdate.before_loop
     async def before_feedUpdate(self):
