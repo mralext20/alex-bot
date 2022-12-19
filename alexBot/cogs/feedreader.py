@@ -31,6 +31,11 @@ class FeedReader(Cog):
 
                     await self.bot.db.save_feed_data(f"{feedData.channel}-{feedData.feedUrl}", feed.id)
 
+    @feedUpdate.before_loop
+    async def before_feedUpdate(self):
+        await self.bot.wait_until_ready()
+
+
     def cog_unload(self):
         self.feedUpdate.cancel()
 
