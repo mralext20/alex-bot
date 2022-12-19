@@ -4,7 +4,7 @@ import os
 
 import discord
 
-from alexBot.classes import RingRate, SugeryUser, SugeryZone
+from alexBot.classes import RingRate, SugeryUser, SugeryZone, FeedConfig, ButtonRole
 from alexBot.cogs.sugery import Sugery
 
 hass_token = os.environ.get('HASS_TOKEN')
@@ -34,6 +34,12 @@ nerdiowoRoles = {
 
 
 nerdiowoRolesMessageId = None
+
+feedPosting:List[FeedConfig] = [
+
+]
+
+
 
 
 logging = {

@@ -6,3 +6,6 @@ CREATE TABLE IF NOT EXISTS users(userId BIGINT PRIMARY KEY,
                                  data STRING);
 
 
+CREATE TABLE IF NOT EXISTS rssFeedLastPosted(channelfeed STRING PRIMARY KEY,
+                                 data STRING);
+
