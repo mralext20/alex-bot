@@ -1,13 +1,12 @@
 from typing import List
-import aiohttp
 
-import discord, feedparser
+import aiohttp
+import discord
+import feedparser
 from discord.ext import commands, tasks
 
 from alexBot.classes import FeedConfig
 from alexBot.tools import Cog, get_text
-
-
 
 
 class FeedReader(Cog):
@@ -29,9 +28,8 @@ class FeedReader(Cog):
                         await self.bot.get_channel(feedData.channel).send(embed=format)
                     else:
                         await self.bot.get_channel(feedData.channel).send(format)
-                        
-                    await self.bot.db.save_feed_data(f"{feedData.channel}-{feedData.feedUrl}", feed.id)
 
+                    await self.bot.db.save_feed_data(f"{feedData.channel}-{feedData.feedUrl}", feed.id)
 
     def cog_unload(self):
         self.feedUpdate.cancel()
