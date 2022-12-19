@@ -53,7 +53,7 @@ class Data(Cog):
         used to get the latest feed entry ID from the database. see save_feed_data to save it back.
         """
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
-            async with conn.execute("SELECT data FROM rssFeedLastPosted WHERE feedId=?", (feedId,)) as cur:
+            async with conn.execute("SELECT data FROM rssFeedLastPosted WHERE channelfeed=?", (feedId,)) as cur:
                 data = await cur.fetchone()
                 if not data:
                     return None
@@ -61,7 +61,7 @@ class Data(Cog):
 
     async def save_feed_data(self, feedId: str, data: str):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
-            await conn.execute("REPLACE INTO rssFeedLastPosted (userId, data) VALUES (?,?)", (feedId, data))
+            await conn.execute("REPLACE INTO rssFeedLastPosted (channelfeed, data) VALUES (?,?)", (feedId, data))
             await conn.commit()
 
 
