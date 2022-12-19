@@ -1,9 +1,11 @@
 import datetime
 import enum
 from dataclasses import asdict, dataclass, field
-from typing import Dict, List, Optional, Callable, Union
+from typing import Callable, Dict, List, Optional, Union
+
 import discord
 import feedparser
+
 from .tools import transform_neosdb
 
 
@@ -53,6 +55,7 @@ class ReactionRoleConfig:
     message: int
     role: int
     reaction: str
+
 
 @dataclass
 class FeedConfig:
