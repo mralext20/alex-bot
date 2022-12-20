@@ -16,7 +16,7 @@ class FeedReader(Cog):
 
     @tasks.loop(hours=1, reconnect=True)
     async def feedUpdate(self):
-        forumChannel:discord.ForumChannel = self.bot.get_channel(1054582714495414343)
+        forumChannel: discord.ForumChannel = self.bot.get_channel(1054582714495414343)
         for feedData in self.bot.config.feedPosting:
             async with aiohttp.ClientSession() as session:
                 text = await get_text(session, feedData.feedUrl)
@@ -35,8 +35,10 @@ class FeedReader(Cog):
                             else:  # one entry?
                                 await forumChannel.create_thread(
                                     name=f"{feed.entries[0].author}  -  {feed.entries[0].title}",
-                                    content=f"{feed.entries[0].link}\n\n{feed.entries[0].summary}", 
-                                    applied_tags=([forumChannel.get_tag(feedData.tagId)]) if feedData.tagId is not None else []
+                                    content=f"{feed.entries[0].link}\n\n{feed.entries[0].summary}",
+                                    applied_tags=([forumChannel.get_tag(feedData.tagId)])
+                                    if feedData.tagId is not None
+                                    else [],
                                 )
                                 await self.bot.db.save_feed_data(feedData.feedUrl, feed.entries[0].id)
                     #  there's new posts!
@@ -46,7 +48,9 @@ class FeedReader(Cog):
                         if entry.id == lastPostedId:
                             break
                         else:
-                            await forumChannel.create_thread(name=f"{entry.author}  -  {entry.title}", content=f"{entry.link}\n\n{entry.summary}")
+                            await forumChannel.create_thread(
+                                name=f"{entry.author}  -  {entry.title}", content=f"{entry.link}\n\n{entry.summary}"
+                            )
 
                     await self.bot.db.save_feed_data(feedData.feedUrl, feed.entries[0].id)
 

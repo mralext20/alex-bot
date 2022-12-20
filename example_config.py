@@ -38,10 +38,9 @@ nerdiowoRolesMessageId = None
 
 feedPosting: List[FeedConfig] = [
     FeedConfig(
-        1054601016315744296, # a tag ID
+        1054601016315744296,  # a tag ID
         "https://www.youtube.com/feeds/videos.xml?channel_id=UCO-zhhas4n_kAPHaeLe1qnQ",  # techdiff
     ),
-
 ]
 
 
