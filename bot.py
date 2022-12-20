@@ -3,12 +3,12 @@
 
 import asyncio
 import logging
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
-import re
 from discord.ext import commands
 
 import config
