@@ -50,7 +50,9 @@ class FeedReader(Cog):
                             await forumChannel.create_thread(
                                 name=f"{entry.author}  -  {entry.title}",
                                 content=f"{entry.link}\n\n{entry.summary}",
-                                applied_tags=([forumChannel.get_tag(feedData.tagId)]) if feedData.tagId is not None else [],
+                                applied_tags=([forumChannel.get_tag(feedData.tagId)])
+                                if feedData.tagId is not None
+                                else [],
                             )
 
                     await self.bot.db.save_feed_data(feedData.feedUrl, feed.entries[0].id)
