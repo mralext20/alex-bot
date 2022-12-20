@@ -1,6 +1,7 @@
 # config file. copy to `config.py` and fill in your details.
 
 import os
+from typing import List
 
 import discord
 
@@ -35,7 +36,13 @@ nerdiowoRoles = {
 
 nerdiowoRolesMessageId = None
 
-feedPosting: List[FeedConfig] = []
+feedPosting: List[FeedConfig] = [
+    FeedConfig(
+        1054601016315744296, # a tag ID
+        "https://www.youtube.com/feeds/videos.xml?channel_id=UCO-zhhas4n_kAPHaeLe1qnQ",  # techdiff
+    ),
+
+]
 
 
 logging = {

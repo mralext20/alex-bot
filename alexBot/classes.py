@@ -59,9 +59,8 @@ class ReactionRoleConfig:
 
 @dataclass
 class FeedConfig:
-    channel: int
+    tagId: Optional[int]
     feedUrl: str
-    formatter: Callable[[feedparser.util.FeedParserDict], Union[discord.Embed, str]]
 
 
 @dataclass
