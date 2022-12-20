@@ -27,7 +27,6 @@ class FeedReader(Cog):
                     if lastPostedId is None:  # handle new feeds
                         try:
                             await self.bot.db.save_feed_data(feedData.feedUrl, feed.entries[1].id)
-                            continue
 
                         except IndexError:
                             if len(feed.entries) == 0:
@@ -36,7 +35,7 @@ class FeedReader(Cog):
                                 await forumChannel.create_thread(
                                     name=f"{feed.entries[0].author}  -  {feed.entries[0].title}",
                                     content=f"{feed.entries[0].link}\n\n{feed.entries[0].summary}",
-                                    applied_tags=([forumChannel.get_tag(feedData.tagId)])
+                                    applied_tags=[forumChannel.get_tag(feedData.tagId)]
                                     if feedData.tagId is not None
                                     else [],
                                 )
@@ -49,7 +48,9 @@ class FeedReader(Cog):
                             break
                         else:
                             await forumChannel.create_thread(
-                                name=f"{entry.author}  -  {entry.title}", content=f"{entry.link}\n\n{entry.summary}"
+                                name=f"{entry.author}  -  {entry.title}",
+                                content=f"{entry.link}\n\n{entry.summary}",
+                                applied_tags=([forumChannel.get_tag(feedData.tagId)]) if feedData.tagId is not None else [],
                             )
 
                     await self.bot.db.save_feed_data(feedData.feedUrl, feed.entries[0].id)
