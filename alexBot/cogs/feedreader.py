@@ -32,8 +32,8 @@ class FeedReader(Cog):
                                 await self.bot.db.save_feed_data(feedData.feedUrl, None)
                             else:  # one entry?
                                 await forumChannel.create_thread(
-                                    name=f"{feed.entries[0].author}  -  {feed.entries[0].title}",
-                                    content=f"{feed.entries[0].link}\n\n{feed.entries[0].summary[:400]}",
+                                    name=f"{feed.entries[0].author}  -  {self.bot.clean_links(feed.entries[0].title)}",
+                                    content=f"{entry.link}\n\n{self.bot.clean_links(feed.entries[0].summary[:500])}",
                                     applied_tags=[forumChannel.get_tag(feedData.tagId)]
                                     if feedData.tagId is not None
                                     else [],
@@ -47,8 +47,8 @@ class FeedReader(Cog):
                             break
                         else:
                             await forumChannel.create_thread(
-                                name=f"{entry.author}  -  {entry.title}",
-                                content=f"{entry.link}\n\n{entry.summary[:400]}",
+                                name=f"{entry.author}  -  {self.bot.clean_links(entry.title)}",
+                                content=f"{entry.link}\n\n{self.bot.clean_links(feed.entries[0].summary[:500])}",
                                 applied_tags=([forumChannel.get_tag(feedData.tagId)])
                                 if feedData.tagId is not None
                                 else [],

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
+import re
 from discord.ext import commands
 
 import config
@@ -20,6 +21,8 @@ if TYPE_CHECKING:
 cogs = [x.stem for x in Path('alexBot/cogs').glob('*.py') if x.stem not in ["__init__", "sugery"]]
 # cogs = ['autoRoles', 'errors']  # used to test single cog at a time
 log = logging.getLogger(__name__)
+
+LINKWRAPPERREGEX = re.compile(r'(https?:\/\/[a-zA-Z0-0\/\.]*)')
 
 
 intents = discord.Intents.all()
@@ -59,7 +62,7 @@ class Bot(commands.Bot):
                 log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
 
     @staticmethod
-    def clean_mentions(content):
+    def clean_mentions(content: str) -> str:
         content = content.replace('`', '\'')
         content = content.replace('@', '@\u200b')
         content = content.replace('&', '&\u200b')
@@ -67,10 +70,15 @@ class Bot(commands.Bot):
         return content
 
     @staticmethod
-    def clean_formatting(content):
+    def clean_formatting(content: str) -> str:
         content = content.replace('_', '\\_')
         content = content.replace('*', '\\*')
         content = content.replace('`', '\\`')
+        return content
+
+    @staticmethod
+    def clean_links(content: str) -> str:
+        content = LINKWRAPPERREGEX.sub(r'<\1>', content)
         return content
 
     def clean_clean(self, content):
