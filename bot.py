@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 LINKWRAPPERREGEX = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[#-_]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', re.I)
 
 
-
 intents = discord.Intents.all()
 
 
