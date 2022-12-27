@@ -1,3 +1,5 @@
+import asyncio
+import datetime
 from typing import List
 
 import aiohttp
@@ -58,6 +60,12 @@ class FeedReader(Cog):
 
     @feedUpdate.before_loop
     async def before_feedUpdate(self):
+        # get current time, and wait until the next hour + 2 minutes
+        # this should catch tom scott faster than wren
+        
+        now = datetime.datetime.now()
+        nextHour = now.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
+        await asyncio.sleep((nextHour - now).seconds + 120)
         await self.bot.wait_until_ready()
 
     def cog_unload(self):
