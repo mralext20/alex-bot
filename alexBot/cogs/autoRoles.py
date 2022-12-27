@@ -30,7 +30,7 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
 class autoRoles(Cog):
     def __init__(self, bot):
         super().__init__(bot)
-        self.rolesView = discord.ui.View(timeout=None)
+        self.locationRolesView = discord.ui.View(timeout=None)
         for btnRole in self.bot.config.nerdiowoLocationRoles:
             btn = discord.ui.Button(
                 label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}"
@@ -38,8 +38,9 @@ class autoRoles(Cog):
 
             btn.callback = make_callback(btnRole, self.bot.config.nerdiowoLocationRoles)
 
-            self.rolesView.add_item(btn)
+            self.locationRolesView.add_item(btn)
 
+        self.gameRolesView = discord.ui.View(timeout=None)
         for btnRole in self.bot.config.nerdiowoGamesRoles:
             btn = discord.ui.Button(
                 label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}"
@@ -47,13 +48,13 @@ class autoRoles(Cog):
 
             btn.callback = make_callback(btnRole, [])
 
-            self.rolesView.add_item(btn)
+            self.gameRolesView.add_item(btn)
 
         if self.bot.config.nerdiowoLocationRolesMessageId:
-            self.bot.add_view(self.rolesView, message_id=self.bot.config.nerdiowoLocationRolesMessageId)
+            self.bot.add_view(self.locationRolesView, message_id=self.bot.config.nerdiowoLocationRolesMessageId)
 
         if self.bot.config.nerdiowoGamesRolesMessageId:
-            self.bot.add_view(self.rolesView, message_id=self.bot.config.nerdiowoGamesRolesMessageId)
+            self.bot.add_view(self.gameRolesView, message_id=self.bot.config.nerdiowoGamesRolesMessageId)
 
 
 
@@ -66,7 +67,7 @@ class autoRoles(Cog):
     @commands.is_owner()
     @commands.command()
     async def postGamesButtons(self, ctx: commands.Context):
-        await ctx.send("click the buttons to add/remove roles", view=self.gamesRoleView)
+        await ctx.send("click the buttons to add/remove roles", view=self.gameRolesView)
 
 
     @commands.is_owner()
