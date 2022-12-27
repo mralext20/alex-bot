@@ -69,13 +69,13 @@ class autoRoles(Cog):
     @commands.is_owner()
     @commands.command()
     async def updateLocationRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
-        await (await channel.fetch_message(self.bot.config.nerdiowoLocationRolesMessageId)).edit(view=self.rolesView)
+        await (await channel.fetch_message(self.bot.config.nerdiowoLocationRolesMessageId)).edit(view=self.locationRolesView)
         await ctx.send("done")
 
     @commands.is_owner()
     @commands.command()
     async def updateGamesRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
-        await (await channel.fetch_message(self.bot.config.nerdiowoGamesRolesMessageId)).edit(view=self.rolesView)
+        await (await channel.fetch_message(self.bot.config.nerdiowoGamesRolesMessageId)).edit(view=self.gameRolesView)
         await ctx.send("done")
 
 
