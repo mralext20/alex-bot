@@ -65,15 +65,17 @@ class autoRoles(Cog):
 
         if self.bot.config.nerdiowoGamesRolesMessageId:
             self.bot.add_view(self.gameRolesView, message_id=self.bot.config.nerdiowoGamesRolesMessageId)
-        
+
         if self.bot.config.nerdiowoPhonesRolesMessageId:
             self.bot.add_view(self.phoneRolesView, message_id=self.bot.config.nerdiowoPhonesRolesMessageId)
 
     @commands.is_owner()
     @commands.command()
     async def postLocationRolesButtons(self, ctx: commands.Context):
-        self.bot.config.nerdiowoLocationRolesMessageId = (await ctx.send("click the buttons to add/remove roles", view=self.locationRolesView)).id
-    
+        self.bot.config.nerdiowoLocationRolesMessageId = (
+            await ctx.send("click the buttons to add/remove roles", view=self.locationRolesView)
+        ).id
+
     @commands.is_owner()
     @commands.command()
     async def updateLocationRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
@@ -82,13 +84,12 @@ class autoRoles(Cog):
         )
         await ctx.send("done")
 
-
-
     @commands.is_owner()
     @commands.command()
     async def postGamesButtons(self, ctx: commands.Context):
-        self.bot.config.nerdiowoGamesRolesMessageId = (await ctx.send("click the buttons to add/remove roles", view=self.gameRolesView)).id
-
+        self.bot.config.nerdiowoGamesRolesMessageId = (
+            await ctx.send("click the buttons to add/remove roles", view=self.gameRolesView)
+        ).id
 
     @commands.is_owner()
     @commands.command()
@@ -96,20 +97,18 @@ class autoRoles(Cog):
         await (await channel.fetch_message(self.bot.config.nerdiowoGamesRolesMessageId)).edit(view=self.gameRolesView)
         await ctx.send("done")
 
-
-
     @commands.is_owner()
     @commands.command()
     async def postPhoneButtons(self, ctx: commands.Context):
-        self.bot.config.nerdiowoPhonesRolesMessageId = (await ctx.send("click the buttons to add/remove roles", view=self.gameRolesView)).id
+        self.bot.config.nerdiowoPhonesRolesMessageId = (
+            await ctx.send("click the buttons to add/remove roles", view=self.gameRolesView)
+        ).id
 
     @commands.is_owner()
     @commands.command()
     async def updatePhoneRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
         await (await channel.fetch_message(self.bot.config.nerdiowoPhonesRolesMessageId)).edit(view=self.gameRolesView)
         await ctx.send("done")
-
-
 
 
 async def setup(bot):
