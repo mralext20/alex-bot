@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import datetime
 from typing import Optional
 
 import discord
+from discord import app_commands
 import humanize
 from discord.ext import commands
 from discord.member import VoiceState
@@ -95,15 +97,17 @@ class Utils(Cog):
             f"<https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot%20applications.commands>"
         )
 
-    @commands.command()
-    @commands.has_guild_permissions(move_members=True)
-    @commands.bot_has_guild_permissions(move_members=True)
-    async def voice_move(self, ctx: commands.Context, target: discord.VoiceChannel):
-        if not ctx.author.voice:
-            raise ValueError("you must be in a voice call!")
-        for user in ctx.author.voice.channel.members:
-            ctx.bot.loop.create_task(user.move_to(target, reason=f"as requested by {ctx.author}"))
-        await ctx.send(":ok_hand:")
+    @app_commands.command(name='voice_move')
+    @app_commands.checks.bot_has_permissions(move_members=True)
+    @app_commands.checks.has_permissions(move_members=True)
+    @app_commands.describe(target="the voice channel to move everyone to")
+    async def voice_move(self, interaction:discord.Interaction, target: discord.VoiceChannel):
+        if not interaction.user.voice:
+            return await interaction.response.send_message("you must be in a voice call!", ephemeral=True)
+        await interaction.response.defer()
+        for user in interaction.user.voice.channel.members:
+            asyncio.get_event_loop().create_task(user.move_to(target, reason=f"as requested by {interaction.user}"))
+        await interaction.followup.send(":ok_hand:", ephemeral=True)
 
     @Cog.listener()
     async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
