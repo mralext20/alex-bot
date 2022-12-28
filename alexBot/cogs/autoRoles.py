@@ -101,13 +101,13 @@ class autoRoles(Cog):
     @commands.command()
     async def postPhoneButtons(self, ctx: commands.Context):
         self.bot.config.nerdiowoPhonesRolesMessageId = (
-            await ctx.send("click the buttons to add/remove roles", view=self.gameRolesView)
+            await ctx.send("click the buttons to add/remove roles", view=self.phoneRolesView)
         ).id
 
     @commands.is_owner()
     @commands.command()
     async def updatePhoneRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
-        await (await channel.fetch_message(self.bot.config.nerdiowoPhonesRolesMessageId)).edit(view=self.gameRolesView)
+        await (await channel.fetch_message(self.bot.config.nerdiowoPhonesRolesMessageId)).edit(view=self.phoneRolesView)
         await ctx.send("done")
 
 
