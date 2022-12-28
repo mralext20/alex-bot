@@ -5,8 +5,8 @@ import datetime
 from typing import Optional
 
 import discord
-from discord import app_commands
 import humanize
+from discord import app_commands
 from discord.ext import commands
 from discord.member import VoiceState
 
@@ -101,7 +101,7 @@ class Utils(Cog):
     @app_commands.checks.bot_has_permissions(move_members=True)
     @app_commands.checks.has_permissions(move_members=True)
     @app_commands.describe(target="the voice channel to move everyone to")
-    async def voice_move(self, interaction:discord.Interaction, target: discord.VoiceChannel):
+    async def voice_move(self, interaction: discord.Interaction, target: discord.VoiceChannel):
         if not interaction.user.voice:
             return await interaction.response.send_message("you must be in a voice call!", ephemeral=True)
         await interaction.response.defer()
