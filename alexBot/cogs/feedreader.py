@@ -18,7 +18,7 @@ class FeedReader(Cog):
         super().__init__(bot)
         self.feedUpdate.start()
 
-    @tasks.loop(hours=1, reconnect=True, time=times)
+    @tasks.loop(reconnect=True, time=times)
     async def feedUpdate(self):
         forumChannel: discord.ForumChannel = self.bot.get_channel(1054582714495414343)
         for feedData in self.bot.config.feedPosting:
