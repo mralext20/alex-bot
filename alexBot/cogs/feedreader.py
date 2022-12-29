@@ -10,8 +10,8 @@ from discord.ext import commands, tasks
 from alexBot.classes import FeedConfig
 from alexBot.tools import Cog, get_text
 
-
 times = [datetime.time(hour=hour, minute=2, tzinfo=datetime.timezone.utc) for hour in range(0, 24, 1)]
+
 
 class FeedReader(Cog):
     def __init__(self, bot):
