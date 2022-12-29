@@ -11,12 +11,14 @@ from alexBot.classes import FeedConfig
 from alexBot.tools import Cog, get_text
 
 
+times = [datetime.time(hour=hour, minute=2) for hour in range(0, 24, 1)]
+
 class FeedReader(Cog):
     def __init__(self, bot):
         super().__init__(bot)
         self.feedUpdate.start()
 
-    @tasks.loop(hours=1, reconnect=True)
+    @tasks.loop(hours=1, reconnect=True, time=times)
     async def feedUpdate(self):
         forumChannel: discord.ForumChannel = self.bot.get_channel(1054582714495414343)
         for feedData in self.bot.config.feedPosting:
@@ -60,12 +62,6 @@ class FeedReader(Cog):
 
     @feedUpdate.before_loop
     async def before_feedUpdate(self):
-        # get current time, and wait until the next hour + 2 minutes
-        # this should catch tom scott faster than wren
-
-        now = datetime.datetime.now()
-        nextHour = now.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
-        await asyncio.sleep((nextHour - now).seconds + 120)
         await self.bot.wait_until_ready()
 
     def cog_unload(self):
