@@ -22,7 +22,7 @@ class Data(Cog):
                 raw = json.loads(data[0])
                 return GuildData.from_dict(raw)
 
-    async def save_guild_data(self, guildId, data: GuildData):
+    async def save_guild_data(self, guildId: int, data: GuildData):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute(
                 "REPLACE INTO guilds (guildId, data) VALUES (?,?)", (guildId, json.dumps(dataclasses.asdict(data)))
@@ -41,7 +41,7 @@ class Data(Cog):
                 raw = json.loads(data[0])
                 return UserData.from_dict(raw)
 
-    async def save_user_data(self, userId, data: UserData):
+    async def save_user_data(self, userId: int, data: UserData):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute(
                 "REPLACE INTO users (userId, data) VALUES (?,?)", (userId, json.dumps(dataclasses.asdict(data)))

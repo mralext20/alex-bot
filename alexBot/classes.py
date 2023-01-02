@@ -154,7 +154,7 @@ class ButtonRole:
 @dataclass
 class UserData:
     config: UserConfig = field(default_factory=UserConfig)
-
+    voiceStat: VoiceStat = field(default_factory=VoiceStat)
     @classmethod
     def from_dict(cls, data):
         return cls(config=UserConfig.from_dict(data["config"]))
