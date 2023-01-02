@@ -118,12 +118,10 @@ class VoiceStats(Cog):
             prefix = ""
             vs: VoiceStat = None
             if isinstance(target, discord.Member):
-                if len(targets) > 1:
-                    prefix = f"{target.display_name}'s "
+                prefix = f"{target.display_name}'s "
                 vs = (await self.bot.db.get_user_data(target.id)).voiceStat
             elif isinstance(target, discord.Guild):
-                if len(targets) > 1:
-                    prefix = f"{target.name}'s "
+                prefix = f"{target.name}'s "
                 vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
             if vs is None:
                 return
