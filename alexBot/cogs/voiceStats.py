@@ -117,20 +117,25 @@ class VoiceStats(Cog):
         targets = [ctx.author, ctx.guild] if target is None else [target]
         embed = discord.Embed()
         for target in targets:
+            prefix = ""
             vs: VoiceStat = None
             if isinstance(target, discord.Member):
+                if len(targets) > 1:
+                    prefix = f"{target.display_name}'s "
                 vs = (await self.bot.db.get_user_data(target.id)).voiceStat
             elif isinstance(target, discord.Guild):
+                if len(targets) > 1:
+                    prefix = f"{target.name}'s "
                 vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
             if vs is None:
                 return
             if (self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running):
-                embed.add_field(name="Current Session Length",
+                embed.add_field(name="{prefix}Current Session Length",
                                 value=datetime.timedelta(seconds=(datetime.datetime.now() - vs.last_started).total_seconds())
                 )
-            embed.add_field(name="longest session", value=vs.longest_session)
-            embed.add_field(name="Average Session Length", value=vs.average_duration)
-            embed.add_field(name="Total Sessions", value=vs.total_sessions)
+            embed.add_field(name="{prefix}longest session", value=vs.longest_session)
+            embed.add_field(name="{prefix}Average Session Length", value=vs.average_duration)
+            embed.add_field(name="{prefix}Total Sessions", value=vs.total_sessions)
         await ctx.send(embed=embed)
 
     @staticmethod
