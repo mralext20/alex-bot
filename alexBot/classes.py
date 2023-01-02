@@ -160,7 +160,7 @@ class UserData:
     def from_dict(cls, data):
         return cls(
             config=UserConfig.from_dict(data["config"]),
-            voiceStat=VoiceStat(**data["voiceStat"]),
+            voiceStat=(VoiceStat(**data["voiceStat"]) if data.get("voiceStat") else VoiceStat()),
         )
 
 
