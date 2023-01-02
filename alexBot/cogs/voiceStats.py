@@ -129,12 +129,12 @@ class VoiceStats(Cog):
                 return
             if (self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running):
                 embed.add_field(
-                    name="{prefix}Current Session Length",
+                    name=f"{prefix}Current Session Length",
                     value=datetime.timedelta(seconds=(datetime.datetime.now() - vs.last_started).total_seconds()),
                 )
-            embed.add_field(name="{prefix}longest session", value=vs.longest_session)
-            embed.add_field(name="{prefix}Average Session Length", value=vs.average_duration)
-            embed.add_field(name="{prefix}Total Sessions", value=vs.total_sessions)
+            embed.add_field(name=f"{prefix}longest session", value=vs.longest_session)
+            embed.add_field(name=f"{prefix}Average Session Length", value=vs.average_duration)
+            embed.add_field(name=f"{prefix}Total Sessions", value=vs.total_sessions)
         await ctx.send(embed=embed)
 
     @staticmethod
