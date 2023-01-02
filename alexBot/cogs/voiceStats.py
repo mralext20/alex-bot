@@ -127,7 +127,7 @@ class VoiceStats(Cog):
                 vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
             if vs is None:
                 return
-            if (self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running):
+            if self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running:
                 embed.add_field(
                     name="{prefix}Current Session Length",
                     value=datetime.timedelta(seconds=(datetime.datetime.now() - vs.last_started).total_seconds()),
