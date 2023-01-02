@@ -158,7 +158,10 @@ class UserData:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(config=UserConfig.from_dict(data["config"]))
+        return cls(
+            config=UserConfig.from_dict(data["config"]),
+            voiceStat=VoiceStat(**data["voiceStat"]),
+        )
 
 
 @dataclass
