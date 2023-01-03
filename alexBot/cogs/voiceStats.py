@@ -121,7 +121,9 @@ class VoiceStats(Cog):
             if isinstance(target, discord.Member):
                 vs = (await self.bot.db.get_user_data(target.id)).voiceStat
                 embed.title = f"{target.display_name}'s Voice Stats"
-                embed.set_author(name=target.display_name, icon_url=target.avatar.url if target.avatar else target.default_avatar.url)
+                embed.set_author(
+                    name=target.display_name, icon_url=target.avatar.url if target.avatar else target.default_avatar.url
+                )
             elif isinstance(target, discord.Guild):
                 vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
                 embed.title = f"{target.name}'s Voice Stats"
