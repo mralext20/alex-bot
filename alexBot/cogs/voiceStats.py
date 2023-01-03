@@ -113,27 +113,31 @@ class VoiceStats(Cog):
     async def voiceStats(self, ctx: commands.Context, target: Optional[Union[discord.Member, discord.Guild]]):
         """tells you how long your average, longest, and current voice sessions is."""
         targets = [ctx.author, ctx.guild] if target is None else [target]
-        embed = discord.Embed()
+        embeds = []
         for target in targets:
-            prefix = ""
+            
             vs: VoiceStat = None
+            embed = discord.Embed()
             if isinstance(target, discord.Member):
-                prefix = f"{target.display_name}'s "
                 vs = (await self.bot.db.get_user_data(target.id)).voiceStat
+                embed.title = f"{target.display_name}'s Voice Stats"
+                embed.set_image(url=target.avatar.url if target.avatar else target.default_avatar.url)
             elif isinstance(target, discord.Guild):
-                prefix = f"{target.name}'s "
                 vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
+                embed.title = f"{target.name}'s Voice Stats"
+                embed.set_image(url=target.icon.url if target.icon else None)
             if vs is None:
                 return
             if self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running:
                 embed.add_field(
-                    name=f"{prefix}Current Session Length",
+                    name="Current Session Length",
                     value=datetime.timedelta(seconds=int((datetime.datetime.now() - vs.last_started).total_seconds())),
                 )
-            embed.add_field(name=f"{prefix}longest session", value=vs.longest_session)
-            embed.add_field(name=f"{prefix}Average Session Length", value=vs.average_duration)
-            embed.add_field(name=f"{prefix}Total Sessions", value=vs.total_sessions)
-        await ctx.send(embed=embed)
+            embed.add_field(name="longest session", value=vs.longest_session)
+            embed.add_field(name="Average Session Length", value=vs.average_duration)
+            embed.add_field(name="Total Sessions", value=vs.total_sessions)
+            embeds.append(embed)
+        await ctx.send(embeds=embeds)
 
     @staticmethod
     def any_other_voice_chats(guild: discord.Guild) -> bool:
