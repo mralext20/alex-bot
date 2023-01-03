@@ -115,7 +115,7 @@ class VoiceStats(Cog):
         targets = [ctx.author, ctx.guild] if target is None else [target]
         embeds = []
         for target in targets:
-            
+
             vs: VoiceStat = None
             embed = discord.Embed()
             if isinstance(target, discord.Member):
