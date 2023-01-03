@@ -121,11 +121,11 @@ class VoiceStats(Cog):
             if isinstance(target, discord.Member):
                 vs = (await self.bot.db.get_user_data(target.id)).voiceStat
                 embed.title = f"{target.display_name}'s Voice Stats"
-                embed.set_image(url=target.avatar.url if target.avatar else target.default_avatar.url)
+                embed.set_author(name="", icon_url=target.avatar.url if target.avatar else target.default_avatar.url)
             elif isinstance(target, discord.Guild):
                 vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
                 embed.title = f"{target.name}'s Voice Stats"
-                embed.set_image(url=target.icon.url if target.icon else None)
+                embed.set_author(name="", icon_url=target.icon.url if target.icon else None)
             if vs is None:
                 return
             if self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running:
