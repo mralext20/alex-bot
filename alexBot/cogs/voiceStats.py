@@ -110,7 +110,7 @@ class VoiceStats(Cog):
         gd.voiceStat.currently_running = False
         await self.bot.db.save_guild_data(channel.guild.id, gd)
 
-    @app_commands.command(name="voiceStats", description="tells you how long your average, longest, and current voice sessions is.")
+    @app_commands.command(name="voice-stats", description="tells you how long your average, longest, and current voice sessions is.")
     async def voiceStats(self, interaction: discord.Interaction, target: Optional[discord.User]):
         """tells you how long your average, longest, and current voice sessions is."""
         if target is None:
