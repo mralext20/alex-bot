@@ -110,7 +110,9 @@ class VoiceStats(Cog):
         gd.voiceStat.currently_running = False
         await self.bot.db.save_guild_data(channel.guild.id, gd)
 
-    @app_commands.command(name="voiceStats", description="tells you how long your average, longest, and current voice sessions is.")
+    @app_commands.command(
+        name="voiceStats", description="tells you how long your average, longest, and current voice sessions is."
+    )
     async def voiceStats(self, interaction: discord.Interaction, target: Optional[discord.User]):
         """tells you how long your average, longest, and current voice sessions is."""
         if target is None:
@@ -121,7 +123,9 @@ class VoiceStats(Cog):
         if isinstance(target, discord.Member):
             vs = (await self.bot.db.get_user_data(target.id)).voiceStat
             embed.title = f"{target.display_name}'s Voice Stats"
-            embed.set_author(name=target.display_name, icon_url=target.avatar.url if target.avatar else target.default_avatar.url)
+            embed.set_author(
+                name=target.display_name, icon_url=target.avatar.url if target.avatar else target.default_avatar.url
+            )
         elif isinstance(target, discord.Guild):
             vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
             embed.title = f"{target.name}'s Voice Stats"
@@ -136,7 +140,7 @@ class VoiceStats(Cog):
         embed.add_field(name="longest session", value=vs.longest_session)
         embed.add_field(name="Average Session Length", value=vs.average_duration)
         embed.add_field(name="Total Sessions", value=vs.total_sessions)
-        
+
         await interaction.response.send_message(embed=embed)
 
     @staticmethod
