@@ -115,33 +115,33 @@ class VoiceStats(Cog):
     )
     async def voiceStats(self, interaction: discord.Interaction, target: Optional[discord.User]):
         """tells you how long your average, longest, and current voice sessions is."""
-        if target is None:
-            target = interaction.guild if interaction.guild else interaction.user
-
-        vs: VoiceStat = None
-        embed = discord.Embed()
-        if isinstance(target, discord.Member):
-            vs = (await self.bot.db.get_user_data(target.id)).voiceStat
-            embed.title = f"{target.display_name}'s Voice Stats"
-            embed.set_author(
-                name=target.display_name, icon_url=target.avatar.url if target.avatar else target.default_avatar.url
-            )
-        elif isinstance(target, discord.Guild):
-            vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
-            embed.title = f"{target.name}'s Voice Stats"
-            embed.set_author(name=target.name, icon_url=target.icon.url if target.icon else None)
-        if vs is None:
-            return
-        if self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running:
-            embed.add_field(
-                name="Current Session Length",
-                value=datetime.timedelta(seconds=int((datetime.datetime.now() - vs.last_started).total_seconds())),
-            )
-        embed.add_field(name="longest session", value=vs.longest_session)
-        embed.add_field(name="Average Session Length", value=vs.average_duration)
-        embed.add_field(name="Total Sessions", value=vs.total_sessions)
-
-        await interaction.response.send_message(embed=embed)
+        targets = [interaction.user, interaction.guild] if target is None else [target]
+        embeds = []
+        for target in targets:
+            vs: VoiceStat = None
+            embed = discord.Embed()
+            if isinstance(target, discord.Member):
+                vs = (await self.bot.db.get_user_data(target.id)).voiceStat
+                embed.title = f"{target.display_name}'s Voice Stats"
+                embed.set_author(
+                    name=target.display_name, icon_url=target.avatar.url if target.avatar else target.default_avatar.url
+                )
+            elif isinstance(target, discord.Guild):
+                vs = (await self.bot.db.get_guild_data(target.id)).voiceStat
+                embed.title = f"{target.name}'s Voice Stats"
+                embed.set_author(name=target.name, icon_url=target.icon.url if target.icon else None)
+            if vs is None:
+                return
+            if self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running:
+                embed.add_field(
+                    name="Current Session Length",
+                    value=datetime.timedelta(seconds=int((datetime.datetime.now() - vs.last_started).total_seconds())),
+                )
+            embed.add_field(name="longest session", value=vs.longest_session)
+            embed.add_field(name="Average Session Length", value=vs.average_duration)
+            embed.add_field(name="Total Sessions", value=vs.total_sessions)
+            embeds.append(embed)
+        await interaction.response.send_message(embeds=embeds)
 
     @staticmethod
     def any_other_voice_chats(guild: discord.Guild) -> bool:
