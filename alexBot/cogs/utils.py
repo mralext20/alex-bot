@@ -114,7 +114,11 @@ class Utils(Cog):
         if message.guild and message.guild.id == 791528974442299412 and isinstance(message.channel, discord.Thread):
             if 1060418876761964614 in [x.id for x in message.role_mentions]:
                 # get list of thread members, and ping them
-                members = [message.guild.fetch_member(x.id) for x in await message.channel.fetch_members() if x.id != self.bot.user.id]
+                members = [
+                    message.guild.fetch_member(x.id)
+                    for x in await message.channel.fetch_members()
+                    if x.id != self.bot.user.id
+                ]
                 members = await asyncio.gather(*members)
                 await message.reply(
                     ', '.join([x.mention for x in members]),
