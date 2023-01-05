@@ -116,7 +116,10 @@ class Utils(Cog):
                 # get list of thread members, and ping them
                 members = [message.guild.fetch_member(x) for x in message.channel.members]
                 members = await asyncio.gather(*members)
-                await message.reply(', '.join([x.mention for x in members]), allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=members))
+                await message.reply(
+                    ', '.join([x.mention for x in members]),
+                    allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=members),
+                )
 
     @Cog.listener()
     async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
