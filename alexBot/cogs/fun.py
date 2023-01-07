@@ -28,6 +28,7 @@ class Fun(Cog):
             callback=self.stealEmoji,
         )
 
+    async def cog_load(self) -> None:
         self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
 
     async def cog_unload(self) -> None:
