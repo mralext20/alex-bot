@@ -115,11 +115,11 @@ class GuildConfig:
     collectVoiceData: bool = True
     firstAmendment: bool = False
     minecraft: str = ""
-    reactionRoles: List[ReactionRoleConfig] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data) -> "GuildConfig":
-        return cls(**data, reactionRoles=[ReactionRoleConfig(**[d for d in data["reactionRoles"]])])
+        new_data = {elm: val for (elm, val) in data.items() if elm != "reactionRoles"}
+        return cls(**new_data)
 
 
 @dataclass
@@ -131,7 +131,7 @@ class GuildData:
     def from_dict(cls, data) -> "GuildData":
         return cls(
             voiceStat=VoiceStat(**data["voiceStat"]),
-            config=GuildConfig(**data["config"]),
+            config=GuildConfig.from_dict(data["config"]),
         )
 
 
