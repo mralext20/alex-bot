@@ -109,21 +109,6 @@ class Utils(Cog):
             asyncio.get_event_loop().create_task(user.move_to(target, reason=f"as requested by {interaction.user}"))
         await interaction.followup.send(":ok_hand:", ephemeral=True)
 
-    @Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if message.guild and message.guild.id == 791528974442299412 and isinstance(message.channel, discord.Thread):
-            if 1060418876761964614 in [x.id for x in message.role_mentions]:
-                # get list of thread members, and ping them
-                members = [
-                    message.guild.fetch_member(x.id)
-                    for x in await message.channel.fetch_members()
-                    if x.id != self.bot.user.id
-                ]
-                members = await asyncio.gather(*members)
-                await message.reply(
-                    ', '.join([x.mention for x in members]),
-                    allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=members),
-                )
 
     @Cog.listener()
     async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
