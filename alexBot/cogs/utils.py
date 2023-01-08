@@ -109,7 +109,6 @@ class Utils(Cog):
             asyncio.get_event_loop().create_task(user.move_to(target, reason=f"as requested by {interaction.user}"))
         await interaction.followup.send(":ok_hand:", ephemeral=True)
 
-
     @Cog.listener()
     async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
         if after is None or after.channel is None:
