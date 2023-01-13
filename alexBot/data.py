@@ -1,10 +1,10 @@
 import dataclasses
 import json
-from typing import Optional
+from typing import List, Optional
 
 import aiosqlite
 
-from alexBot.classes import GuildData, UserData
+from alexBot.classes import ButtonRole, GuildData, UserData
 
 from .tools import Cog
 
@@ -62,6 +62,32 @@ class Data(Cog):
     async def save_feed_data(self, feedId: str, data: str):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute("REPLACE INTO rssFeedLastPosted (channelfeed, data) VALUES (?,?)", (feedId, data))
+            await conn.commit()
+
+    async def get_roles_data(self) -> List[ButtonRole]:
+        """
+        fetch all roles for a givin guild
+        """
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            async with conn.execute("SELECT data FROM buttonRoles") as cur:
+                data = await cur.fetchall()
+                roles = []
+                for row in data:
+                    roles.append(ButtonRole(**json.loads(row[0])))
+                if not data:
+                    return []
+                return roles
+
+    async def save_roles_data(self, data: List[ButtonRole]):
+        """
+        deletes all roles, then saves the all of them again
+        """
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            await conn.execute("DELETE FROM buttonRoles")
+            for role in data:
+                await conn.execute(
+                    "INSERT INTO buttonRoles (data) VALUES (?)", (json.dumps(dataclasses.asdict(role)),)
+                )
             await conn.commit()
 
 

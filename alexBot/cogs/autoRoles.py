@@ -1,14 +1,17 @@
 import asyncio
-from typing import List
+from typing import Dict, List, Optional
 
 import discord
-from discord.ext import commands
+from discord import app_commands
 
-from alexBot.classes import ButtonRole
+from alexBot.classes import ButtonRole, ButtonType
 from alexBot.tools import Cog
 
 
 def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
+    """
+    if otherRoles is set, it will remove all other roles in the list from the user
+    """
     async def callback(interaction: discord.Interaction):
         assert isinstance(interaction.user, discord.Member)
         assert isinstance(interaction.guild, discord.Guild)
@@ -27,88 +30,69 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
     return callback
 
 
+ALLOWMANYROLES = {
+    ButtonType.LOCATION: False,
+    ButtonType.GAME: True,
+    ButtonType.PHONE: True,
+}
+
+
 class autoRoles(Cog):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.locationRolesView = discord.ui.View(timeout=None)
-        for btnRole in self.bot.config.nerdiowoLocationRoles:
-            btn = discord.ui.Button(
-                label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}"
-            )
+    roles: Dict[ButtonType, List[ButtonRole]] = {}
+    views: Dict[ButtonType, discord.ui.View] = {}
 
-            btn.callback = make_callback(btnRole, self.bot.config.nerdiowoLocationRoles)
+    async def cog_load(self):
+        self.views = {
+            ButtonType.LOCATION: discord.ui.View(timeout=None),
+            ButtonType.GAME: discord.ui.View(timeout=None),
+            ButtonType.PHONE: discord.ui.View(timeout=None),
+        }
+        roles = await self.bot.db.get_roles_data()
+        for type in ButtonType:
+            self.roles[type] = [r for r in roles if r.type == type]
 
-            self.locationRolesView.add_item(btn)
+        for type in ButtonType:
+            for role in self.roles[type]:
+                btn = discord.ui.Button(
+                    label=role.label, emoji=role.emoji, custom_id=f"nerdiowo-roleRequest-{role.role}"
+                )
 
-        self.gameRolesView = discord.ui.View(timeout=None)
-        for btnRole in self.bot.config.nerdiowoGamesRoles:
-            btn = discord.ui.Button(
-                label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}"
-            )
+                btn.callback = make_callback(role, self.roles[type] if ALLOWMANYROLES[type] else [])
 
-            btn.callback = make_callback(btnRole, [])
+                self.views[type].add_item(btn)
+            self.bot.add_view(self.views[type], message_id=self.roles[type][0].message)
 
-            self.gameRolesView.add_item(btn)
+    nerdiowo_roles = app_commands.Group(name="nerdiowo-roles", description="nerdiowo roles menu", guild_ids=[383886323699679234])
 
-        self.phoneRolesView = discord.ui.View(timeout=None)
-        for btnRole in self.bot.config.nerdiowoPhonesRoles:
-            btn = discord.ui.Button(
-                label=btnRole.label, emoji=btnRole.emoji, custom_id=f"nerdiowo-roleRequest-{btnRole.role}"
-            )
+    @nerdiowo_roles.command(name="add-new-role", description="add a new role to the role request menu")
+    async def role_create(self, interaction: discord.Interaction, btntype: ButtonType, role: discord.Role, label: str, emoji: Optional[str]):
+        try:
+            v = discord.ui.View()
+            v.add_item(discord.ui.Button(label=label, emoji=emoji))
+            await interaction.response.send_message(view=v, ephemeral=True)
+        except discord.HTTPException:
+            await interaction.response.send_message("invalid emoji", ephemeral=True)
+            return
+        mid = self.roles[btntype][0].message
+        self.roles[btntype].append(ButtonRole(label, role.id, mid, btntype, str(emoji) if emoji else None))
+        roles = []
+        for type in self.roles:
+            roles.extend(self.roles[type])
+        await self.bot.db.save_roles_data(roles)
+        await self.cog_load()
+        await (await (self.bot.get_channel(791528974442299415).fetch_message(mid))).edit(view=self.views[btntype])
+        await interaction.followup.send("added role")
 
-            btn.callback = make_callback(btnRole, [])
-
-            self.phoneRolesView.add_item(btn)
-
-        if self.bot.config.nerdiowoLocationRolesMessageId:
-            self.bot.add_view(self.locationRolesView, message_id=self.bot.config.nerdiowoLocationRolesMessageId)
-
-        if self.bot.config.nerdiowoGamesRolesMessageId:
-            self.bot.add_view(self.gameRolesView, message_id=self.bot.config.nerdiowoGamesRolesMessageId)
-
-        if self.bot.config.nerdiowoPhonesRolesMessageId:
-            self.bot.add_view(self.phoneRolesView, message_id=self.bot.config.nerdiowoPhonesRolesMessageId)
-
-    @commands.is_owner()
-    @commands.command()
-    async def postLocationRolesButtons(self, ctx: commands.Context):
-        self.bot.config.nerdiowoLocationRolesMessageId = (
-            await ctx.send("click the buttons to add/remove roles", view=self.locationRolesView)
-        ).id
-
-    @commands.is_owner()
-    @commands.command()
-    async def updateLocationRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
-        await (await channel.fetch_message(self.bot.config.nerdiowoLocationRolesMessageId)).edit(
-            view=self.locationRolesView
-        )
-        await ctx.send("done")
-
-    @commands.is_owner()
-    @commands.command()
-    async def postGamesButtons(self, ctx: commands.Context):
-        self.bot.config.nerdiowoGamesRolesMessageId = (
-            await ctx.send("click the buttons to add/remove roles", view=self.gameRolesView)
-        ).id
-
-    @commands.is_owner()
-    @commands.command()
-    async def updateGamesRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
-        await (await channel.fetch_message(self.bot.config.nerdiowoGamesRolesMessageId)).edit(view=self.gameRolesView)
-        await ctx.send("done")
-
-    @commands.is_owner()
-    @commands.command()
-    async def postPhoneButtons(self, ctx: commands.Context):
-        self.bot.config.nerdiowoPhonesRolesMessageId = (
-            await ctx.send("click the buttons to add/remove roles", view=self.phoneRolesView)
-        ).id
-
-    @commands.is_owner()
-    @commands.command()
-    async def updatePhoneRolesMessage(self, ctx: commands.Context, channel: discord.TextChannel):
-        await (await channel.fetch_message(self.bot.config.nerdiowoPhonesRolesMessageId)).edit(view=self.phoneRolesView)
-        await ctx.send("done")
+    @nerdiowo_roles.command(name="remove-role", description="remove a role from the role request menu")
+    async def role_remove(self, interaction: discord.Interaction, btntype: ButtonType, role: discord.Role):
+        self.roles[btntype] = [r for r in self.roles[btntype] if r.role != role.id]
+        roles = []
+        for type in self.roles:
+            roles.extend(self.roles[type])
+        await self.bot.db.save_roles_data(roles)
+        await self.cog_load()
+        await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message))).edit(view=self.views[btntype])
+        await interaction.followup.send("removed role")
 
 
 async def setup(bot):

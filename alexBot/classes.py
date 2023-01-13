@@ -144,10 +144,17 @@ class UserConfig:
         return cls(**data)
 
 
+class ButtonType(int, enum.Enum):
+    LOCATION = 1
+    GAME = 2
+    PHONE = 3
+
 @dataclass
 class ButtonRole:
     label: str
     role: int
+    message: int
+    type: ButtonType
     emoji: Optional[str] = None
 
 
