@@ -106,6 +106,9 @@ class autoRoles(Cog):
     @nerdiowo_roles.command(name="remove-role", description="remove a role from the role request menu")
     async def role_remove(self, interaction: discord.Interaction, btntype: ButtonType, role: str):
         role: ButtonRole = discord.utils.get(self.roles[btntype], role=int(role))
+        if not role:
+            await interaction.response.send_message("role not found, or wrong btnType", ephemeral=True)
+            return
         self.roles[btntype] = [r for r in self.roles[btntype] if r.role != role.role]
         self.flat_roles = [r for r in self.flat_roles if r.role != role.role]
 
@@ -118,12 +121,6 @@ class autoRoles(Cog):
 
     @role_remove.autocomplete('role')
     async def rr_ac_role(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
-        if interaction.namespace.btntype:
-            return [
-                app_commands.Choice(name=role.label, value=str(role.role))
-                for role in self.roles[interaction.namespace.btntype]
-                if guess in role.label
-            ]
         return [
             app_commands.Choice(name=role.label, value=str(role.role)) for role in self.flat_roles if guess in role.label
         ]
