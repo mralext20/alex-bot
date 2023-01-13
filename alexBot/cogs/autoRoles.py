@@ -122,7 +122,9 @@ class autoRoles(Cog):
     @role_remove.autocomplete('role')
     async def rr_ac_role(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         return [
-            app_commands.Choice(name=role.label, value=str(role.role)) for role in self.flat_roles if guess in role.label
+            app_commands.Choice(name=role.label, value=str(role.role))
+            for role in self.flat_roles
+            if guess in role.label
         ]
 
 
