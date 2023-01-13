@@ -83,6 +83,15 @@ class autoRoles(Cog):
         if any(r for r in self.roles[btntype] if r.role == role.id):
             await interaction.response.send_message("role already exists", ephemeral=True)
             return
+        if role.permissions != discord.Permissions.none():
+            await interaction.response.send_message("role has permissions", ephemeral=True)
+            return
+        if role.managed:
+            await interaction.response.send_message("role is bot managed", ephemeral=True)
+            return
+        if role.position > interaction.guild.get_role(859925497744326727).position:
+            await interaction.response.send_message("role is too high", ephemeral=True)
+            return
         try:
             v = discord.ui.View()
             v.add_item(discord.ui.Button(label=label, emoji=emoji))
