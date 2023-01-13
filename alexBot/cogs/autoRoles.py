@@ -62,7 +62,7 @@ class autoRoles(Cog):
                 self.views[type].add_item(btn)
             self.bot.add_view(self.views[type], message_id=self.roles[type][0].message)
 
-    nerdiowo_roles = app_commands.Group(name="nerdiowo-roles", description="nerdiowo roles menu", guild_ids=[383886323699679234])
+    nerdiowo_roles = app_commands.Group(name="nerdiowo-roles", description="nerdiowo roles menu", guild_ids=[383886323699679234], default_permissions=discord.Permissions(manage_roles=True))
 
     @nerdiowo_roles.command(name="add-new-role", description="add a new role to the role request menu")
     async def role_create(self, interaction: discord.Interaction, btntype: ButtonType, role: discord.Role, label: str, emoji: Optional[str]):
