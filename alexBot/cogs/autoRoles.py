@@ -41,6 +41,7 @@ ALLOWMANYROLES = {
 class autoRoles(Cog):
     roles: Dict[ButtonType, List[ButtonRole]] = {}
     views: Dict[ButtonType, discord.ui.View] = {}
+    flat_roles: List[ButtonRole] = []
 
     async def cog_load(self):
         self.views = {
@@ -48,9 +49,9 @@ class autoRoles(Cog):
             ButtonType.GAME: discord.ui.View(timeout=None),
             ButtonType.PHONE: discord.ui.View(timeout=None),
         }
-        roles = await self.bot.db.get_roles_data()
+        self.flat_roles = await self.bot.db.get_roles_data()
         for type in ButtonType:
-            self.roles[type] = [r for r in roles if r.type == type]
+            self.roles[type] = [r for r in self.flat_roles if r.type == type]
 
         for type in ButtonType:
             for role in self.roles[type]:
@@ -79,19 +80,21 @@ class autoRoles(Cog):
         label: str,
         emoji: Optional[str],
     ):
+        if any(r for r in self.roles[btntype] if r.role == role.id):
+            await interaction.response.send_message("role already exists", ephemeral=True)
+            return
         try:
             v = discord.ui.View()
             v.add_item(discord.ui.Button(label=label, emoji=emoji))
-            await interaction.response.send_message(view=v, ephemeral=True)
+            await interaction.response.send_message(f"adding role {role.mention} to {btntype}",view=v, allowed_mentions=discord.AllowedMentions(roles=False))
         except discord.HTTPException:
             await interaction.response.send_message("invalid emoji", ephemeral=True)
             return
         mid = self.roles[btntype][0].message
-        self.roles[btntype].append(ButtonRole(label, role.id, mid, btntype, str(emoji) if emoji else None))
-        roles = []
-        for type in self.roles:
-            roles.extend(self.roles[type])
-        await self.bot.db.save_roles_data(roles)
+        br = ButtonRole(label, role.id, mid, btntype, str(emoji) if emoji else None)
+        self.roles[btntype].append(br)
+        self.flat_roles.append(br)
+        await self.bot.db.save_roles_data(self.flat_roles)
         await self.cog_load()
         await (await (self.bot.get_channel(791528974442299415).fetch_message(mid))).edit(view=self.views[btntype])
         await interaction.followup.send("added role")
