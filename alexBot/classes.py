@@ -149,6 +149,7 @@ class ButtonType(int, enum.Enum):
     GAME = 2
     PHONE = 3
 
+
 @dataclass
 class ButtonRole:
     label: str

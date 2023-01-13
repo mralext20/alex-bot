@@ -85,9 +85,7 @@ class Data(Cog):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute("DELETE FROM buttonRoles")
             for role in data:
-                await conn.execute(
-                    "INSERT INTO buttonRoles (data) VALUES (?)", (json.dumps(dataclasses.asdict(role)),)
-                )
+                await conn.execute("INSERT INTO buttonRoles (data) VALUES (?)", (json.dumps(dataclasses.asdict(role)),))
             await conn.commit()
 
 
