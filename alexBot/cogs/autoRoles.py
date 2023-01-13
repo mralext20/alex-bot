@@ -124,7 +124,9 @@ class autoRoles(Cog):
                 for role in self.roles[interaction.namespace.btntype]
                 if guess in role.label
             ]
-        return [app_commands.Choice(name=role.label, value=role.role) for role in self.flat_roles if guess in role.label]
+        return [
+            app_commands.Choice(name=role.label, value=role.role) for role in self.flat_roles if guess in role.label
+        ]
 
 
 async def setup(bot):
