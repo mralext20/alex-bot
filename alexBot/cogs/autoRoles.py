@@ -125,7 +125,9 @@ class autoRoles(Cog):
                 if guess in role.label
             ]
         return [
-            app_commands.Choice(name=role.label, value=str(role.role)) for role in self.flat_roles if guess in role.label
+            app_commands.Choice(name=role.label, value=str(role.role))
+            for role in self.flat_roles
+            if guess in role.label
         ]
 
 
