@@ -12,6 +12,7 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
     """
     if otherRoles is set, it will remove all other roles in the list from the user
     """
+
     async def callback(interaction: discord.Interaction):
         assert isinstance(interaction.user, discord.Member)
         assert isinstance(interaction.guild, discord.Guild)
@@ -62,10 +63,21 @@ class autoRoles(Cog):
                 self.views[type].add_item(btn)
             self.bot.add_view(self.views[type], message_id=self.roles[type][0].message)
 
-    nerdiowo_roles = app_commands.Group(name="nerdiowo-roles", description="nerdiowo roles menu", guild_ids=[383886323699679234], default_permissions=discord.Permissions(manage_roles=True))
+    nerdiowo_roles = app_commands.Group(
+        name="nerdiowo-roles", description="nerdiowo roles menu",
+        guild_ids=[383886323699679234],
+        default_permissions=discord.Permissions(manage_roles=True),
+    )
 
     @nerdiowo_roles.command(name="add-new-role", description="add a new role to the role request menu")
-    async def role_create(self, interaction: discord.Interaction, btntype: ButtonType, role: discord.Role, label: str, emoji: Optional[str]):
+    async def role_create(
+        self,
+        interaction: discord.Interaction,
+        btntype: ButtonType,
+        role: discord.Role,
+        label: str,
+        emoji: Optional[str],
+    ):
         try:
             v = discord.ui.View()
             v.add_item(discord.ui.Button(label=label, emoji=emoji))
@@ -91,7 +103,9 @@ class autoRoles(Cog):
             roles.extend(self.roles[type])
         await self.bot.db.save_roles_data(roles)
         await self.cog_load()
-        await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message))).edit(view=self.views[btntype])
+        await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message))).edit(
+            view=self.views[btntype]
+        )
         await interaction.followup.send("removed role")
 
 
