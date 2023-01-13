@@ -15,7 +15,7 @@ REMOVE_SECTION = re.compile("(\U000000a7.)")
 
 class Minecraft(Cog):
     @app_commands.command()
-    async def mcStatus(self, interaction: discord.Interaction, server: Optional[str] = None):
+    async def mc-status(self, interaction: discord.Interaction, server: Optional[str] = None):
         # a!mcStatus
         # -> guild.Minecraft
         if server is None and interaction.guild is not None:
