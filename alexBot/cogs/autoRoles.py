@@ -86,7 +86,11 @@ class autoRoles(Cog):
         try:
             v = discord.ui.View()
             v.add_item(discord.ui.Button(label=label, emoji=emoji))
-            await interaction.response.send_message(f"adding role {role.mention} to {btntype}",view=v, allowed_mentions=discord.AllowedMentions(roles=False))
+            await interaction.response.send_message(
+                f"adding role {role.mention} to {btntype}",
+                view=v,
+                allowed_mentions=discord.AllowedMentions(roles=False),
+            )
         except discord.HTTPException:
             await interaction.response.send_message("invalid emoji", ephemeral=True)
             return
@@ -115,8 +119,13 @@ class autoRoles(Cog):
     @role_remove.autocomplete('role')
     async def rr_ac_role(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         if interaction.namespace.btntype:
-            return [app_commands.Choice(role.label, role.role) for role in self.roles[interaction.namespace.btntype] if guess in role.label]
+            return [
+                app_commands.Choice(role.label, role.role)
+                for role in self.roles[interaction.namespace.btntype]
+                if guess in role.label
+            ]
         return [app_commands.Choice(role.label, role.role) for role in self.flat_roles if guess in role.label]
+
 
 async def setup(bot):
     await bot.add_cog(autoRoles(bot))
