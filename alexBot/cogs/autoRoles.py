@@ -65,7 +65,7 @@ class autoRoles(Cog):
 
     nerdiowo_roles = app_commands.Group(
         name="nerdiowo-roles", description="nerdiowo roles menu",
-        guild_ids=[383886323699679234],
+        guild_ids=[791528974442299412],
         default_permissions=discord.Permissions(manage_roles=True),
     )
 
