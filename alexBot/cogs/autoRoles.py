@@ -100,18 +100,23 @@ class autoRoles(Cog):
         await interaction.followup.send("added role")
 
     @nerdiowo_roles.command(name="remove-role", description="remove a role from the role request menu")
-    async def role_remove(self, interaction: discord.Interaction, btntype: ButtonType, role: discord.Role):
+    async def role_remove(self, interaction: discord.Interaction, btntype: ButtonType, role: int):
+        role: ButtonRole = discord.utils.get(self.roles[btntype], role=role)
         self.roles[btntype] = [r for r in self.roles[btntype] if r.role != role.id]
-        roles = []
-        for type in self.roles:
-            roles.extend(self.roles[type])
-        await self.bot.db.save_roles_data(roles)
+        self.flat_roles = [r for r in self.flat_roles if r.role != role.id]
+
+        await self.bot.db.save_roles_data(self.flat_roles)
         await self.cog_load()
         await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message))).edit(
             view=self.views[btntype]
         )
         await interaction.followup.send("removed role")
 
+    @role_remove.autocomplete('role')
+    async def rr_ac_role(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
+        if interaction.namespace.btntype:
+            return [app_commands.Choice(role.label, role.role) for role in self.roles[interaction.namespace.btntype] if guess in role.label]
+        return [app_commands.Choice(role.label, role.role) for role in self.flat_roles if guess in role.label]
 
 async def setup(bot):
     await bot.add_cog(autoRoles(bot))
