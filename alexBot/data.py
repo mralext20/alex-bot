@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import aiosqlite
 
-from alexBot.classes import ButtonRole, GuildData, UserData
+from alexBot.classes import ButtonRole, ButtonType, GuildData, UserData
 
 from .tools import Cog
 
@@ -76,6 +76,8 @@ class Data(Cog):
                     roles.append(ButtonRole(**json.loads(row[0])))
                 if not data:
                     return []
+                for role in roles:
+                    role.type = ButtonType(role.type)
                 return roles
 
     async def save_roles_data(self, data: List[ButtonRole]):
