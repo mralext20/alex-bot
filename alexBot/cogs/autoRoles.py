@@ -104,10 +104,10 @@ class autoRoles(Cog):
         await interaction.followup.send("added role")
 
     @nerdiowo_roles.command(name="remove-role", description="remove a role from the role request menu")
-    async def role_remove(self, interaction: discord.Interaction, btntype: ButtonType, role: int):
-        role: ButtonRole = discord.utils.get(self.roles[btntype], role=role)
-        self.roles[btntype] = [r for r in self.roles[btntype] if r.role != role.id]
-        self.flat_roles = [r for r in self.flat_roles if r.role != role.id]
+    async def role_remove(self, interaction: discord.Interaction, btntype: ButtonType, role: str):
+        role: ButtonRole = discord.utils.get(self.roles[btntype], role=int(role))
+        self.roles[btntype] = [r for r in self.roles[btntype] if r.role != role.role]
+        self.flat_roles = [r for r in self.flat_roles if r.role != role.role]
 
         await self.bot.db.save_roles_data(self.flat_roles)
         await self.cog_load()
