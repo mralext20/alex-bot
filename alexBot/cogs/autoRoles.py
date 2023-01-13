@@ -117,7 +117,7 @@ class autoRoles(Cog):
         await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message))).edit(
             view=self.views[btntype]
         )
-        await interaction.followup.send("removed role")
+        await interaction.response.send_message("removed role")
 
     @role_remove.autocomplete('role')
     async def rr_ac_role(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
