@@ -1,10 +1,10 @@
 import logging
 import re
+from typing import Optional
 
 import discord
 import mcstatus
 from discord import app_commands
-from typing import Optional
 
 from ..tools import Cog
 
