@@ -94,8 +94,8 @@ class autoRoles(Cog):
             name=name,
             permissions=discord.Permissions.none(),
             mentionable=True,
-            reason=f"nerdiowo role requested by {interaction.user}"
-            )
+            reason=f"nerdiowo role requested by {interaction.user}",
+        )
         mid = self.roles[btntype][0].message
         br = ButtonRole(name, role.id, mid, btntype, str(emoji) if emoji else None)
         self.roles[btntype].append(br)
