@@ -7,6 +7,8 @@ import discord
 import feedparser
 from discord.ext import commands, tasks
 
+from time import mktime
+
 from alexBot.classes import FeedConfig
 from alexBot.tools import Cog, get_text
 
@@ -20,17 +22,17 @@ class FeedReader(Cog):
 
     @tasks.loop(reconnect=True, time=times)
     async def feedUpdate(self):
-        forumChannel: discord.ForumChannel = self.bot.get_channel(1054582714495414343)
+        forumChannel: discord.ForumChannel = self.bot.get_channel(1063907139715874896)
         for feedData in self.bot.config.feedPosting:
             async with aiohttp.ClientSession() as session:
                 text = await get_text(session, feedData.feedUrl)
                 feed = feedparser.parse(text)
-                lastPostedId = await self.bot.db.get_feed_data(feedData.feedUrl)
+                lastPostedStamp = await self.bot.db.get_feed_data(feedData.feedUrl)
 
-                if lastPostedId != feed.entries[0].id:
-                    if lastPostedId is None:  # handle new feeds
+                if lastPostedStamp != mktime(feed.entries[0].published_parsed):
+                    if lastPostedStamp is None:  # handle new feeds
                         try:
-                            lastPostedId = feed.entries[1].id
+                            lastPostedStamp = mktime(feed.entries[1].published_parsed)
                         except IndexError:
                             if len(feed.entries) == 0:
                                 await self.bot.db.save_feed_data(feedData.feedUrl, None)
@@ -42,12 +44,12 @@ class FeedReader(Cog):
                                     if feedData.tagId is not None
                                     else [],
                                 )
-                                await self.bot.db.save_feed_data(feedData.feedUrl, feed.entries[0].id)
+                                await self.bot.db.save_feed_data(feedData.feedUrl, int(mktime(feed.entries[0].published_parsed)))
                     #  there's new posts!
                     # ... how many?
                     # loop over the entries until we find our last post!
                     for entry in feed.entries:
-                        if entry.id == lastPostedId:
+                        if int(mktime(entry.published_parsed)) <= lastPostedStamp:
                             break
                         else:
                             await forumChannel.create_thread(
@@ -58,7 +60,7 @@ class FeedReader(Cog):
                                 else [],
                             )
 
-                    await self.bot.db.save_feed_data(feedData.feedUrl, feed.entries[0].id)
+                    await self.bot.db.save_feed_data(feedData.feedUrl, int(mktime(feed.entries[0].published_parsed)))
 
     @feedUpdate.before_loop
     async def before_feedUpdate(self):

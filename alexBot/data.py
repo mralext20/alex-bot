@@ -48,7 +48,7 @@ class Data(Cog):
             )
             await conn.commit()
 
-    async def get_feed_data(self, feedId: str) -> Optional[str]:
+    async def get_feed_data(self, feedId: str) -> Optional[int]:
         """
         used to get the latest feed entry ID from the database. see save_feed_data to save it back.
         """
@@ -57,11 +57,11 @@ class Data(Cog):
                 data = await cur.fetchone()
                 if not data:
                     return None
-                return data[0]
+                return int(data[0])
 
-    async def save_feed_data(self, feedId: str, data: str):
+    async def save_feed_data(self, feedId: str, data: int):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
-            await conn.execute("REPLACE INTO rssFeedLastPosted (channelfeed, data) VALUES (?,?)", (feedId, data))
+            await conn.execute("REPLACE INTO rssFeedLastPosted (channelfeed, data) VALUES (?,?)", (feedId, str(data)))
             await conn.commit()
 
     async def get_roles_data(self) -> List[ButtonRole]:
