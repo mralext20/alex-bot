@@ -76,35 +76,28 @@ class autoRoles(Cog):
         self,
         interaction: discord.Interaction,
         btntype: ButtonType,
-        role: discord.Role,
-        label: str,
+        name: str,
         emoji: Optional[str],
     ):
-        if any(r for r in self.roles[btntype] if r.role == role.id):
-            await interaction.response.send_message("role already exists", ephemeral=True)
-            return
-        if role.permissions != discord.Permissions.none():
-            await interaction.response.send_message("role has permissions", ephemeral=True)
-            return
-        if role.managed:
-            await interaction.response.send_message("role is bot managed", ephemeral=True)
-            return
-        if role.position > interaction.guild.get_role(859925497744326727).position:
-            await interaction.response.send_message("role is too high", ephemeral=True)
-            return
         try:
             v = discord.ui.View()
-            v.add_item(discord.ui.Button(label=label, emoji=emoji))
+            v.add_item(discord.ui.Button(label=name, emoji=emoji))
             await interaction.response.send_message(
-                f"adding role {role.mention} to {btntype}",
+                f"adding role {name} to {btntype}",
                 view=v,
                 allowed_mentions=discord.AllowedMentions(roles=False),
             )
         except discord.HTTPException:
             await interaction.response.send_message("invalid emoji", ephemeral=True)
             return
+        role = await interaction.guild.create_role(
+            name=name,
+            permissions=discord.Permissions.none(),
+            mentionable=True,
+            reason=f"nerdiowo role requested by {interaction.user}"
+            )
         mid = self.roles[btntype][0].message
-        br = ButtonRole(label, role.id, mid, btntype, str(emoji) if emoji else None)
+        br = ButtonRole(name, role.id, mid, btntype, str(emoji) if emoji else None)
         self.roles[btntype].append(br)
         self.flat_roles.append(br)
         await self.bot.db.save_roles_data(self.flat_roles)
