@@ -16,12 +16,6 @@ DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
-    @commands.command()
-    async def time(self, ctx: commands.Context):
-        """Displays the time in alaska"""
-        time = datetime.datetime.now()
-        await ctx.send(f'the time in alaska is {time.strftime(DATEFORMAT)}')
-
     @commands.command(aliases=['diff'])
     async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
