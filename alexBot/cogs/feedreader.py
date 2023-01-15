@@ -1,13 +1,12 @@
 import asyncio
 import datetime
+from time import mktime
 from typing import List
 
 import aiohttp
 import discord
 import feedparser
 from discord.ext import commands, tasks
-
-from time import mktime
 
 from alexBot.classes import FeedConfig
 from alexBot.tools import Cog, get_text
@@ -44,7 +43,9 @@ class FeedReader(Cog):
                                     if feedData.tagId is not None
                                     else [],
                                 )
-                                await self.bot.db.save_feed_data(feedData.feedUrl, int(mktime(feed.entries[0].published_parsed)))
+                                await self.bot.db.save_feed_data(
+                                    feedData.feedUrl, int(mktime(feed.entries[0].published_parsed))
+                                )
                     #  there's new posts!
                     # ... how many?
                     # loop over the entries until we find our last post!
