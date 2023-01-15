@@ -1,15 +1,18 @@
 import asyncio
+from typing import Dict
 
 import discord
 from discord import app_commands
-from typing import Dict
+
 from alexBot.classes import RingRate
 from alexBot.tools import Cog
+
 
 def mk_callback(task: asyncio.Task):
     async def callback(interaction: discord.Interaction):
         task.cancel()
         await interaction.response.send_message("canceled ringing", ephemeral=True)
+
     return callback
 
 
@@ -63,6 +66,7 @@ class Ringing(Cog):
             )
             await asyncio.sleep(ringRate.rate)
             times += 1
+
 
 async def setup(bot):
     await bot.add_cog(Ringing(bot))
