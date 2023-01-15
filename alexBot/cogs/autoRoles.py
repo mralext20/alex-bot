@@ -59,7 +59,7 @@ class autoRoles(Cog):
                     label=role.label, emoji=role.emoji, custom_id=f"nerdiowo-roleRequest-{role.role}"
                 )
 
-                btn.callback = make_callback(role, self.roles[type] if ALLOWMANYROLES[type] else [])
+                btn.callback = make_callback(role, [] if ALLOWMANYROLES[type] else self.roles[type])
 
                 self.views[type].add_item(btn)
             self.bot.add_view(self.views[type], message_id=self.roles[type][0].message)
