@@ -29,7 +29,7 @@ class Minecraft(Cog):
         try:
             mcserver = mcstatus.MinecraftServer.lookup(server)
             status = await mcserver.async_status()
-        except mcstatus:
+        except:
             return await interaction.followup.send("an error occured, the server may be down..")
 
         embed = discord.Embed(description=REMOVE_SECTION.sub('', status.description['text']))
