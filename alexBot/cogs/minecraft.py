@@ -25,11 +25,12 @@ class Minecraft(Cog):
                     ephemeral=True,
                 )
 
+        await interaction.response.defer(thinking=True)
         try:
             mcserver = mcstatus.MinecraftServer.lookup(server)
             status = await mcserver.async_status()
         except mcstatus:
-            return await interaction.response.send_message("an error occured, the server may be down..")
+            return await interaction.followup.send("an error occured, the server may be down..")
 
         embed = discord.Embed(description=REMOVE_SECTION.sub('', status.description['text']))
 
@@ -39,7 +40,7 @@ class Minecraft(Cog):
             embed.add_field(name="players", value='\n'.join([player.name for player in status.players.sample]))
         embed.add_field(name="Online / Max", value=f"{status.players.online} / {status.players.max}")
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
 
 async def setup(bot):
