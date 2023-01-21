@@ -1,7 +1,7 @@
 import logging
 import re
 import time
-from typing import Dict
+from typing import Dict, List
 
 import aiohttp
 import discord
@@ -107,58 +107,77 @@ class Fun(Cog):
         name="vcshake", description="'shake' a user in voice as a fruitless attempt to get their attention."
     )
     @app_commands.guilds(791528974442299412)
-    async def vcShake(self, interaction: discord.Interaction):
+    async def vcShake(self, interaction: discord.Interaction, target: int):
         """'shake' a user in voice as a fruitless attempt to get their attention."""
         if not interaction.guild.me.guild_permissions.move_members:
             await interaction.response.send_message("I don't have the permissions to do that.")
             return
 
-        if (
-            interaction.user.voice is None
-            or interaction.guild.afk_channel is None
-            or interaction.user.voice.channel == interaction.guild.afk_channel
-        ):
-            await interaction.response.send_message(
-                "you're not in a voice channel or your channels are invalid. try creating an AFK channel",
-                ephemeral=True,
-            )
+        if target == 0:
+            await interaction.response.send_message("invalid target", ephemeral=True)
             return
+
+        if interaction.user.voice is None:
+            await interaction.response.send_message("you are not in a voice channel", ephemeral=True)
+            return
+        if interaction.guild.afk_channel is None:
+            await interaction.response.send_message("there is no afk channel", ephemeral=True)
+            return
+
+        if interaction.user.voice.channel == interaction.guild.afk_channel:
+            await interaction.response.send_message("you are in the afk channel", ephemeral=True)
+            return
+
+        valid_targets = [
+            m
+            for m in interaction.user.voice.channel.members
+            if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
+        ]
+
+        user = interaction.guild.get_member(int(target))
+        if user is None or user not in valid_targets:
+            await interaction.response.send_message("invalid target", ephemeral=True)
+            return
+
+
+        currentChannel = interaction.user.voice.channel
+        AFKChannel = interaction.guild.afk_channel
+
+        await interaction.response.send_message(
+                f"shaking {user.mention}...",
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+            if interaction.guild.id == 791528974442299412:
+                await interaction.guild.get_channel(974472799093661826).send(
+                    f"shaking {user.display_name} for {interaction.user.display_name}"
+                )
+            for _ in range(4):
+                await user.move_to(AFKChannel, reason="shake requested by {interaction.user.display_name}")
+                await user.move_to(currentChannel, reason="shake requested by {interaction.user.display_name}")
+
+    @vcShake.autocomplete("target")
+    async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
+        if interaction.user.voice is None:
+            return [app_commands.Choice(name="err: not in a voice channel", value=0)]
+        if interaction.guild.afk_channel is None:
+            return [app_commands.Choice(name="err: no afk channel", value=0)]
+        if interaction.user.voice.channel == interaction.guild.afk_channel:
+            return [app_commands.Choice(name="err: in afk channel", value=0)]
+
         valid_targets = [
             m
             for m in interaction.user.voice.channel.members
             if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
         ]
         if len(valid_targets) == 0:
-            await interaction.response.send_message("noone is in this channel who are valid targets", ephemeral=True)
-            return
+            return [app_commands.Choice(name="err: no valid targets", value=0)]
+        return [
+            app_commands.Choice(name=m.display_name, value=m.id)
+            for m in valid_targets
+            if guess in m.display_name.lower() or guess in m.name.lower()
+        ]
 
-        current = interaction.user.voice.channel
-        target = interaction.guild.afk_channel
-
-        class UserSelectorDropdown(discord.ui.Select):
-            def __init__(self):
-                options = [discord.SelectOption(label=m.display_name, value=str(m.id)) for m in valid_targets]
-                super().__init__(placeholder="Select a user to shake...", min_values=1, max_values=1, options=options)
-
-            async def callback(self, interaction: discord.Interaction):
-                user = interaction.guild.get_member(int(self.values[0]))
-                await interaction.response.send_message(
-                    f"shaking {user.mention} at request of {interaction.user.display_name}..."
-                )
-                await interaction.guild.get_channel(974472799093661826).send(
-                    f"shaking {user.display_name} for {interaction.user.display_name}"
-                )
-                for _ in range(4):
-                    await user.move_to(target, reason="shake requested by {interaction.user.display_name}")
-                    await user.move_to(current, reason="shake requested by {interaction.user.display_name}")
-
-        class UserSelector(ui.View):
-            def __init__(self):
-                super().__init__()
-                self.add_item(UserSelectorDropdown())
-
-        await interaction.response.send_message(view=UserSelector(), ephemeral=True)
-
+    
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.location == "dev" or message.guild is None:
