@@ -139,21 +139,20 @@ class Fun(Cog):
             await interaction.response.send_message("invalid target", ephemeral=True)
             return
 
-
         currentChannel = interaction.user.voice.channel
         AFKChannel = interaction.guild.afk_channel
 
         await interaction.response.send_message(
-                f"shaking {user.mention}...",
-                allowed_mentions=discord.AllowedMentions.none(),
+            f"shaking {user.mention}...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+        if interaction.guild.id == 791528974442299412:
+            await interaction.guild.get_channel(974472799093661826).send(
+                f"shaking {user.display_name} for {interaction.user.display_name}"
             )
-            if interaction.guild.id == 791528974442299412:
-                await interaction.guild.get_channel(974472799093661826).send(
-                    f"shaking {user.display_name} for {interaction.user.display_name}"
-                )
-            for _ in range(4):
-                await user.move_to(AFKChannel, reason="shake requested by {interaction.user.display_name}")
-                await user.move_to(currentChannel, reason="shake requested by {interaction.user.display_name}")
+        for _ in range(4):
+            await user.move_to(AFKChannel, reason="shake requested by {interaction.user.display_name}")
+            await user.move_to(currentChannel, reason="shake requested by {interaction.user.display_name}")
 
     @vcShake.autocomplete("target")
     async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
@@ -177,7 +176,6 @@ class Fun(Cog):
             if guess in m.display_name.lower() or guess in m.name.lower()
         ]
 
-    
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.location == "dev" or message.guild is None:
