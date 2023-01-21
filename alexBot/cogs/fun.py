@@ -106,7 +106,7 @@ class Fun(Cog):
     @app_commands.command(
         name="vcshake", description="'shake' a user in voice as a fruitless attempt to get their attention."
     )
-    @app_commands.guilds(791528974442299412)
+    @app_commands.guild_only()
     async def vcShake(self, interaction: discord.Interaction, target: int):
         """'shake' a user in voice as a fruitless attempt to get their attention."""
         if not interaction.guild.me.guild_permissions.move_members:
