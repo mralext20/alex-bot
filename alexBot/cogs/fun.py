@@ -107,8 +107,9 @@ class Fun(Cog):
         name="vcshake", description="'shake' a user in voice as a fruitless attempt to get their attention."
     )
     @app_commands.guild_only()
-    async def vcShake(self, interaction: discord.Interaction, target: int):
+    async def vcShake(self, interaction: discord.Interaction, target: str):
         """'shake' a user in voice as a fruitless attempt to get their attention."""
+        target: int = int(target)
         if not interaction.guild.me.guild_permissions.move_members:
             await interaction.response.send_message("I don't have the permissions to do that.")
             return
@@ -157,11 +158,11 @@ class Fun(Cog):
     @vcShake.autocomplete("target")
     async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         if interaction.user.voice is None:
-            return [app_commands.Choice(name="err: not in a voice channel", value=0)]
+            return [app_commands.Choice(name="err: not in a voice channel", value="0")]
         if interaction.guild.afk_channel is None:
-            return [app_commands.Choice(name="err: no afk channel", value=0)]
+            return [app_commands.Choice(name="err: no afk channel", value="0")]
         if interaction.user.voice.channel == interaction.guild.afk_channel:
-            return [app_commands.Choice(name="err: in afk channel", value=0)]
+            return [app_commands.Choice(name="err: in afk channel", value="0")]
 
         valid_targets = [
             m
@@ -169,9 +170,9 @@ class Fun(Cog):
             if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
         ]
         if len(valid_targets) == 0:
-            return [app_commands.Choice(name="err: no valid targets", value=0)]
+            return [app_commands.Choice(name="err: no valid targets", value="0")]
         return [
-            app_commands.Choice(name=m.display_name, value=m.id)
+            app_commands.Choice(name=m.display_name, value=str(m.id))
             for m in valid_targets
             if guess in m.display_name.lower() or guess in m.name.lower()
         ]
