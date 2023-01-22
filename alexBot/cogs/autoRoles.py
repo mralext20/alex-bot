@@ -81,12 +81,7 @@ class autoRoles(Cog):
         name: str,
         emoji: Optional[str],
     ):
-        if name.isnumeric():
-            # get that role and use that instead
-            role = interaction.guild.get_role(int(name))
-            if not role:
-                await interaction.response.send_message("role not found", ephemeral=True)
-                return
+
         try:
             v = discord.ui.View()
             v.add_item(discord.ui.Button(label=name, emoji=emoji))
@@ -98,12 +93,20 @@ class autoRoles(Cog):
         except discord.HTTPException:
             await interaction.response.send_message("invalid emoji", ephemeral=True)
             return
-        role = await interaction.guild.create_role(
-            name=name,
-            permissions=discord.Permissions.none(),
-            mentionable=True,
-            reason=f"nerdiowo role requested by {interaction.user}",
-        )
+        if name.isnumeric():
+            # get that role and use that instead
+            role = interaction.guild.get_role(int(name))
+            if not role:
+                await interaction.response.send_message("role not found", ephemeral=True)
+                return
+            name = role.name  # otherwise the name would be the id
+        else:
+            role = await interaction.guild.create_role(
+                name=name,
+                permissions=discord.Permissions.none(),
+                mentionable=True,
+                reason=f"nerdiowo role requested by {interaction.user}",
+            )
         mid = self.roles[btntype][0].message
         br = ButtonRole(name, role.id, mid, btntype, str(emoji) if emoji else None)
         self.roles[btntype].append(br)
