@@ -35,6 +35,7 @@ ALLOWMANYROLES = {
     ButtonType.LOCATION: False,
     ButtonType.GAME: True,
     ButtonType.PHONE: True,
+    ButtonType.INTEREST: True,
 }
 
 
@@ -48,6 +49,7 @@ class autoRoles(Cog):
             ButtonType.LOCATION: discord.ui.View(timeout=None),
             ButtonType.GAME: discord.ui.View(timeout=None),
             ButtonType.PHONE: discord.ui.View(timeout=None),
+            ButtonType.INTEREST: discord.ui.View(timeout=None),
         }
         self.flat_roles = await self.bot.db.get_roles_data()
         for type in ButtonType:
@@ -79,11 +81,17 @@ class autoRoles(Cog):
         name: str,
         emoji: Optional[str],
     ):
+        if name.isnumeric():
+            # get that role and use that instead
+            role = interaction.guild.get_role(int(name))
+            if not role:
+                await interaction.response.send_message("role not found", ephemeral=True)
+                return
         try:
             v = discord.ui.View()
             v.add_item(discord.ui.Button(label=name, emoji=emoji))
             await interaction.response.send_message(
-                f"adding role {name} to {btntype}",
+                f"adding role {name} to {btntype.name}",
                 view=v,
                 allowed_mentions=discord.AllowedMentions(roles=False),
             )
