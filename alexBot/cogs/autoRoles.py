@@ -115,6 +115,8 @@ class autoRoles(Cog):
         await self.cog_load()
         await (await (self.bot.get_channel(791528974442299415).fetch_message(mid))).edit(view=self.views[btntype])
         await interaction.followup.send("added role")
+        msg = await self.bot.get_channel(791528974442299415).send('.')
+        await msg.delete()  # ghost ping the channel
 
     @nerdiowo_roles.command(name="remove-role", description="remove a role from the role request menu")
     async def role_remove(self, interaction: discord.Interaction, btntype: ButtonType, role: str):
