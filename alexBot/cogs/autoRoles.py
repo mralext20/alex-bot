@@ -97,7 +97,7 @@ class autoRoles(Cog):
             # get that role and use that instead
             role = interaction.guild.get_role(int(name))
             if not role:
-                await interaction.response.send_message("role not found", ephemeral=True)
+                await interaction.followup.send("role not found", ephemeral=True)
                 return
             name = role.name  # otherwise the name would be the id
         else:
