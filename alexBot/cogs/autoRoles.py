@@ -136,9 +136,12 @@ class autoRoles(Cog):
 
     @role_remove.autocomplete('role')
     async def rr_ac_role(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
+        roles = self.flat_roles
+        if interaction.namespace.btnType:
+            roles = self.roles[interaction.namespace.btnType]
         return [
             app_commands.Choice(name=role.label, value=str(role.role))
-            for role in self.flat_roles
+            for role in roles
             if guess.lower() in role.label.lower()
         ]
 
