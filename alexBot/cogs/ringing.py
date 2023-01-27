@@ -60,11 +60,14 @@ class Ringing(Cog):
         allowed_mentions = discord.AllowedMentions(users=[target])
 
         while times < ringRate.times:
+            if channel.guild.get_member(target.id).voice:
+                return  #  they joined voice
             await channel.send(
                 f"HELLO, {target.mention}! {initiator.name.upper()} WANTS YOU TO JOIN {initiator.voice.channel.mention}!",
                 allowed_mentions=allowed_mentions,
             )
             await asyncio.sleep(ringRate.rate)
+
             times += 1
 
 
