@@ -32,14 +32,14 @@ class VoiceLog(Cog):
         stamp = discord.utils.format_dt(datetime.datetime.now(), style="T")
         if before.channel is None and after.channel is not None:
             # joined
-            await channel.send(f"{stamp}🎤{member.mention} (`{member.id}`) joined {after.channel.mention}")
+            await channel.send(f"{stamp} 🎤 {member.mention} (`{member.id}`) joined {after.channel.mention}")
         elif before.channel is not None and after.channel is None:
             # left
-            await channel.send(f"{stamp}☎️{member.mention} (`{member.id}`) left {before.channel.mention}")
+            await channel.send(f"{stamp} ☎️ {member.mention} (`{member.id}`) left {before.channel.mention}")
         elif before.channel != after.channel:
             # moved
             await channel.send(
-                f"{stamp}🎚️{member.mention} (`{member.id}`) moved from {before.channel.mention} to {after.channel.mention}"
+                f"{stamp} 🎚️ {member.mention} (`{member.id}`) moved from {before.channel.mention} to {after.channel.mention}"
             )
 
 
