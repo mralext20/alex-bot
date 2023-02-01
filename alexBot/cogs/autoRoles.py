@@ -8,7 +8,7 @@ from alexBot.classes import ButtonRole, ButtonType
 from alexBot.tools import Cog
 
 
-def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole], resetVector):
+def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
     """
     if otherRoles is set, it will remove all other roles in the list from the user
     """
@@ -28,8 +28,6 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole], resetVector
             await interaction.user.add_roles(interaction.guild.get_role(btnRole.role))
             await interaction.response.send_message(f"added the {btnRole.label} role for you!", ephemeral=True)
 
-        await resetVector()
-
     return callback
 
 
@@ -46,12 +44,12 @@ class autoRoles(Cog):
     views: Dict[ButtonType, discord.ui.View] = {}
     flat_roles: List[ButtonRole] = []
 
-    async def reload_roles(self):
-        for btntype in ButtonType:
-            await self.cog_load()
-            await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message))).edit(
-                view=self.views[btntype]
-            )
+    async def reload_roles(self, btnType: ButtonType):
+
+        await self.cog_load()
+        await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btnType][0].message))).edit(
+            view=self.views[btnType]
+        )
 
     async def cog_load(self):
         self.views = {
@@ -68,12 +66,12 @@ class autoRoles(Cog):
             for role in self.roles[type]:
                 roleData = self.bot.get_guild(791528974442299412).get_role(role.role)
                 btn = discord.ui.Button(
-                    label=f"{role.label} ({len(roleData.members)})",
+                    label=role.label,
                     emoji=role.emoji,
                     custom_id=f"nerdiowo-roleRequest-{role.role}",
                 )
 
-                btn.callback = make_callback(role, [] if ALLOWMANYROLES[type] else self.roles[type], self.reload_roles)
+                btn.callback = make_callback(role, [] if ALLOWMANYROLES[type] else self.roles[type])
 
                 self.views[type].add_item(btn)
             self.bot.add_view(self.views[type], message_id=self.roles[type][0].message)
@@ -84,6 +82,11 @@ class autoRoles(Cog):
         guild_ids=[791528974442299412],
         default_permissions=discord.Permissions(manage_roles=True),
     )
+
+    @nerdiowo_roles.command(name="reload", description="reload the roles menu")
+    async def reload(self, interaction: discord.Interaction, btntype: ButtonType):
+        await self.reload_roles(btntype)
+        await interaction.response.send_message("done", ephemeral=True)
 
     @nerdiowo_roles.command(name="add-new-role", description="add a new role to the role request menu")
     async def role_create(
