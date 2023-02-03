@@ -69,7 +69,6 @@ class GamesReposting(Cog):
     async def on_message_edit(self, before: Message, after: Message):
         if before.id in self.linked:
             if before.content != after.content:
-
                 await self.linked[before.id].edit(
                     content=after.content, attachments=[] if after.attachments else discord.utils.MISSING
                 )

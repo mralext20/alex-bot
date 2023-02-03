@@ -14,7 +14,6 @@ log = logging.getLogger(__name__)
 
 
 class Flight(Cog):
-
     wmm = geomag.WorldMagneticModel()
 
     flightrule_color = {
