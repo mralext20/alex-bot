@@ -230,7 +230,6 @@ class Fun(Cog):
                 emojis += raw_emojis
 
             if message.content.endswith('?') or emojis != VOTE_EMOJIS:
-
                 for emoji in emojis:
                     try:
                         await message.add_reaction(emoji)

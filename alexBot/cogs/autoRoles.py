@@ -45,9 +45,8 @@ class autoRoles(Cog):
     flat_roles: List[ButtonRole] = []
 
     async def reload_roles(self, btnType: ButtonType):
-
         await self.cog_load()
-        await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btnType][0].message))).edit(
+        await (await self.bot.get_channel(791528974442299415).fetch_message(self.roles[btnType][0].message)).edit(
             view=self.views[btnType]
         )
 
@@ -96,7 +95,6 @@ class autoRoles(Cog):
         name: str,
         emoji: Optional[str],
     ):
-
         try:
             v = discord.ui.View()
             v.add_item(discord.ui.Button(label=name, emoji=emoji))
@@ -128,7 +126,7 @@ class autoRoles(Cog):
         self.flat_roles.append(br)
         await self.bot.db.save_roles_data(self.flat_roles)
         await self.cog_load()
-        await (await (self.bot.get_channel(791528974442299415).fetch_message(mid))).edit(view=self.views[btntype])
+        await (await self.bot.get_channel(791528974442299415).fetch_message(mid)).edit(view=self.views[btntype])
         await interaction.followup.send("added role")
         msg = await self.bot.get_channel(791528974442299415).send('.')
         await msg.delete()  # ghost ping the channel
@@ -144,7 +142,7 @@ class autoRoles(Cog):
 
         await self.bot.db.save_roles_data(self.flat_roles)
         await self.cog_load()
-        await (await (self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message))).edit(
+        await (await self.bot.get_channel(791528974442299415).fetch_message(self.roles[btntype][0].message)).edit(
             view=self.views[btntype]
         )
         await interaction.response.send_message("removed role")

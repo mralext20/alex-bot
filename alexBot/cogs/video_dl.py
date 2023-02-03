@@ -174,7 +174,6 @@ class Video_DL(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message, override=False, new_deleter=None):
-
         loop = asyncio.get_running_loop()
         if message.guild is None or (message.author == self.bot.user and not override):
             return
@@ -213,7 +212,6 @@ class Video_DL(Cog):
         uploaded = None
         async with message.channel.typing():
             try:
-
                 if match:
                     await message.channel.typing()
                     try:
