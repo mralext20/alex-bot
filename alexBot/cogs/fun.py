@@ -79,7 +79,7 @@ class Fun(Cog):
         class EmojiSelector(ui.View):
             def __init__(self):
                 super().__init__(timeout=60)
-                self.add_item(IndexSelector())
+                self.add_item(IndexSelector(message))
 
         await interaction.response.send_message(view=EmojiSelector(), ephemeral=True)
 
