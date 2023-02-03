@@ -45,7 +45,10 @@ class Fun(Cog):
         bot = self.bot
 
         class IndexSelector(ui.Select):
-            def __init__(self):
+            def __init__(
+                self,
+                og_message: discord.Message,
+            ):
                 super().__init__(
                     placeholder="Select Emoji to steal...",
                     min_values=1,
@@ -55,10 +58,11 @@ class Fun(Cog):
                     ],
                     max_values=len(emojis),
                 )
+                self.og_message = og_message
 
             async def callback(self, interaction: discord.Interaction):
                 await interaction.response.send_message("i'll get right on that!", ephemeral=True)
-
+                uploads = []
                 nerdiowo = bot.get_guild(791528974442299412)
                 for i in self.values:
                     index = int(i)
@@ -66,6 +70,11 @@ class Fun(Cog):
                     data = await emoji.read()
                     uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
                     await interaction.followup.send(f"{uploaded}", ephemeral=True)
+                    uploads.append(f"{uploaded}")
+
+                await self.og_message.reply(
+                    f"{'these' if len(uploads) > 1 else 'this'} is mine now\n\n{' '.join(uploads)}"
+                )
 
         class EmojiSelector(ui.View):
             def __init__(self):
