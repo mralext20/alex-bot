@@ -10,7 +10,6 @@ from functools import partial
 from typing import Optional, Tuple
 
 import aiohttp
-
 import discord
 import httpx
 from discord.errors import DiscordException
