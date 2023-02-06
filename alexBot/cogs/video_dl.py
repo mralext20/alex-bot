@@ -10,9 +10,7 @@ from functools import partial
 from typing import Optional, Tuple
 
 import aiohttp
-import arsenic
-import arsenic.browsers
-import arsenic.services
+
 import discord
 import httpx
 from discord.errors import DiscordException
