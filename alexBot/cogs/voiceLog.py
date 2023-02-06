@@ -14,7 +14,7 @@ LOGGING_CHANNEL = 791530687102451712
 
 class VoiceLog(Cog):
     @Cog.listener()
-    async def on_voice_state_update(self, member: VoiceState, before: VoiceState, after: VoiceState):
+    async def on_voice_state_update(self, member: discord.Member, before: VoiceState, after: VoiceState):
         """
         only for actions in nerdiowo
         hide events that do with ther admin category in any way
@@ -32,14 +32,18 @@ class VoiceLog(Cog):
         stamp = discord.utils.format_dt(datetime.datetime.now(), style="T")
         if before.channel is None and after.channel is not None:
             # joined
-            await channel.send(f"{stamp} 🎤 {member.mention} (`{member.id}`) joined {after.channel.mention}")
+            await channel.send(
+                f"{stamp} 🎤 {after.channel.mention} {member.mention} (`{member.id}`) joined {after.channel.name}"
+            )
         elif before.channel is not None and after.channel is None:
             # left
-            await channel.send(f"{stamp} ☎️ {member.mention} (`{member.id}`) left {before.channel.mention}")
+            await channel.send(
+                f"{stamp} ☎️ {before.channel.mention} {member.mention} (`{member.id}`) left {before.channel.name}"
+            )
         elif before.channel != after.channel:
             # moved
             await channel.send(
-                f"{stamp} 🎚️ {member.mention} (`{member.id}`) moved from {before.channel.mention} to {after.channel.mention}"
+                f"{stamp} 🎚️ {before.channel.mention} ➡️ {after.channel.mention} {member.mention} (`{member.id}`) moved from {before.channel.name} to {after.channel.name}"
             )
 
 
