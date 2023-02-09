@@ -39,10 +39,10 @@ class NerdiowoMovies(Cog):
         paginator = Paginator(prefix="```", suffix="```", max_size=500)
         for movie in all_movies:
             paginator.add_line(
-                f"{movie.title} - {movie.suggestor}{f' - watched on {movie.watchdate}' if movie.watched else ''}"
+                f"{movie.title} - suggested by {interaction.guild.get_member(movie.suggestor)}{f' - watched on {movie.watchdate}' if movie.watched else ''}"
             )
         pi = PaginatorInterface(self.bot, paginator, owner=None)
-        await pi.send_to(interaction.channel)
+        await pi.send_to(interaction.channel)  # TODO: make this the actual interaction response
         await interaction.response.send_message("sent", ephemeral=True)
 
     @nerdiowo_movies.command(name="suggest-new-movie", description="Suggest a new movie for the Nerdiowo Movie Night")
