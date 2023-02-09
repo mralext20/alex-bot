@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import aiosqlite
 
-from alexBot.classes import ButtonRole, ButtonType, GuildData, UserData
+from alexBot.classes import ButtonRole, ButtonType, GuildData, MovieSuggestion, UserData
 
 from .tools import Cog
 
@@ -88,6 +88,32 @@ class Data(Cog):
             await conn.execute("DELETE FROM buttonRoles")
             for role in data:
                 await conn.execute("INSERT INTO buttonRoles (data) VALUES (?)", (json.dumps(dataclasses.asdict(role)),))
+            await conn.commit()
+
+    async def get_movies_data(self) -> List[MovieSuggestion]:
+        """
+        fetch all movies for a givin guild
+        """
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            async with conn.execute("SELECT data FROM movieSuggestions") as cur:
+                data = await cur.fetchall()
+                movies = []
+                for row in data:
+                    movies.append(MovieSuggestion(**json.loads(row[0])))
+                if not data:
+                    return []
+                return movies
+
+    async def save_movies_data(self, data: List[MovieSuggestion]):
+        """
+        deletes all movies, then saves the all of them again
+        """
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            await conn.execute("DELETE FROM movieSuggestions")
+            for movie in data:
+                await conn.execute(
+                    "INSERT INTO movieSuggestions (data) VALUES (?)", (json.dumps(dataclasses.asdict(movie)),)
+                )
             await conn.commit()
 
 

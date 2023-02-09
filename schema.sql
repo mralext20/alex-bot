@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS rssFeedLastPosted(channelfeed STRING PRIMARY KEY,
 
 CREATE TABLE IF NOT EXISTS buttonRoles(data STRING);
 
-
+CREATE TABLE IF NOT EXISTS movieSuggestions (data TEXT NOT NULL);

@@ -144,6 +144,14 @@ class UserConfig:
         return cls(**data)
 
 
+@dataclass
+class MovieSuggestion:
+    title: str
+    watched: bool
+    suggestor: int
+    watchdate: str
+
+
 class ButtonType(int, enum.Enum):
     LOCATION = 1
     GAME = 2
