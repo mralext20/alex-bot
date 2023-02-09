@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-
-import discord
 import random
 
+import discord
+from discord.ext.commands import Paginator
+from jishaku.paginators import PaginatorInterface
 
 from alexBot.classes import MovieSuggestion
-from jishaku.paginators import PaginatorInterface
-from discord.ext.commands import Paginator
 
 from ..tools import Cog
 
