@@ -15,6 +15,9 @@ NERDIOWO_EVERYBODY_VOTES = 847555306166943755
 NERDIOWO_MANAGE_SERVER_ID = 1046177820285603881
 
 
+NUMBER_EMOJIS = ["1️⃣", "2️⃣", "3️⃣"]
+
+
 class NerdiowoMovies(Cog):
     def __init__(self, bot):
         super().__init__(bot)
@@ -71,10 +74,14 @@ class NerdiowoMovies(Cog):
             await interaction.response.send_message("There are no movies to vote on.", ephemeral=True)
             return
         # get 3 random movies
-        random_movies = random.sample(movies, 3)
-        await self.bot.get_channel(NERDIOWO_EVERYBODY_VOTES).send(
-            f"next movie for movie night:\n1️⃣: {random_movies[0].title} submitted by <@{random_movies[0].suggestor}>\n2️⃣: {random_movies[1].title} submitted by <@{random_movies[1].suggestor}>\n3️⃣: {random_movies[2].title} submitted by <@{random_movies[2].suggestor}>"
-        )
+        if len(movies) < 3:
+            random_movies = movies
+        else:
+            random_movies = random.sample(movies, 3)
+        msg = f"Vote for the next movie! React with the number of the movie you want to watch.\n"
+        for i, movie in enumerate(random_movies):
+            msg += f"{NUMBER_EMOJIS[i]} {movie.title} suggested by  <@{movie.suggestor}>\n"
+        await self.bot.get_channel(NERDIOWO_EVERYBODY_VOTES).send(msg, allowed_mentions=discord.AllowedMentions.none())
         await interaction.response.send_message("Vote started.")
 
     @nerdiowo_movies.command(name="watched", description="[admin only] Mark a movie as watched")
