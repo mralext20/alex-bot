@@ -43,9 +43,7 @@ class NerdiowoMovies(Cog):
         await pi.send_to(interaction.channel)
         await interaction.response.send_message("sent", ephemeral=True)
 
-    @nerdiowo_movies.slash_command(
-        name="suggest-new-movie", description="Suggest a new movie for the Nerdiowo Movie Night"
-    )
+    @nerdiowo_movies.command(name="suggest-new-movie", description="Suggest a new movie for the Nerdiowo Movie Night")
     async def suggest_new_movie(self, interaction: discord.Interaction, *, movie_name: str):
         all_movies = await self.bot.db.get_movies_data()
         # only unwatched movies
@@ -62,7 +60,7 @@ class NerdiowoMovies(Cog):
         await self.bot.db.save_movies_data(all_movies)
         await interaction.response.send_message(f"Your movie suggestion, {suggestion.title} has been submitted.")
 
-    @nerdiowo_movies.slash_command(title="start-vote", description="[admin only] Start the vote for the next movie")
+    @nerdiowo_movies.command(title="start-vote", description="[admin only] Start the vote for the next movie")
     async def start_vote(self, interaction: discord.Interaction):
         if not interaction.user.guild_permissions.administrator or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID):
             await interaction.response.send_message("You are not an admin.", ephemeral=True)
