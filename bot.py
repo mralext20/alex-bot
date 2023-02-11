@@ -12,7 +12,6 @@ import discord
 from discord.ext import commands
 
 import config
-from alexBot.channel_logging import setup_logging
 
 if TYPE_CHECKING:
     from alexBot.data import Data
