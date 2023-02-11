@@ -112,5 +112,6 @@ class Bot(commands.Bot):
         log.info('%s [cmd] %s(%d) "%s" checks=%s', location, author, author.id, content, ','.join(checks) or '(none)')
 
 
+handler = logging.StreamHandler()
 bot = Bot()
-bot.run(config.token)
+bot.run(config.token, log_handler=handler, log_level=logging.DEBUG)
