@@ -28,6 +28,7 @@ class InteractionPaginator(PaginatorInterface):
             **self.send_kwargs,
             allowed_mentions=discord.AllowedMentions.none(),
         )
+        self.message = await interaction.original_response()
         self.send_lock.set()
         if self.task:
             self.task.cancel()
