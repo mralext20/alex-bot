@@ -63,9 +63,47 @@ class NerdiowoMovies(Cog):
         await self.bot.db.save_movies_data(all_movies)
         await interaction.response.send_message(f"Your movie suggestion, {suggestion.title} has been submitted.")
 
+    @nerdiowo_movies.command(name="remove-movie", description="Remove a movie from the list")
+    async def remove_movie(self, interaction: discord.Interaction, movie_name: str):
+        all_movies = await self.bot.db.get_movies_data()
+        # only unwatched movies
+        movies = [movie for movie in all_movies if not movie.watched]
+        if not (
+            interaction.user.guild_permissions.administrator or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID)
+        ):
+            movies = [movie for movie in movies if movie.suggestor == interaction.user.id]
+        if not movies:
+            await interaction.response.send_message("You have not submitted any movies.", ephemeral=True)
+            return
+        try:
+            movie = [movie for movie in movies if movie.title == movie_name][0]
+        except IndexError:
+            await interaction.response.send_message("That movie has not been suggested", ephemeral=True)
+            return
+        all_movies.remove(movie)
+        await self.bot.db.save_movies_data(all_movies)
+        await interaction.response.send_message(f"The movie suggestion, {movie.title} has been removed.")
+
+    @remove_movie.autocomplete('movie_name')
+    async def remove_movie_autocomplete(self, interaction: discord.Interaction, movie_name: str):
+        all_movies = await self.bot.db.get_movies_data()
+        # only unwatched movies
+        movies = [movie for movie in all_movies if not movie.watched]
+        if not (
+            interaction.user.guild_permissions.administrator or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID)
+        ):
+            movies = [movie for movie in movies if movie.suggestor == interaction.user.id]
+        return [
+            discord.app_commands.Choice(name=movie.title, value=movie.title)
+            for movie in movies
+            if movie_name.lower() in movie.title.lower()
+        ]
+
     @nerdiowo_movies.command(name="start-vote", description="[admin only] Start the vote for the next movie")
     async def start_vote(self, interaction: discord.Interaction):
-        if not interaction.user.guild_permissions.administrator or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID):
+        if not (
+            interaction.user.guild_permissions.administrator or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID)
+        ):
             await interaction.response.send_message("You are not an admin.", ephemeral=True)
             return
         all_movies = await self.bot.db.get_movies_data()
