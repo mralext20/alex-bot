@@ -113,24 +113,5 @@ class Bot(commands.Bot):
         log.info('%s [cmd] %s(%d) "%s" checks=%s', location, author, author.id, content, ','.join(checks) or '(none)')
 
 
-loop = asyncio.get_event_loop()
-
-webhooks = {}
-session = aiohttp.ClientSession()
-
-for name in config.logging:
-    level = getattr(logging, name.upper(), None)
-    if level is None:
-        continue
-
-    url = config.logging[name]
-    webhooks[level] = discord.Webhook.from_url(url, session=session)
-
-with setup_logging(webhooks=webhooks, silenced=['discord', 'websockets', 'aiosqlite']):
-    bot = Bot()
-
-    try:
-        loop.run_until_complete(bot.start(config.token))
-    except KeyboardInterrupt:
-        loop.run_until_complete(bot.close())
-        loop.run_until_complete(session.close())
+bot = Bot()
+bot.run(config.token)
