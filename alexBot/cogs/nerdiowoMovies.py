@@ -5,11 +5,10 @@ import random
 
 import discord
 from discord.ext.commands import Paginator
-from jishaku.paginators import PaginatorInterface
 
 from alexBot.classes import MovieSuggestion
 
-from ..tools import Cog
+from ..tools import Cog, InteractionPaginator
 
 NERDIOWO_EVERYBODY_VOTES = 847555306166943755
 NERDIOWO_MANAGE_SERVER_ID = 1046177820285603881
@@ -41,9 +40,8 @@ class NerdiowoMovies(Cog):
             paginator.add_line(
                 f"{movie.title} - suggested by {interaction.guild.get_member(movie.suggestor)}{f' - watched on {movie.watchdate}' if movie.watched else ''}"
             )
-        pi = PaginatorInterface(self.bot, paginator, owner=None)
-        await pi.send_to(interaction.channel)  # TODO: make this the actual interaction response
-        await interaction.response.send_message("sent", ephemeral=True)
+        pi = InteractionPaginator(self.bot, paginator, owner=None)
+        await pi.send_interaction(interaction)
 
     @nerdiowo_movies.command(name="suggest-new-movie", description="Suggest a new movie for the Nerdiowo Movie Night")
     async def suggest_new_movie(self, interaction: discord.Interaction, *, movie_name: str):

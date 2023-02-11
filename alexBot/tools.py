@@ -4,6 +4,8 @@ import time
 from functools import wraps
 from typing import TYPE_CHECKING, Callable, Generator, Iterable, TypeVar
 from urllib.parse import urlparse
+import discord
+from jishaku.paginators import PaginatorInterface
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -17,6 +19,22 @@ from discord.ext import commands
 log = getLogger(__name__)
 
 _T = TypeVar("_T")
+
+
+class InteractionPaginator(PaginatorInterface):
+    # send_interaction takes an interaction and uses that to send the paginator
+    async def send_interaction(self, interaction: discord.Interaction):
+        await interaction.response.send_message(
+            **self.send_kwargs,
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+        self.send_lock.set()
+        if self.task:
+            self.task.cancel()
+
+        self.task = self.bot.loop.create_task(self.wait_loop())
+
+        return self
 
 
 class Cog(commands.Cog):
