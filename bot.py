@@ -114,9 +114,6 @@ class Bot(commands.Bot):
 
 for logPath in ['discord', 'websockets', 'aiosqlite']:
     logging.getLogger(logPath).setLevel(logging.INFO)
-logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
-logging.getLogger('discord.http').setLevel(logging.INFO)
 
 handler = logging.StreamHandler()
 handler.setFormatter(
