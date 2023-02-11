@@ -63,7 +63,6 @@ class autoRoles(Cog):
 
         for type in ButtonType:
             for role in self.roles[type]:
-                roleData = self.bot.get_guild(791528974442299412).get_role(role.role)
                 btn = discord.ui.Button(
                     label=role.label,
                     emoji=role.emoji,
