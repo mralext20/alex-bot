@@ -4,6 +4,7 @@ import time
 from functools import wraps
 from typing import TYPE_CHECKING, Callable, Generator, Iterable, TypeVar
 from urllib.parse import urlparse
+
 import discord
 from jishaku.paginators import PaginatorInterface
 
