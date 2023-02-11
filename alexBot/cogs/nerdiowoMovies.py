@@ -79,7 +79,7 @@ class NerdiowoMovies(Cog):
             random_movies = movies
         else:
             random_movies = random.sample(movies, 3)
-        msg = f"Vote for the next movie! React with the number of the movie you want to watch.\n"
+        msg = "Vote for the next movie! React with the number of the movie you want to watch.\n"
         for i, movie in enumerate(random_movies):
             msg += f"{NUMBER_EMOJIS[i]} {movie.title} suggested by  <@{movie.suggestor}>\n"
         await self.bot.get_channel(NERDIOWO_EVERYBODY_VOTES).send(msg, allowed_mentions=discord.AllowedMentions.none())
