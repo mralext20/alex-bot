@@ -55,6 +55,9 @@ class NerdiowoMovies(Cog):
                 ephemeral=True,
             )
             return
+        if movie_name in [movie.title for movie in movies]:
+            await interaction.response.send_message("That movie has already been suggested", ephemeral=True)
+            return
         suggestion = MovieSuggestion(title=movie_name, watched=False, suggestor=interaction.user.id, watchdate="")
         all_movies.append(suggestion)
         await self.bot.db.save_movies_data(all_movies)
