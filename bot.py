@@ -112,6 +112,19 @@ class Bot(commands.Bot):
         log.info('%s [cmd] %s(%d) "%s" checks=%s', location, author, author.id, content, ','.join(checks) or '(none)')
 
 
+for logPath in ['discord', 'websockets', 'aiosqlite']:
+    logging.getLogger(logPath).setLevel(logging.INFO)
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+logging.getLogger('discord.http').setLevel(logging.INFO)
+
 handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter('[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+)
+
+logger.addHandler(handler)
+
+
 bot = Bot()
-bot.run(config.token, log_handler=handler, log_level=logging.DEBUG)
+bot.run(config.token, log_handler=None)
