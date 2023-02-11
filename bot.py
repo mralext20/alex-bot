@@ -26,8 +26,19 @@ cogs = [
     ]
 ]
 # cogs = ['autoRoles', 'errors']  # used to test single cog at a time
-log = logging.getLogger(__name__)
 
+log = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter('[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+)
+
+log.addHandler(handler)
+
+for logPath in ['discord', 'websockets', 'aiosqlite']:
+    z = logging.getLogger(logPath)
+    z.setLevel(logging.INFO)
+    z.addHandler(handler)
 LINKWRAPPERREGEX = re.compile(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[#-_]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)', re.I)
 
 
@@ -111,18 +122,6 @@ class Bot(commands.Bot):
 
         log.info('%s [cmd] %s(%d) "%s" checks=%s', location, author, author.id, content, ','.join(checks) or '(none)')
 
-
-handler = logging.StreamHandler()
-handler.setFormatter(
-    logging.Formatter('[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-)
-
-log.addHandler(handler)
-
-for logPath in ['discord', 'websockets', 'aiosqlite']:
-    z = logging.getLogger(logPath)
-    z.setLevel(logging.INFO)
-    z.addHandler(handler)
 
 bot = Bot()
 bot.logger.addHandler(handler)
