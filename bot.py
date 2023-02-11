@@ -116,9 +116,7 @@ handler = logging.StreamHandler()
 handler.setFormatter(
     logging.Formatter('[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 )
-bot = Bot()
 
-bot.logger.addHandler(handler)
 log.addHandler(handler)
 
 for logPath in ['discord', 'websockets', 'aiosqlite']:
@@ -126,5 +124,7 @@ for logPath in ['discord', 'websockets', 'aiosqlite']:
     z.setLevel(logging.INFO)
     z.addHandler(handler)
 
+bot = Bot()
+bot.logger.addHandler(handler)
 
 bot.run(config.token, log_handler=None)
