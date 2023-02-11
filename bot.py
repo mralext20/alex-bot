@@ -119,6 +119,7 @@ handler.setFormatter(
 bot = Bot()
 
 bot.logger.addHandler(handler)
+log.addHandler(handler)
 
 for logPath in ['discord', 'websockets', 'aiosqlite']:
     z = logging.getLogger(logPath)
