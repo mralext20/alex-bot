@@ -2,9 +2,11 @@
 
 import datetime
 import random
+from typing import List
 
 import discord
 from discord.ext.commands import Paginator
+import pytz
 
 from alexBot.classes import MovieSuggestion
 
@@ -12,7 +14,7 @@ from ..tools import Cog, InteractionPaginator
 
 NERDIOWO_EVERYBODY_VOTES = 847555306166943755
 NERDIOWO_MANAGE_SERVER_ID = 1046177820285603881
-
+NERDIOWO_MOVIE_NIGHT_ID = 1069499258115477525
 
 NUMBER_EMOJIS = ["1️⃣", "2️⃣", "3️⃣"]
 
@@ -20,6 +22,18 @@ NUMBER_EMOJIS = ["1️⃣", "2️⃣", "3️⃣"]
 class NerdiowoMovies(Cog):
     def __init__(self, bot):
         super().__init__(bot)
+
+    async def autocomplete_unwatched_movie(
+        self, interaction: discord.Interaction, movie_name: str
+    ) -> List[discord.app_commands.Choice]:
+        all_movies = await self.bot.db.get_movies_data()
+        # only unwatched movies
+        movies = [movie for movie in all_movies if not movie.watched]
+        return [
+            discord.app_commands.Choice(name=movie.title, value=movie.title)
+            for movie in movies
+            if movie_name.lower() in movie.title.lower()
+        ]
 
     nerdiowo_movies = discord.app_commands.Group(
         name="movies",
@@ -120,8 +134,46 @@ class NerdiowoMovies(Cog):
         msg = "Vote for the next movie! React with the number of the movie you want to watch.\n"
         for i, movie in enumerate(random_movies):
             msg += f"{NUMBER_EMOJIS[i]} {movie.title} suggested by  <@{movie.suggestor}>\n"
-        await self.bot.get_channel(NERDIOWO_EVERYBODY_VOTES).send(msg, allowed_mentions=discord.AllowedMentions.none())
-        await interaction.response.send_message("Vote started.")
+        msg = await self.bot.get_channel(NERDIOWO_EVERYBODY_VOTES).send(
+            msg, allowed_mentions=discord.AllowedMentions.none()
+        )
+        await interaction.response.send_message("Vote started.", ephemeral=True)
+        await msg.create_thread(name="Movie Night Vote")
+
+    @nerdiowo_movies.command(name="create-event", description="[admin only] Create the movie night event")
+    async def create_event(self, interaction: discord.Interaction, movie_name: str):
+        if not (
+            interaction.user.guild_permissions.administrator or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID)
+        ):
+            await interaction.response.send_message("You are not an admin.", ephemeral=True)
+            return
+        all_movies = await self.bot.db.get_movies_data()
+        # only unwatched movies
+        movies = [movie for movie in all_movies if not movie.watched]
+        if not movies:
+            await interaction.response.send_message("There are no movies to vote on.", ephemeral=True)
+            return
+        try:
+            movie = [movie for movie in movies if movie.title == movie_name][0]
+        except IndexError:
+            await interaction.response.send_message("That movie has not been suggested", ephemeral=True)
+            return
+        # the next time we watch a movie will ALWAYS be the next Saturday at 2:00PM Alaska time.
+        start_time = datetime.datetime.now(tz=pytz.timezone("America/Anchorage"))
+        start_time = start_time.replace(hour=, minute=0, second=0, microsecond=0)
+        if start_time.weekday() != 5:
+            start_time += datetime.timedelta(days=5 - start_time.weekday())
+
+        await interaction.guild.create_scheduled_event(
+            name=f"Movie Night: {movie.title}",
+            channel=interaction.guild.get_channel(NERDIOWO_MOVIE_NIGHT_ID),
+            start_time=start_time,
+        )
+        await interaction.response.send_message("Event created.")
+
+    @create_event.autocomplete('movie_name')
+    async def create_event_autocomplete(self, interaction: discord.Interaction, movie_name: str):
+        return await self.autocomplete_unwatched_movie(interaction, movie_name)
 
     @nerdiowo_movies.command(name="watched", description="[admin only] Mark a movie as watched")
     async def watched(self, interaction: discord.Interaction, *, movie_name: str):
@@ -142,14 +194,7 @@ class NerdiowoMovies(Cog):
 
     @watched.autocomplete('movie_name')
     async def watched_ac_movie_name(self, interaction: discord.Interaction, movie_name: str):
-        all_movies = await self.bot.db.get_movies_data()
-        # only unwatched movies
-        movies = [movie for movie in all_movies if not movie.watched]
-        return [
-            discord.app_commands.Choice(name=movie.title, value=movie.title)
-            for movie in movies
-            if movie_name.lower() in movie.title.lower()
-        ]
+        return await self.autocomplete_unwatched_movie(interaction, movie_name)
 
 
 async def setup(bot):
