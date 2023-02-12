@@ -160,7 +160,7 @@ class NerdiowoMovies(Cog):
             return
         # the next time we watch a movie will ALWAYS be the next Saturday at 2:00PM Alaska time.
         start_time = datetime.datetime.now(tz=pytz.timezone("America/Anchorage"))
-        start_time = start_time.replace(hour=, minute=0, second=0, microsecond=0)
+        start_time = start_time.replace(hour=14, minute=0, second=0, microsecond=0)
         if start_time.weekday() != 5:
             start_time += datetime.timedelta(days=5 - start_time.weekday())
 
