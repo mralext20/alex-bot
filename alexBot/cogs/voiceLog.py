@@ -25,7 +25,6 @@ class VoiceLog(Cog):
             before.channel = None
         if after.channel and after.channel.category_id == ADMIN_CATEGORY_ID:
             after.channel = None
-
         channel = self.bot.get_channel(LOGGING_CHANNEL)
         if not channel:
             return
@@ -39,6 +38,13 @@ class VoiceLog(Cog):
         elif before.channel != after.channel:
             # moved
             await channel.send(f"{stamp} 🎚️ {member.mention}  moved from {before.channel.name} to {after.channel.name}")
+
+        if after.channel and after.channel.user_limit == 1 and len(after.channel.members) == 1:
+            # give the user channel override for manage menbers
+            await after.channel.set_permissions(member, manage_members=True)
+        if before.channel and before.channel.user_limit == 1:
+            # remove the user channel override for manage menbers
+            await before.channel.set_permissions(member, overwrite=None)
 
 
 async def setup(bot):
