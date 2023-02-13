@@ -14,8 +14,10 @@ from ..tools import Cog, InteractionPaginator
 
 NERDIOWO_EVERYBODY_VOTES = 847555306166943755
 NERDIOWO_MANAGE_SERVER_ID = 1046177820285603881
-NERDIOWO_MOVIE_NIGHT_ID = 1069499258115477525
-
+NERDIOWO_VOICE_CHANNEL = 1069499258115477525
+NERDIOWO_PERM_INVITE = "https://discord.gg/tEjxatSFgM"
+NERDIOWO_ANNOUNCENENTS = 910725067003027547
+NERDIOWO_MOVIE_NIGHT_ROLE = 1069492195415048192
 NUMBER_EMOJIS = ["1️⃣", "2️⃣", "3️⃣"]
 
 
@@ -169,12 +171,16 @@ class NerdiowoMovies(Cog):
         if start_time < now:
             start_time += datetime.timedelta(days=7)
 
-        await interaction.guild.create_scheduled_event(
+        event = await interaction.guild.create_scheduled_event(
             name=f"Movie Night: {movie.title}",
-            channel=interaction.guild.get_channel(NERDIOWO_MOVIE_NIGHT_ID),
+            channel=interaction.guild.get_channel(NERDIOWO_VOICE_CHANNEL),
             start_time=start_time,
         )
         await interaction.response.send_message("Event created.")
+        await self.bot.get_channel(NERDIOWO_ANNOUNCENENTS).send(
+            f"{NERDIOWO_PERM_INVITE}?event={event.id} <@&{NERDIOWO_MOVIE_NIGHT_ROLE}>",
+            allowed_mentions=discord.AllowedMentions.all(),
+        )
 
     @create_event.autocomplete('movie_name')
     async def create_event_autocomplete(self, interaction: discord.Interaction, movie_name: str):
