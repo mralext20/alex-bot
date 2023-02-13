@@ -14,7 +14,7 @@ from ..tools import Cog, get_json
 log = logging.getLogger(__name__)
 ayygen = re.compile("[aA][yY][Yy][yY]*")
 
-VOTE_EMOJIS = ["<:greentick:567088336166977536>", "<:yellowtick:872631240010899476>", "<:redtick:567088349484023818>"]
+VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 
 
 class Fun(Cog):
