@@ -158,11 +158,16 @@ class NerdiowoMovies(Cog):
         except IndexError:
             await interaction.response.send_message("That movie has not been suggested", ephemeral=True)
             return
-        # the next time we watch a movie will ALWAYS be the next Saturday at 2:00PM Alaska time.
-        start_time = datetime.datetime.now(tz=pytz.timezone("America/Anchorage"))
-        start_time = start_time.replace(hour=14, minute=0, second=0, microsecond=0)
-        if start_time.weekday() != 5:
-            start_time += datetime.timedelta(days=5 - start_time.weekday())
+
+        # the next time we watch a movie will  be the next time Saturday at 3:30PM Alaska time happens.
+        now = datetime.datetime.now(tz=pytz.timezone("America/Anchorage"))
+        start_time = now.replace(hour=15, minute=30, second=0, microsecond=0)
+        # set the day to saturday
+        start_time += datetime.timedelta(days=(5 - start_time.weekday()) % 7)
+
+        #  if the time has already passed, set it for next week
+        if start_time < now:
+            start_time += datetime.timedelta(days=7)
 
         await interaction.guild.create_scheduled_event(
             name=f"Movie Night: {movie.title}",
