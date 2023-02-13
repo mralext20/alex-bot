@@ -5,8 +5,8 @@ import random
 from typing import List
 
 import discord
-from discord.ext.commands import Paginator
 import pytz
+from discord.ext.commands import Paginator
 
 from alexBot.classes import MovieSuggestion
 
