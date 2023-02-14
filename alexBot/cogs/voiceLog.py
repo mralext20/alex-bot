@@ -41,7 +41,7 @@ class VoiceLog(Cog):
 
         if after.channel and after.channel.user_limit == 1 and len(after.channel.members) == 1:
             # give the user channel override for manage menbers
-            await after.channel.set_permissions(member, overwrite=discord.PermissionOverwrite(manage_members=True))
+            await after.channel.set_permissions(member, overwrite=discord.PermissionOverwrite(move_members=True))
         if before.channel and before.channel.user_limit == 1:
             # remove the user channel override for manage menbers
             await before.channel.set_permissions(member, overwrite=None)
