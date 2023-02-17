@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import discord
 import asyncio_mqtt as aiomqtt
+import discord
+
 from ..tools import Cog, InteractionPaginator
 
 

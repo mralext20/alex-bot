@@ -3,8 +3,8 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import asyncio_mqtt as aiomqtt
-from asyncio_mqtt.types import PayloadType
 import discord
+from asyncio_mqtt.types import PayloadType
 from discord.ext import tasks
 
 from ..tools import Cog, get_json
