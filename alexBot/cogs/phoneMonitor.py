@@ -29,7 +29,7 @@ class PhoneMonitor(Cog):
     async def on_ha_update_location(self, ha_name: aiomqtt.Topic, location: PayloadType):
         await self.bot.wait_until_ready()
         good_name = ha_name.value.lstrip("alex-bot/")
-        if ha_name in members:
+        if good_name in members:
             g = self.bot.get_guild(GUILD)
             member: discord.Member = await g.get_member(members[good_name])
             name = member.display_name
