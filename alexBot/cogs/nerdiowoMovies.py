@@ -100,8 +100,7 @@ class NerdiowoMovies(Cog):
         await self.bot.db.save_movies_data(all_movies)
         await interaction.response.send_message(f"The movie suggestion, {movie.title} has been removed.")
 
-    @remove_movie.autocomplete('movie_name')
-    async def remove_movie_autocomplete(self, interaction: discord.Interaction, movie_name: str):
+    async def autocomplete_unwatched_own_or_admin(self, interaction: discord.Interaction, movie_name: str):
         all_movies = await self.bot.db.get_movies_data()
         # only unwatched movies
         movies = [movie for movie in all_movies if not movie.watched]
@@ -114,6 +113,10 @@ class NerdiowoMovies(Cog):
             for movie in movies
             if movie_name.lower() in movie.title.lower()
         ]
+
+    @remove_movie.autocomplete('movie_name')
+    async def remove_movie_autocomplete(self, interaction: discord.Interaction, movie_name: str):
+        return await self.autocomplete_unwatched_own_or_admin(interaction, movie_name)
 
     @nerdiowo_movies.command(name="start-vote", description="[admin only] Start the vote for the next movie")
     async def start_vote(self, interaction: discord.Interaction):
@@ -206,6 +209,29 @@ class NerdiowoMovies(Cog):
     @watched.autocomplete('movie_name')
     async def watched_ac_movie_name(self, interaction: discord.Interaction, movie_name: str):
         return await self.autocomplete_unwatched_movie(interaction, movie_name)
+
+    @nerdiowo_movies.command(name="rename", description="Remove a movie from the list")
+    async def rename(self, interaction: discord.Interaction, old_name: str, new_name: str):
+        all_movies = await self.bot.db.get_movies_data()
+        try:
+            movie = [movie for movie in all_movies if movie.title == old_name][0]
+        except IndexError:
+            await interaction.response.send_message("That movie has not been suggested", ephemeral=True)
+            return
+        if (
+            movie.suggestor != interaction.user.id
+            or not interaction.user.guild_permissions.administrator
+            or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID)
+        ):
+            await interaction.response.send_message("You did not suggest that movie", ephemeral=True)
+            return
+        movie.title = new_name
+        await self.bot.db.save_movies_data(all_movies)
+        await interaction.response.send_message(f"`{old_name}` has been renamed to `{new_name}`.")
+
+    @rename.autocomplete('old_name')
+    async def rename_ac_old_name(self, interaction: discord.Interaction, old_name: str):
+        return await self.autocomplete_unwatched_own_or_admin(interaction, old_name)
 
 
 async def setup(bot):
