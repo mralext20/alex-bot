@@ -218,9 +218,9 @@ class NerdiowoMovies(Cog):
         except IndexError:
             await interaction.response.send_message("That movie has not been suggested", ephemeral=True)
             return
-        if (
-            movie.suggestor != interaction.user.id
-            or not interaction.user.guild_permissions.administrator
+        if not (
+            movie.suggestor == interaction.user.id
+            or interaction.user.guild_permissions.administrator
             or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID)
         ):
             await interaction.response.send_message("You did not suggest that movie", ephemeral=True)
