@@ -27,6 +27,7 @@ members = {'alex': 108429628560924672, 'garrett': 326410251546918913}
 class PhoneMonitor(Cog):
     @Cog.listener()
     async def on_ha_update_location(self, ha_name: aiomqtt.Topic, location: PayloadType):
+        log.info(f"HA update: {ha_name} -> {location}")
         await self.bot.wait_until_ready()
         good_name = ha_name.value.lstrip("alex-bot/")
         if good_name in members:
@@ -37,6 +38,7 @@ class PhoneMonitor(Cog):
                 name = name.rstrip(locator)
 
             name += TABLE[location]
+            log.info(f"Changing {member.display_name} to {name}")
             await member.edit(nick=name)
 
 
