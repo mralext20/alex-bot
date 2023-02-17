@@ -29,8 +29,10 @@ cogs = [
 # cogs = ['mqttDispatcher', 'phoneMonitor', 'errors']  # used to test single cog at a time
 
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
 handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
+handler.setLevel(logging.INFO)
 handler.setFormatter(
     logging.Formatter('[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 )
@@ -40,7 +42,8 @@ log.addHandler(handler)
 for logPath in ['discord', 'websockets', 'aiosqlite']:
     z = logging.getLogger(logPath)
     z.setLevel(logging.INFO)
-    z.addHandler(handler)
+
+
 LINKWRAPPERREGEX = re.compile(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[#-_]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)', re.I)
 
 
@@ -54,7 +57,6 @@ class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(command_prefix=config.prefix, intents=intents, allowed_mentions=allowed_mentions, **kwargs)
         self.session = None
-        self.logger = logging.getLogger("bot")
         self.config: config = config
         self.location = config.location
         self.db: "Data" = None
@@ -126,7 +128,6 @@ class Bot(commands.Bot):
 
 
 bot = Bot()
-bot.logger.addHandler(handler)
 
 # if we're running on windows:
 if sys.platform.startswith('win'):
