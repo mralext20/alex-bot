@@ -5,6 +5,7 @@ import asyncio
 import logging
 import re
 from pathlib import Path
+import sys
 from typing import TYPE_CHECKING
 
 import aiohttp
@@ -25,7 +26,7 @@ cogs = [
         "__init__",
     ]
 ]
-# cogs = ['autoRoles', 'errors']  # used to test single cog at a time
+# cogs = ['mqttDispatcher', 'phoneMonitor', 'errors']  # used to test single cog at a time
 
 log = logging.getLogger(__name__)
 handler = logging.StreamHandler()
@@ -126,5 +127,10 @@ class Bot(commands.Bot):
 
 bot = Bot()
 bot.logger.addHandler(handler)
+
+# if we're running on windows:
+if sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 
 bot.run(config.token, log_handler=None)

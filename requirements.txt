@@ -18,3 +18,4 @@ yt-dlp
 emoji-data
 httpx
 feedparser
+asyncio-mqtt

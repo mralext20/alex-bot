@@ -20,13 +20,13 @@
       ],
       "justMyCode": true
     },
-    // {
-    //   "name": "Python: start bot",
-    //   "type": "python",
-    //   "request": "launch",
-    //   "program": "bot.py",
-    //   "console": "integratedTerminal"
-    // },
+    {
+      "name": "Python: start bot",
+      "type": "python",
+      "request": "launch",
+      "program": "bot.py",
+      "console": "integratedTerminal"
+    },
     {
       "name": "Docker: Python - General",
       "type": "docker",
