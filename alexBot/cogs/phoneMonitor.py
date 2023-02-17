@@ -2,7 +2,9 @@ import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-import aiohttp
+import asyncio_mqtt as aiomqtt
+from asyncio_mqtt.types import PayloadType
+import discord
 from discord.ext import tasks
 
 from ..tools import Cog, get_json
@@ -13,37 +15,29 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-TABLE = defaultdict(lambda: "Alex is Away")
-TABLE['home'] = "Alex is At Home"
-TABLE['Walmart'] = "Alex is At Work"
+TABLE = defaultdict(lambda: "💨")
+TABLE['home'] = "🏠"
+TABLE['Walmart'] = "🏪"
+TABLE['garrett'] = "🏠"
+
+GUILD = 791528974442299412
+members = {'alex': 108429628560924672, 'garrett': 326410251546918913}
 
 
 class PhoneMonitor(Cog):
-    def __init__(self, bot: "Bot"):
-        super().__init__(bot)
-        self.session: aiohttp.ClientSession = None
-        self.phone_update.start()
-
-    @tasks.loop(minutes=1)
-    async def phone_update(self):
-        ret = await get_json(
-            self.session,
-            f"{self.bot.config.hass_host}/api/states/{self.bot.config.hass_target}",
-            headers={'Authorization': self.bot.config.hass_token},
-        )
-        ret = ret['state']
-        log.debug(f"asked HA, ret = {ret}, table is {TABLE[ret]}")
-        alex = self.bot.get_guild(791528974442299412).me
-        await alex.edit(nick=TABLE[ret])
-
-    @phone_update.before_loop
-    async def before_phone_updates(self):
-        self.session = aiohttp.ClientSession()
+    @Cog.listener()
+    async def on_ha_update_location(self, ha_name: aiomqtt.Topic, location: PayloadType):
         await self.bot.wait_until_ready()
+        good_name = ha_name.value.lstrip("alex-bot/")
+        if ha_name in members:
+            g = self.bot.get_guild(GUILD)
+            member: discord.Member = await g.get_member(members[good_name])
+            name = member.display_name
+            for _, locator in TABLE.items():
+                name = name.rstrip(locator)
 
-    async def cog_unload(self):
-        await self.session.close()
-        self.phone_update.cancel()
+            name += TABLE[location]
+            await member.edit(nick=name)
 
 
 async def setup(bot: "Bot"):
