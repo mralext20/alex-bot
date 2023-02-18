@@ -30,7 +30,8 @@ class PhoneMonitor(Cog):
         print('HERE!')
         log.info(f"HA update: {ha_name} -> {location}")
         await self.bot.wait_until_ready()
-        good_name = ha_name.value.lstrip("alex-bot/")
+        good_name = ha_name.value[9:]
+
         if good_name in members:
             g = self.bot.get_guild(GUILD)
             member: discord.Member = await g.get_member(members[good_name])
