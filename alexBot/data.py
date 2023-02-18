@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import aiosqlite
 
-from alexBot.classes import ButtonRole, ButtonType, GuildData, MovieSuggestion, UserData
+from alexBot.classes import ButtonRole, ButtonType, FeedConfig, GuildData, MovieSuggestion, UserData
 
 from .tools import Cog
 
@@ -46,6 +46,28 @@ class Data(Cog):
             await conn.execute(
                 "REPLACE INTO users (userId, data) VALUES (?,?)", (userId, json.dumps(dataclasses.asdict(data)))
             )
+            await conn.commit()
+
+    async def get_feeds(self) -> List[FeedConfig]:
+        """
+        fetch all feeds
+        """
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            async with conn.execute("SELECT data FROM rssFeeds") as cur:
+                data = await cur.fetchall()
+                feeds = []
+                for row in data:
+                    feeds.append(FeedConfig(**json.loads(row[0])))
+                return feeds
+
+    async def save_feeds(self, feeds: List[FeedConfig]):
+        """
+        deletes all feeds, then saves the all of them again
+        """
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            await conn.execute("DELETE FROM rssFeeds")
+            for feed in feeds:
+                await conn.execute("INSERT INTO rssFeeds (data) VALUES (?)", (json.dumps(dataclasses.asdict(feed)),))
             await conn.commit()
 
     async def get_feed_data(self, feedId: str) -> Optional[int]:

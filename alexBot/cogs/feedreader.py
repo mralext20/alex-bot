@@ -22,7 +22,8 @@ class FeedReader(Cog):
     @tasks.loop(reconnect=True, time=times)
     async def feedUpdate(self):
         forumChannel: discord.ForumChannel = self.bot.get_channel(1054582714495414343)
-        for feedData in self.bot.config.feedPosting:
+        feeds = await self.bot.db.get_feeds()
+        for feedData in feeds:
             async with aiohttp.ClientSession() as session:
                 text = await get_text(session, feedData.feedUrl)
                 feed = feedparser.parse(text)
