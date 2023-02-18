@@ -34,7 +34,7 @@ class PhoneMonitor(Cog):
 
         if good_name in members:
             g = self.bot.get_guild(GUILD)
-            member: discord.Member = await g.get_member(members[good_name])
+            member: discord.Member = g.get_member(members[good_name])
             name = member.display_name
             for _, locator in TABLE.items():
                 name = name.rstrip(locator)
@@ -45,6 +45,4 @@ class PhoneMonitor(Cog):
 
 
 async def setup(bot: "Bot"):
-    if bot.location == "dev":
-        return
     await bot.add_cog(PhoneMonitor(bot))
