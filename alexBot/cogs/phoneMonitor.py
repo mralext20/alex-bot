@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 TABLE = defaultdict(lambda: "💨")
 TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
-TABLE['garrett'] = "🏠"
+TABLE['Garretts Home'] = "🏠"
 
 GUILD = 791528974442299412
 members = {'alex': 108429628560924672, 'garrett': 326410251546918913}
