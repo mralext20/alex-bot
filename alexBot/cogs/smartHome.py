@@ -55,7 +55,7 @@ class PhoneMonitor(Cog):
             if command == 'mute':
                 await member.edit(mute=not member.voice.mute)
             elif command == 'deafen':
-                await member.edit(deafen=not member.voice.deaf)
+                await member.edit(deafen=not member.voice.deaf, mute=not member.voice.deaf)
             elif command == 'disconnect':
                 await member.move_to(None)
 
