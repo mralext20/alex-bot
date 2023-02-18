@@ -127,7 +127,8 @@ class autoRoles(Cog):
         await self.cog_load()
         await (await self.bot.get_channel(791528974442299415).fetch_message(mid)).edit(view=self.views[btntype])
         await interaction.followup.send("added role")
-        msg = await self.bot.get_channel(791528974442299415).send('.')
+        msg = await self.bot.get_channel(791528974442299415).send(f'added role {role.mention}')
+        await asyncio.sleep(60 * 60 * 24)  # wait 24 hours  before deleting the message
         await msg.delete()  # ghost ping the channel
 
     @nerdiowo_roles.command(name="remove-role", description="remove a role from the role request menu")
