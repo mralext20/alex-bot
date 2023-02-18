@@ -26,15 +26,15 @@ members = {'alex': 108429628560924672, 'garrett': 326410251546918913}
 
 class PhoneMonitor(Cog):
     @Cog.listener()
-    async def on_ha_update_location(self, ha_name: aiomqtt.Topic, location: PayloadType):
+    async def on_ha_update_location(self, name:str, location: PayloadType):
         print('HERE!')
-        log.info(f"HA update: {ha_name} -> {location}")
+        log.info(f"HA update: {name} -> {location}")
         await self.bot.wait_until_ready()
-        good_name = ha_name.value[9:]
+        name = 
 
-        if good_name in members:
+        if name in members:
             g = self.bot.get_guild(GUILD)
-            member: discord.Member = g.get_member(members[good_name])
+            member: discord.Member = g.get_member(members[name])
             name = member.display_name
             for _, locator in TABLE.items():
                 name = name.rstrip(locator)
@@ -43,6 +43,23 @@ class PhoneMonitor(Cog):
             log.info(f"Changing {member.display_name} to {name}")
             await member.edit(nick=name)
 
+
+    @Cog.listener()
+    async def on_ha_vc_control(self, name: str, command: PayloadType):
+        log.info(f"HA vc control: {name} -> {command}")
+        await self.bot.wait_until_ready()
+        g = self.bot.get_guild(GUILD)
+        assert g is not None
+        if name in members:
+            member= g.get_member(members[name])
+            if not member or not member.voice:
+                return
+            if command == 'mute':
+                await member.edit(mute=not member.voice.mute)
+            elif command == 'deafen':
+                await member.edit(deafen=not member.voice.deaf)
+            elif command == 'disconnect':
+                await member.move_to(None)
 
 async def setup(bot: "Bot"):
     await bot.add_cog(PhoneMonitor(bot))
