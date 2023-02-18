@@ -28,7 +28,7 @@ cogs = [
 ]
 # cogs = ['mqttDispatcher', 'phoneMonitor', 'errors']  # used to test single cog at a time
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('alexBot')
 log.setLevel(logging.DEBUG)
 
 handler = logging.StreamHandler()
