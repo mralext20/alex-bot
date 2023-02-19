@@ -143,7 +143,11 @@ class NerdiowoMovies(Cog):
             msg, allowed_mentions=discord.AllowedMentions.none()
         )
         await interaction.response.send_message("Vote started.", ephemeral=True)
-        await msg.create_thread(name="Movie Night Vote")
+        thread = await msg.create_thread(name="Movie Night Vote")
+        thread.send(
+            f"{interaction.guild.get_role(NERDIOWO_EVERYBODY_VOTES).mention} Vote for the next movie!",
+            allowed_mentions=discord.AllowedMentions.all(),
+        )
 
     @nerdiowo_movies.command(name="create-event", description="[admin only] Create the movie night event")
     async def create_event(self, interaction: discord.Interaction, movie_name: str):
