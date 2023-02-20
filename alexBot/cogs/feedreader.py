@@ -76,40 +76,43 @@ class FeedReader(Cog):
                     await self.bot.db.save_feed_data(feedData.feedUrl, int(mktime(feed.entries[0].published_parsed)))
 
     @feedGroup.command(name="nerdiowo-feed", description="Add a feed to the nerdiowo FeedChannel")
-    async def nerdiowoFeed(self, interaction: discord.Interaction, feedUrl: str, tag: Optional[int]):
+    async def nerdiowoFeed(self, interaction: discord.Interaction, feedurl: str, tag: Optional[int]):
+        if tag:
+            try:
+                self.bot.get_channel(FORUMCHANNEL_ID).get_tag(tag)
         feeds = await self.bot.db.get_feeds()
-        if 'youtube' in feedUrl:
+        if 'youtube' in feedurl:
             # youtube channel, need to convert to rss
             async with aiohttp.ClientSession() as session:
-                text = await get_text(session, feedUrl)
+                text = await get_text(session, feedurl)
                 channel_id = extractYoutubeId.finditer(text).__next__().group(1)
-                feedUrl = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+                feedurl = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
 
-        if feedUrl in [feed.feedUrl for feed in feeds]:
+        if feedurl in [feed.feedUrl for feed in feeds]:
             await interaction.response.send_message("Feed already added!", ephemeral=True)
             return
         async with aiohttp.ClientSession() as session:
-            text = await get_text(session, feedUrl)
+            text = await get_text(session, feedurl)
             try:
                 feed = feedparser.parse(text)
             except Exception as e:
                 await interaction.response.send_message("Invalid feed!", ephemeral=True)
                 return
-        feeds.append(FeedConfig(tag.id if tag is not None else None, feedUrl))
+        feeds.append(FeedConfig(tag if tag is not None else None, feedurl))
         await self.bot.db.save_feeds(feeds)
         await interaction.response.send_message("Feed added!", ephemeral=True)
 
     @feedGroup.command(name="remove-feed", description="Remove a feed from the nerdiowo FeedChanel")
-    async def removeFeed(self, interaction: discord.Interaction, feedUrl: str):
+    async def removeFeed(self, interaction: discord.Interaction, feedurl: str):
         feeds = await self.bot.db.get_feeds()
-        if feedUrl not in [feed.feedUrl for feed in feeds]:
+        if feedurl not in [feed.feedUrl for feed in feeds]:
             await interaction.response.send_message("Feed not found!", ephemeral=True)
             return
-        feeds = [feed for feed in feeds if feed.feedUrl != feedUrl]
+        feeds = [feed for feed in feeds if feed.feedUrl != feedurl]
         await self.bot.db.save_feeds(feeds)
         await interaction.response.send_message("Feed removed!", ephemeral=True)
 
-    @removeFeed.autocomplete('feedUrl')
+    @removeFeed.autocomplete('feedurl')
     async def removeFeed_autocomplete(
         self, interaction: discord.Interaction, guess: str
     ) -> List[discord.app_commands.Choice]:
