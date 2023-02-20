@@ -56,8 +56,28 @@ class Fun(Cog):
                     await interaction.response.send_message("that's not a valid youtube link :(", ephemeral=True)
                     return
                 duration = data["items"][0]["contentDetails"]["duration"]
-                duration = duration.replace("PT", "").replace("H", ":").replace("M", ":").replace("S", "")
-                lengths[match] = duration
+                duration = duration[2:]  # remove the "PT" prefix
+                days = 0
+                hours = 0
+                minutes = 0
+                seconds = 0
+                if "D" in duration:
+                    parts = duration.split("D")
+                    days = int(parts[0])
+                    duration = parts[1]
+                if "H" in duration:
+                    parts = duration.split("H")
+                    hours = int(parts[0])
+                    duration = parts[1]
+                if "M" in duration:
+                    parts = duration.split("M")
+                    minutes = int(parts[0])
+                    duration = parts[1]
+                if "S" in duration:
+                    parts = duration.split("S")
+                    seconds = int(parts[0])
+                duration_string = f"{days}{' days, ' if days > 0 else ''}{hours:02d}:{minutes:02d}:{seconds:02d}"
+                lengths[match] = duration_string
         await interaction.response.send_message(
             f"{' and '.join([f'{link} is {length}' for link, length in lengths.items()])}", ephemeral=True
         )
