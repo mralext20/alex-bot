@@ -13,7 +13,7 @@ from ..tools import Cog, get_json
 
 log = logging.getLogger(__name__)
 ayygen = re.compile("[aA][yY][Yy][yY]*")
-
+YOUTUBE_REGEX = re.compile(r"https?:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]{11}")
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 
 
@@ -27,12 +27,40 @@ class Fun(Cog):
             name='Steal Emojis',
             callback=self.stealEmoji,
         )
+        self.videoLengthMenu = app_commands.ContextMenu(
+            name='How Long is this Video?',
+            callback=self.videoLength,
+        )
 
     async def cog_load(self) -> None:
         self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
+        self.bot.tree.add_command(self.videoLengthMenu, guild=discord.Object(791528974442299412))
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
+        self.bot.tree.remove_command(self.videoLengthMenu.name, type=self.videoLengthMenu.type)
+
+    async def videoLength(self, interaction: discord.Interaction, message: discord.Message):
+        matches = YOUTUBE_REGEX.findall(message.content)
+        if len(matches) == 0:
+            await interaction.response.send_message("there's no youtube link in this message :(", ephemeral=True)
+            return
+        lengths = {}
+        for match in matches:
+            async with aiohttp.ClientSession() as session:
+                data = await get_json(
+                    session,
+                    f"https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id={matches[0]}&key={self.bot.config.youtube_token}",
+                )
+                if len(data["items"]) == 0:
+                    await interaction.response.send_message("that's not a valid youtube link :(", ephemeral=True)
+                    return
+                duration = data["items"][0]["contentDetails"]["duration"]
+                duration = duration.replace("PT", "").replace("H", ":").replace("M", ":").replace("S", "")
+                lengths[match] = duration
+        await interaction.response.send_message(
+            f"{' and '.join([f'{link} is {length}' for link, length in lengths.items()])}", ephemeral=True
+        )
 
     async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
         raw_emojis = self.EMOJI_REGEX.findall(message.content)
