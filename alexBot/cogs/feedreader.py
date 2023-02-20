@@ -24,6 +24,12 @@ class FeedReader(Cog):
         self.feedUpdate.start()
         self.tags = None
 
+    feedGroup = discord.app_commands.Group(
+        name="feed",
+        description="nerdiowo feeds menu",
+        guild_ids=[791528974442299412],
+    )
+
     @tasks.loop(reconnect=True, time=times)
     async def feedUpdate(self):
         forumChannel: discord.ForumChannel = self.bot.get_channel(1054582714495414343)
@@ -69,7 +75,7 @@ class FeedReader(Cog):
 
                     await self.bot.db.save_feed_data(feedData.feedUrl, int(mktime(feed.entries[0].published_parsed)))
 
-    @discord.app_commands.command(name="nerdiowoFeed", description="Add a feed to the nerdiowo FeedChannel")
+    @feedGroup.command(name="nerdiowofeed", description="Add a feed to the nerdiowo FeedChannel")
     async def nerdiowoFeed(self, interaction: discord.Interaction, feedUrl: str, tag: Optional[discord.ForumTag]):
         feeds = await self.bot.db.get_feeds()
         if 'youtube' in feedUrl:
@@ -93,7 +99,7 @@ class FeedReader(Cog):
         await self.bot.db.save_feeds(feeds)
         await interaction.response.send_message("Feed added!", ephemeral=True)
 
-    @discord.app_commands.command(name="removeFeed", description="Remove a feed from the nerdiowo FeedChanel")
+    @feedGroup.command(name="removeFeed", description="Remove a feed from the nerdiowo FeedChanel")
     async def removeFeed(self, interaction: discord.Interaction, feedUrl: str):
         feeds = await self.bot.db.get_feeds()
         if feedUrl not in [feed.feedUrl for feed in feeds]:
