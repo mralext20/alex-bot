@@ -79,7 +79,10 @@ class FeedReader(Cog):
     async def nerdiowoFeed(self, interaction: discord.Interaction, feedurl: str, tag: Optional[int]):
         if tag:
             try:
-                self.bot.get_channel(FORUMCHANNEL_ID).get_tag(tag)
+                assert self.bot.get_channel(FORUMCHANNEL_ID).get_tag(tag)
+            except:
+                await interaction.response.send_message("Invalid tag!", ephemeral=True)
+                return
         feeds = await self.bot.db.get_feeds()
         if 'youtube' in feedurl:
             # youtube channel, need to convert to rss
