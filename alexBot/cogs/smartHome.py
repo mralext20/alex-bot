@@ -19,7 +19,7 @@ TABLE = defaultdict(lambda: "💨")
 TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default value
 TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
-TABLE['Garretts Home'] = "🏠"
+TABLE["Garrett's Home"] = "🏠"
 GUILD = 791528974442299412
 members = {'alex': 108429628560924672, 'garrett': 326410251546918913}
 
