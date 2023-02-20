@@ -131,6 +131,42 @@ class Fun(Cog):
 
         await interaction.response.send_message(view=EmojiSelector(), ephemeral=True)
 
+    @app_commands.command(name="vc-disconnect", description="disconnect YOU from voice.")
+    async def vc_disconnect(self, interaction: discord.Interaction):
+        """Disconnects you from voice"""
+        if interaction.guild is None:
+            await interaction.response.send_message("this command can only be used in a server", ephemeral=True)
+            return
+        if interaction.user.voice is None:
+            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
+            return
+        if interaction.user.voice.channel is None:
+            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
+            return
+        if interaction.user.voice.channel.guild != interaction.guild:
+            await interaction.response.send_message("you're not in this server's voice channel", ephemeral=True)
+            return
+        await interaction.user.voice.channel.disconnect()
+        await interaction.response.send_message("ok, bye", ephemeral=True)
+
+    @app_commands.command(name="vc-move", description="move you to another channel")
+    async def vc_move(self, interaction: discord.Interaction, channel: discord.VoiceChannel):
+        """Moves you to another voice channel"""
+        if interaction.guild is None:
+            await interaction.response.send_message("this command can only be used in a server", ephemeral=True)
+            return
+        if interaction.user.voice is None:
+            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
+            return
+        if interaction.user.voice.channel is None:
+            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
+            return
+        if interaction.user.voice.channel.guild != interaction.guild:
+            await interaction.response.send_message("you're not in this server's voice channel", ephemeral=True)
+            return
+        await interaction.user.move_to(channel)
+        await interaction.response.send_message("ok, bye", ephemeral=True)
+
     @app_commands.command(name="cat")
     async def slash_cat(self, interaction: discord.Interaction):
         """Posts a pretty photo of a cat"""
