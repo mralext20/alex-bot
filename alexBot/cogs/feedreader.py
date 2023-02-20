@@ -76,7 +76,7 @@ class FeedReader(Cog):
                     await self.bot.db.save_feed_data(feedData.feedUrl, int(mktime(feed.entries[0].published_parsed)))
 
     @feedGroup.command(name="nerdiowo-feed", description="Add a feed to the nerdiowo FeedChannel")
-    async def nerdiowoFeed(self, interaction: discord.Interaction, feedUrl: str, tag: Optional[discord.ForumTag]):
+    async def nerdiowoFeed(self, interaction: discord.Interaction, feedUrl: str, tag: Optional[int]):
         feeds = await self.bot.db.get_feeds()
         if 'youtube' in feedUrl:
             # youtube channel, need to convert to rss
