@@ -13,7 +13,7 @@ from ..tools import Cog, get_json
 
 log = logging.getLogger(__name__)
 ayygen = re.compile("[aA][yY][Yy][yY]*")
-YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([\w-]{11})")
+YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})")
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 
 
