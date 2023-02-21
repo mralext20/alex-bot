@@ -168,6 +168,7 @@ class Fun(Cog):
             await interaction.response.send_message(
                 "you don't have permission to connect to that channel", ephemeral=True
             )
+            return
         await interaction.user.move_to(channel)
         await interaction.response.send_message("ok, bye", ephemeral=True)
 
