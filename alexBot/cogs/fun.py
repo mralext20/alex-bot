@@ -164,6 +164,10 @@ class Fun(Cog):
         if interaction.user.voice.channel.guild != interaction.guild:
             await interaction.response.send_message("you're not in this server's voice channel", ephemeral=True)
             return
+        if channel.permissions_for(interaction.user).connect is False:
+            await interaction.response.send_message(
+                "you don't have permission to connect to that channel", ephemeral=True
+            )
         await interaction.user.move_to(channel)
         await interaction.response.send_message("ok, bye", ephemeral=True)
 
