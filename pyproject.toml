@@ -2,4 +2,4 @@
 
 line-length = 120
 skip-string-normalization = true
-target-version = ["py38"]
+target-version = ["py311"]
