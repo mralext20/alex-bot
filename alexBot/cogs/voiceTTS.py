@@ -25,11 +25,11 @@ class VoiceTTS(Cog):
         self.gtts: AsyncGTTSSession = None
 
     async def cog_load(self):
-        async with aiohttp.ClientSession() as session:
-            self.gtts = AsyncGTTSSession.from_service_account(
-                ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
-                client_session=session,
-            )
+        session = aiohttp.ClientSession():
+        self.gtts = AsyncGTTSSession.from_service_account(
+            ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
+            client_session=session,
+        )
 
     async def cog_unload(self) -> None:
         for vc in self.runningTTS.values():
