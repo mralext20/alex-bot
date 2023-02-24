@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Optional, Tuple
-import aiohttp
 
+import aiohttp
 import discord
 from asyncgTTS import (
     AsyncGTTSSession,
