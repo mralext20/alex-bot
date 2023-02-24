@@ -1,5 +1,5 @@
-from io import BytesIO
 import logging
+from io import BytesIO
 from typing import Dict, Optional, Tuple
 
 import discord
