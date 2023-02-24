@@ -1,5 +1,6 @@
 import logging
 from typing import Dict, Optional, Tuple
+import aiohttp
 
 import discord
 from asyncgTTS import (
@@ -24,9 +25,11 @@ class VoiceTTS(Cog):
         self.gtts: AsyncGTTSSession = None
 
     async def cog_load(self):
-        self.gtts = AsyncGTTSSession.from_service_account(
-            ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
-        )
+        async with aiohttp.ClientSession() as session:
+            self.gtts = AsyncGTTSSession.from_service_account(
+                ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
+                client_session=session,
+            )
 
     async def cog_unload(self) -> None:
         for vc in self.runningTTS.values():
