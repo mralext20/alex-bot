@@ -68,7 +68,7 @@ class VoiceTTS(Cog):
             return
         log.debug(f"Got TTS: {len(synth_bytes)=}")
         sound = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(BytesIO(synth_bytes), pipe=True))
-        vc.play(sound)
+        vc.play(sound, after=self.after)
 
     @app_commands.command(
         name="vc-tts", description="setup automatic tts from this channel, for you, into your voice channel"
@@ -86,6 +86,11 @@ class VoiceTTS(Cog):
         await interaction.response.send_message(
             "TTS is now for you in this channel. leaving the voice channel will end the tts.", ephemeral=False
         )
+
+    def after(self, error: Optional[Exception]):
+        log.debug(f"after: {error=}")
+        if error:
+            log.exception(error)
 
 
 async def setup(bot):
