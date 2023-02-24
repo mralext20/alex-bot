@@ -1,7 +1,7 @@
+from io import BytesIO
 import logging
 from typing import Dict, Optional, Tuple
 
-import aiohttp
 import discord
 from asyncgTTS import (
     AsyncGTTSSession,
@@ -25,16 +25,15 @@ class VoiceTTS(Cog):
         self.gtts: AsyncGTTSSession = None
 
     async def cog_load(self):
-        session = aiohttp.ClientSession()
         self.gtts = AsyncGTTSSession.from_service_account(
             ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
-            client_session=session,
         )
+        await self.gtts.__aenter__()
 
     async def cog_unload(self) -> None:
         for vc in self.runningTTS.values():
             await vc[1].disconnect()
-        await self.gtts.client_session.close()
+        await self.gtts.__aexit__(None, None, None)
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -54,11 +53,11 @@ class VoiceTTS(Cog):
             del self.runningTTS[member.id]
 
     async def sendTTS(self, text: str, extra: Tuple[discord.TextChannel, discord.VoiceClient]):
-        log.debug(f"Sending TTS: {text=}")
         channel, vc = extra
         if not vc.is_connected():
             del self.runningTTS[channel.guild.id]
             return
+        log.debug(f"Sending TTS: {text=}")
         try:
             synth_bytes = await self.gtts.synthesize(
                 TextSynthesizeRequestBody(SynthesisInput(text), audio_config_input=AudioConfig(AudioEncoding.OGG_OPUS))
@@ -66,7 +65,10 @@ class VoiceTTS(Cog):
         except Exception as e:
             log.exception(e)
             return
-        vc.play(discord.FFmpegOpusAudio(synth_bytes))
+        log.debug(f"Got TTS: {len(synth_bytes)=}")
+        log.debug(synth_bytes[:100])
+        sound = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(BytesIO(synth_bytes)))
+        vc.play(sound)
 
     @app_commands.command(
         name="vc-tts", description="setup automatic tts from this channel, for you, into your voice channel"
@@ -87,4 +89,11 @@ class VoiceTTS(Cog):
 
 
 async def setup(bot):
+    try:
+        discord.opus.load_opus(ctypes.util.find_library("opus"))
+    except exception as e:
+        log.exception(e)
+        log.error("Could not load opus library")
+        log.error('not loading voiceTTS module')
+        return
     await bot.add_cog(VoiceTTS(bot))
