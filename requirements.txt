@@ -19,3 +19,4 @@ emoji-data
 httpx
 feedparser
 asyncio-mqtt
+async-gTTS
