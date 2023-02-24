@@ -2,6 +2,8 @@ import logging
 from io import BytesIO
 from typing import Dict, Optional, Tuple
 
+import ctypes
+
 import discord
 from asyncgTTS import (
     AsyncGTTSSession,
