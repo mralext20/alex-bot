@@ -64,6 +64,7 @@ class Bot(commands.Bot):
         logging.getLogger('discord.gateway').setLevel(logging.ERROR)
         self.setup_hook = self.cogSetup
         self.minecraft = True
+        self.handler = handler
 
     async def on_ready(self):
         log.info(f'Logged on as {self.user} ({self.user.id})')
