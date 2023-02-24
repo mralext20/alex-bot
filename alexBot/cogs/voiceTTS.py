@@ -66,7 +66,7 @@ class VoiceTTS(Cog):
             return
         vc.play(discord.FFmpegOpusAudio(synth_bytes))
 
-    @app_commands.slash_command(
+    @app_commands.command(
         name="vc-tts", description="setup automatic tts from this channel, for you, into your voice channel"
     )
     async def vc_tts(self, interaction: discord.Interaction):
