@@ -2,16 +2,15 @@ import logging
 from typing import Dict, Optional, Tuple
 
 import discord
-from discord import app_commands
-
 from asyncgTTS import (
     AsyncGTTSSession,
+    AudioConfig,
+    AudioEncoding,
     ServiceAccount,
     SynthesisInput,
     TextSynthesizeRequestBody,
-    AudioConfig,
-    AudioEncoding,
 )
+from discord import app_commands
 
 from alexBot.tools import Cog
 
