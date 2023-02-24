@@ -25,7 +25,7 @@ class VoiceTTS(Cog):
         self.gtts: AsyncGTTSSession = None
 
     async def cog_load(self):
-        session = aiohttp.ClientSession():
+        session = aiohttp.ClientSession()
         self.gtts = AsyncGTTSSession.from_service_account(
             ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
             client_session=session,
