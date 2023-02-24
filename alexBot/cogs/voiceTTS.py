@@ -91,7 +91,7 @@ class VoiceTTS(Cog):
 async def setup(bot):
     try:
         discord.opus.load_opus(ctypes.util.find_library("opus"))
-    except exception as e:
+    except Exception as e:
         log.exception(e)
         log.error("Could not load opus library")
         log.error('not loading voiceTTS module')
