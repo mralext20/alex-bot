@@ -22,6 +22,7 @@ class VoiceStat:
     currently_running: bool = False
     average_duration_raw: float = 1
     total_sessions: int = 0
+    recently_ended: bool = False
 
     @property
     def longest_session(self) -> datetime.timedelta:

@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import logging
 import time
@@ -56,6 +57,7 @@ class VoiceStats(Cog):
 
     async def starting_a_call(self, channel: discord.VoiceChannel, guildData: GuildData):
         log.debug(f"starting a call: {channel=}")
+        guildData.voiceStat.recently_ended = False
         if guildData.voiceStat.currently_running:
             log.debug("second call started in guild")
             return
@@ -66,6 +68,7 @@ class VoiceStats(Cog):
 
     async def member_joining_call(self, member: discord.Member, channel: discord.VoiceChannel, userData: UserData):
         log.debug(f"{member=} joined {channel=}")
+        userData.voiceStat.recently_ended = False
 
         userData.voiceStat.last_started = datetime.datetime.now()
         userData.voiceStat.currently_running = True
@@ -77,6 +80,15 @@ class VoiceStats(Cog):
         if not userData.voiceStat.currently_running:
             # odd state, ignore
             return
+        userData.voiceStat.recently_ended = True
+        await self.bot.db.save_user_data(member.id, userData)
+        await asyncio.sleep(30)  # wait 30 seconds for momnetary reconnects
+        userData = await self.bot.db.get_user_data(member.id)  # refresh data
+        if not userData.voiceStat.recently_ended:
+            log.debug("late return: recently_ended is false")
+            return  # they reconnected
+        userData.voiceStat.recently_ended = False
+
         current_session_length = datetime.datetime.now() - userData.voiceStat.last_started
         if userData.voiceStat.longest_session < current_session_length:
             userData.voiceStat.longest_session = current_session_length
@@ -100,6 +112,14 @@ class VoiceStats(Cog):
         if not gd.voiceStat.currently_running:
             # odd state, ignore
             return
+        gd.voiceStat.recently_ended = True
+        await self.bot.db.save_guild_data(channel.guild.id, gd)
+        await asyncio.sleep(30)  # wait 30 seconds for momnetary reconnects
+        gd = await self.bot.db.get_guild_data(channel.guild.id)  # refresh data
+        if not gd.voiceStat.recently_ended:
+            log.debug("late return: recently_ended is false")
+            return
+        gd.voiceStat.recently_ended = False
         current_session_length = datetime.datetime.now() - gd.voiceStat.last_started
         if gd.voiceStat.longest_session < current_session_length:
             gd.voiceStat.longest_session = current_session_length
