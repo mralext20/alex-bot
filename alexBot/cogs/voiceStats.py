@@ -57,6 +57,9 @@ class VoiceStats(Cog):
 
     async def starting_a_call(self, channel: discord.VoiceChannel, guildData: GuildData):
         log.debug(f"starting a call: {channel=}")
+        if guildData.voiceStat.recently_ended:
+            log.debug("late return: recently_ended is true")
+            return  # they reconnected
         guildData.voiceStat.recently_ended = False
         if guildData.voiceStat.currently_running:
             log.debug("second call started in guild")
@@ -68,6 +71,10 @@ class VoiceStats(Cog):
 
     async def member_joining_call(self, member: discord.Member, channel: discord.VoiceChannel, userData: UserData):
         log.debug(f"{member=} joined {channel=}")
+        if userData.voiceStat.recently_ended:
+            log.debug("late return: recently_ended is true")
+            return  # they reconnected
+
         userData.voiceStat.recently_ended = False
 
         userData.voiceStat.last_started = datetime.datetime.now()
