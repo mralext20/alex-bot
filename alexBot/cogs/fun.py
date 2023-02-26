@@ -12,9 +12,12 @@ from emoji_data import EmojiSequence
 from ..tools import Cog, get_json
 
 log = logging.getLogger(__name__)
-ayygen = re.compile("[aA][yY][Yy][yY]*")
+AYYGEN = re.compile("[aA][yY][Yy][yY]*")
 YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})")
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
+
+# regex to capture all regional indicators
+REGIONAL_INDICATORS_REGEX = re.compile(r"[🇦-🇿]")
 
 
 class Fun(Cog):
@@ -289,7 +292,7 @@ class Fun(Cog):
                 return
         cfg = (await self.bot.db.get_guild_data(message.guild.id)).config
         if cfg.ayy:
-            if ayygen.fullmatch(message.content):
+            if AYYGEN.fullmatch(message.content):
                 await message.reply("lmao", mention_author=False)
         if cfg.veryCool:
             if message.content.lower().startswith("thank you "):
@@ -310,6 +313,8 @@ class Fun(Cog):
                 return
             emojis = VOTE_EMOJIS
             raw_emojis = EmojiSequence.pattern.findall(message.content)
+            raw_emojis += REGIONAL_INDICATORS_REGEX.findall(message.content)
+
             matches = self.EMOJI_REGEX.findall(message.content)
             if matches or raw_emojis:
                 emojis = [
@@ -338,8 +343,9 @@ class Fun(Cog):
             else:
                 try:
                     await message.author.send(
-                        f"Your message was deleted. please end it with a `?`\n\nYour original content is here:`{message.content}`"
+                        f"Your message was deleted. please end it with a `?`\n\nYour original content is here:"
                     )
+                    await message.author.send(message.content)
                 except discord.DiscordException:
                     pass
 
