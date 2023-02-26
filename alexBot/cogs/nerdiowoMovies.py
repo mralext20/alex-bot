@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import datetime
+import enum
 import random
-from typing import List
+from typing import List, Optional
 
 import discord
 import pytz
@@ -21,9 +23,16 @@ NERDIOWO_MOVIE_NIGHT_ROLE = 1069492195415048192
 NUMBER_EMOJIS = ["1️⃣", "2️⃣", "3️⃣"]
 
 
+class WatchedSelector(enum.Enum):
+    ALL = enum.auto()
+    WATCHED = enum.auto()
+    UNWATCHED = enum.auto()
+
+
 class NerdiowoMovies(Cog):
     def __init__(self, bot):
         super().__init__(bot)
+        self.active_paginators: List[InteractionPaginator] = []
 
     async def autocomplete_unwatched_movie(
         self, interaction: discord.Interaction, movie_name: str
@@ -44,20 +53,37 @@ class NerdiowoMovies(Cog):
     )
 
     @nerdiowo_movies.command(name="list", description="list all movies")
-    async def list_movies(self, interaction: discord.Interaction):
-        all_movies = await self.bot.db.get_movies_data()
+    async def list_movies(
+        self,
+        interaction: discord.Interaction,
+        watchedMode: Optional[WatchedSelector] = None,
+    ):
+        if watchedMode is None:
+            watchedMode = WatchedSelector.ALL
 
-        jishaku = self.bot.get_cog("Jishaku")
-        if not jishaku:
-            await interaction.response.send_message("Jishaku is not loaded.", ephemeral=True)
-            return
+        all_movies = await self.bot.db.get_movies_data()
+        if watchedMode == WatchedSelector.WATCHED:
+            movies = [movie for movie in all_movies if movie.watched]
+        elif watchedMode == WatchedSelector.UNWATCHED:
+            movies = [movie for movie in all_movies if not movie.watched]
+        else:
+            movies = all_movies
+
         paginator = Paginator(prefix="```", suffix="```", max_size=500)
-        for movie in all_movies:
+        for movie in movies:
             paginator.add_line(
                 f"{movie.title} - suggested by {interaction.guild.get_member(movie.suggestor)}{f' - watched on {movie.watchdate}' if movie.watched else ''}"
             )
         pi = InteractionPaginator(self.bot, paginator, owner=None)
         await pi.send_interaction(interaction)
+        if watchedMode in [
+            WatchedSelector.UNWATCHED,
+            WatchedSelector.ALL,
+        ]:  # only if new movies would need to be added to this paginator
+            self.active_paginators.append(pi)
+        while not pi.closed:
+            await asyncio.sleep(5)
+        del self.active_paginators[self.active_paginators.index(pi)]
 
     @nerdiowo_movies.command(name="suggest-new-movie", description="Suggest a new movie for the Nerdiowo Movie Night")
     async def suggest_new_movie(self, interaction: discord.Interaction, *, movie_name: str):
@@ -78,6 +104,10 @@ class NerdiowoMovies(Cog):
         all_movies.append(suggestion)
         await self.bot.db.save_movies_data(all_movies)
         await interaction.response.send_message(f"Your movie suggestion, {suggestion.title} has been submitted.")
+        for ip in self.active_paginators:
+            await ip.add_line(
+                f"{suggestion.title} - suggested by {interaction.guild.get_member(suggestion.suggestor)}{f' - watched on {suggestion.watchdate}' if suggestion.watched else ''}"
+            )
 
     @nerdiowo_movies.command(name="remove-movie", description="Remove a movie from the list")
     async def remove_movie(self, interaction: discord.Interaction, movie_name: str):
