@@ -17,7 +17,6 @@ YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|you
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 
 # regex to capture all regional indicators
-REGIONAL_INDICATORS_REGEX = re.compile(r"[🇦-🇿] ")
 
 
 class Fun(Cog):
@@ -313,7 +312,6 @@ class Fun(Cog):
                 return
             emojis = VOTE_EMOJIS
             raw_emojis = EmojiSequence.pattern.findall(message.content)
-            raw_emojis += REGIONAL_INDICATORS_REGEX.findall(message.content)
 
             matches = self.EMOJI_REGEX.findall(message.content)
             if matches or raw_emojis:
