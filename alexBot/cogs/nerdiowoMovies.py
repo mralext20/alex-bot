@@ -56,15 +56,16 @@ class NerdiowoMovies(Cog):
     async def list_movies(
         self,
         interaction: discord.Interaction,
-        watchedMode: Optional[WatchedSelector] = None,
+        watched_mode: Optional[WatchedSelector] = None,
     ):
-        if watchedMode is None:
-            watchedMode = WatchedSelector.ALL
+        if watched_mode is None:
+            watched_mode = WatchedSelector.ALL
 
         all_movies = await self.bot.db.get_movies_data()
-        if watchedMode == WatchedSelector.WATCHED:
+
+        if watched_mode == WatchedSelector.WATCHED:
             movies = [movie for movie in all_movies if movie.watched]
-        elif watchedMode == WatchedSelector.UNWATCHED:
+        elif watched_mode == WatchedSelector.UNWATCHED:
             movies = [movie for movie in all_movies if not movie.watched]
         else:
             movies = all_movies
@@ -76,7 +77,7 @@ class NerdiowoMovies(Cog):
             )
         pi = InteractionPaginator(self.bot, paginator, owner=None)
         await pi.send_interaction(interaction)
-        if watchedMode in [
+        if watched_mode in [
             WatchedSelector.UNWATCHED,
             WatchedSelector.ALL,
         ]:  # only if new movies would need to be added to this paginator
