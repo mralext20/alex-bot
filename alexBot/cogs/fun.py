@@ -17,7 +17,7 @@ YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|you
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 
 # regex to capture all regional indicators
-REGIONAL_INDICATORS_REGEX = re.compile(r"[🇦-🇿]")
+REGIONAL_INDICATORS_REGEX = re.compile(r"[🇦-🇿] ")
 
 
 class Fun(Cog):
