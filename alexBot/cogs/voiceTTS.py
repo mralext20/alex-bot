@@ -65,7 +65,7 @@ class VoiceTTS(Cog):
             log.exception(e)
             return
         log.debug(f"Got TTS: {len(synth_bytes)=}")
-        sound = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(BytesIO(synth_bytes), pipe=True))
+        sound = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(BytesIO(synth_bytes)))
         vc.play(sound, after=self.after)
 
     @app_commands.command(
