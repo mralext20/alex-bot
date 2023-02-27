@@ -17,7 +17,6 @@ from ..tools import Cog, InteractionPaginator
 NERDIOWO_EVERYBODY_VOTES = 847555306166943755
 NERDIOWO_MANAGE_SERVER_ID = 1046177820285603881
 NERDIOWO_VOICE_CHANNEL = 1069499258115477525
-NERDIOWO_PERM_INVITE = "https://discord.gg/tEjxatSFgM"
 NERDIOWO_ANNOUNCENENTS = 910725067003027547
 NERDIOWO_MOVIE_NIGHT_ROLE = 1069492195415048192
 NUMBER_EMOJIS = ["1️⃣", "2️⃣", "3️⃣"]
@@ -216,7 +215,7 @@ class NerdiowoMovies(Cog):
         )
         await interaction.response.send_message("Event created.")
         await self.bot.get_channel(NERDIOWO_ANNOUNCENENTS).send(
-            f"{NERDIOWO_PERM_INVITE}?event={event.id} <@&{NERDIOWO_MOVIE_NIGHT_ROLE}>",
+            f"{event.url} <@&{NERDIOWO_MOVIE_NIGHT_ROLE}>",
             allowed_mentions=discord.AllowedMentions.all(),
         )
 
