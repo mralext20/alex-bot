@@ -1,8 +1,8 @@
 import asyncio
 import ctypes
 import logging
-from io import BytesIO
 import os
+from io import BytesIO
 from typing import Dict, Optional, Tuple
 
 import discord
