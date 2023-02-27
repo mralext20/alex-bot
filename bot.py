@@ -24,6 +24,7 @@ cogs = [
     if x.stem
     not in [
         "__init__",
+        "voiceTTS",
     ]
 ]
 # cogs = ['mqttDispatcher', 'phoneMonitor', 'errors']  # used to test single cog at a time
