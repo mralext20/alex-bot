@@ -45,11 +45,7 @@ class VoiceTTS(Cog):
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
-        if (
-            member.id in self.runningTTS
-            and before.channel is not None
-            and after.channel != self.runningTTS[member.id][1].channel
-        ):
+        if member.id in self.runningTTS and after.channel != self.runningTTS[member.id][1].channel:
             await self.runningTTS[member.id][1].disconnect()
             del self.runningTTS[member.id]
 
