@@ -61,7 +61,7 @@ class VoiceTTS(Cog):
         log.debug(f"Sending TTS: {text=}")
         try:
             synth_bytes = await self.gtts.synthesize(
-                TextSynthesizeRequestBody(SynthesisInput(text), audio_config_input=AudioConfig(AudioEncoding.OGG_OPUS))
+                TextSynthesizeRequestBody(SynthesisInput(text)))
             )
         except Exception as e:
             log.exception(e)
