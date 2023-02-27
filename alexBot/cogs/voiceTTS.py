@@ -1,6 +1,8 @@
+import asyncio
 import ctypes
 import logging
 from io import BytesIO
+import os
 from typing import Dict, Optional, Tuple
 
 import discord
@@ -49,8 +51,8 @@ class VoiceTTS(Cog):
             await self.runningTTS[member.id][1].disconnect()
             del self.runningTTS[member.id]
 
-    async def sendTTS(self, text: str, extra: Tuple[discord.TextChannel, discord.VoiceClient]):
-        channel, vc = extra
+    async def sendTTS(self, text: str, extra: Tuple[discord.TextChannel, discord.VoiceClient, int]):
+        channel, vc, mid = extra
         if not vc.is_connected():
             del self.runningTTS[channel.guild.id]
             return
@@ -60,10 +62,15 @@ class VoiceTTS(Cog):
         except Exception as e:
             log.exception(e)
             return
-        log.debug(f"Got TTS: {len(synth_bytes)=}")
-        log.debug(f"bytes: {synth_bytes=}")
-        sound = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(BytesIO(synth_bytes)))
+        f_name = f"tts_{mid}.ogg"
+        f = open(f_name, "wb")
+        f.write(synth_bytes)
+        f.close()
+        sound = await discord.FFmpegOpusAudio.from_probe(f_name)
         vc.play(sound, after=self.after)
+        while vc.is_playing():
+            await asyncio.sleep(0.1)
+        os.remove(f_name)
 
     @app_commands.command(
         name="vc-tts", description="setup automatic tts from this channel, for you, into your voice channel"
