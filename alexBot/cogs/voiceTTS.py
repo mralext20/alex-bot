@@ -26,6 +26,9 @@ class VoiceTTS(Cog):
         super().__init__(bot)
         self.runningTTS: Dict[int, Tuple[discord.TextChannel, discord.VoiceClient]] = {}
         self.gtts: AsyncGTTSSession = None
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(name="tts", description="Send text to speech", callback=self.vc_tts)
+        )
 
     async def cog_load(self):
         self.gtts = AsyncGTTSSession.from_service_account(
@@ -72,9 +75,6 @@ class VoiceTTS(Cog):
             await asyncio.sleep(0.1)
         os.remove(f_name)
 
-    @app_commands.command(
-        name="vc-tts", description="setup automatic tts from this channel, for you, into your voice channel"
-    )
     async def vc_tts(self, interaction: discord.Interaction):
         if interaction.guild is None:
             await interaction.response.send_message("This command can only be used in a guild", ephemeral=True)

@@ -33,6 +33,27 @@ class Fun(Cog):
             name='How Long is this Video?',
             callback=self.videoLength,
         )
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(
+                name="shake",
+                description="'shake' a user in voice as a fruitless attempt to get their attention.",
+                callback=self.vcShake,
+            )
+        )
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(
+                name="disconnect",
+                description="disconnect yourself from the voice channel you're in.",
+                callback=self.vc_disconnect,
+            )
+        )
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(
+                name="move",
+                description="move you to another channel",
+                callback=self.vc_move,
+            )
+        )
 
     async def cog_load(self) -> None:
         self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
@@ -133,7 +154,6 @@ class Fun(Cog):
 
         await interaction.response.send_message(view=EmojiSelector(), ephemeral=True)
 
-    @app_commands.command(name="vc-disconnect", description="disconnect YOU from voice.")
     async def vc_disconnect(self, interaction: discord.Interaction):
         """Disconnects you from voice"""
         if interaction.guild is None:
@@ -151,7 +171,6 @@ class Fun(Cog):
         await interaction.user.voice.channel.disconnect()
         await interaction.response.send_message("ok, bye", ephemeral=True)
 
-    @app_commands.command(name="vc-move", description="move you to another channel")
     async def vc_move(self, interaction: discord.Interaction, channel: discord.VoiceChannel):
         """Moves you to another voice channel"""
         if interaction.guild is None:
@@ -203,9 +222,6 @@ class Fun(Cog):
             ret.set_image(url=dog["url"])
             await interaction.followup.send(embed=ret)
 
-    @app_commands.command(
-        name="vcshake", description="'shake' a user in voice as a fruitless attempt to get their attention."
-    )
     @app_commands.guild_only()
     async def vcShake(self, interaction: discord.Interaction, target: str):
         """'shake' a user in voice as a fruitless attempt to get their attention."""

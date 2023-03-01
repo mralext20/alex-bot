@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 import aiohttp
 import discord
 from discord.ext import commands
+from discord import app_commands
 
 import config
 
@@ -66,6 +67,10 @@ class Bot(commands.Bot):
         self.setup_hook = self.cogSetup
         self.minecraft = True
         self.handler = handler
+        self.voiceCommandsGroup = app_commands.Group(
+            name="voice", description="Voice related commands", guild_only=True
+        )
+        self.tree.add_command(self.voiceCommandsGroup)
 
     async def on_ready(self):
         log.info(f'Logged on as {self.user} ({self.user.id})')

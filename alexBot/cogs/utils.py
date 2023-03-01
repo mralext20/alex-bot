@@ -16,6 +16,16 @@ DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
+    def __init__(self, bot: "Bot"):
+        super().__init__(bot)
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(
+                name="move",
+                description="tells you how long your average, longest, and current voice sessions is.",
+                callback=self.voice_move,
+            )
+        )
+
     @commands.command(aliases=['diff'])
     async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
@@ -91,7 +101,6 @@ class Utils(Cog):
             f"<https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot%20applications.commands>"
         )
 
-    @app_commands.command(name='voice_move')
     @app_commands.checks.bot_has_permissions(move_members=True)
     @app_commands.checks.has_permissions(move_members=True)
     @app_commands.describe(target="the voice channel to move everyone to")

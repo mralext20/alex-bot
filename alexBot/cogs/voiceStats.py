@@ -14,6 +14,16 @@ log = logging.getLogger(__name__)
 
 
 class VoiceStats(Cog):
+    def __init__(self, bot: "Bot"):
+        super().__init__(bot)
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(
+                name="stats",
+                description="tells you how long your average, longest, and current voice sessions is.",
+                callback=self.voiceStats,
+            )
+        )
+
     @Cog.listener()
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
@@ -143,9 +153,6 @@ class VoiceStats(Cog):
                 f"Voice chat ended. It started at <t:{int(time.mktime(gd.voiceStat.last_started.timetuple()))}:f>, and lasted for {current_session_length}"
             )
 
-    @app_commands.command(
-        name="voice-stats", description="tells you how long your average, longest, and current voice sessions is."
-    )
     async def voiceStats(self, interaction: discord.Interaction, target: Optional[discord.User]):
         """tells you how long your average, longest, and current voice sessions is."""
         targets = [interaction.user, interaction.guild] if target is None else [target]
