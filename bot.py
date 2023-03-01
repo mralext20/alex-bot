@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
 import config
 
