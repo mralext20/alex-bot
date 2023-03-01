@@ -49,7 +49,7 @@ class Fun(Cog):
         )
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
-                name="move",
+                name="move_me",
                 description="move you to another channel",
                 callback=self.vc_move,
             )
