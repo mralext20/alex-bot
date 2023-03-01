@@ -222,7 +222,29 @@ class Fun(Cog):
             ret.set_image(url=dog["url"])
             await interaction.followup.send(embed=ret)
 
+    async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
+        if interaction.user.voice is None:
+            return [app_commands.Choice(name="err: not in a voice channel", value="0")]
+        if interaction.guild.afk_channel is None:
+            return [app_commands.Choice(name="err: no afk channel", value="0")]
+        if interaction.user.voice.channel == interaction.guild.afk_channel:
+            return [app_commands.Choice(name="err: in afk channel", value="0")]
+
+        valid_targets = [
+            m
+            for m in interaction.user.voice.channel.members
+            if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
+        ]
+        if len(valid_targets) == 0:
+            return [app_commands.Choice(name="err: no valid targets", value="0")]
+        return [
+            app_commands.Choice(name=m.display_name, value=str(m.id))
+            for m in valid_targets
+            if guess in m.display_name.lower() or guess in m.name.lower()
+        ]
+
     @app_commands.guild_only()
+    @app_commands.autocomplete(target=target_autocomplete)
     async def vcShake(self, interaction: discord.Interaction, target: str):
         """'shake' a user in voice as a fruitless attempt to get their attention."""
         target: int = int(target)
@@ -270,28 +292,6 @@ class Fun(Cog):
         for _ in range(4):
             await user.move_to(AFKChannel, reason="shake requested by {interaction.user.display_name}")
             await user.move_to(currentChannel, reason="shake requested by {interaction.user.display_name}")
-
-    @vcShake.autocomplete("target")
-    async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
-        if interaction.user.voice is None:
-            return [app_commands.Choice(name="err: not in a voice channel", value="0")]
-        if interaction.guild.afk_channel is None:
-            return [app_commands.Choice(name="err: no afk channel", value="0")]
-        if interaction.user.voice.channel == interaction.guild.afk_channel:
-            return [app_commands.Choice(name="err: in afk channel", value="0")]
-
-        valid_targets = [
-            m
-            for m in interaction.user.voice.channel.members
-            if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
-        ]
-        if len(valid_targets) == 0:
-            return [app_commands.Choice(name="err: no valid targets", value="0")]
-        return [
-            app_commands.Choice(name=m.display_name, value=str(m.id))
-            for m in valid_targets
-            if guess in m.display_name.lower() or guess in m.name.lower()
-        ]
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
