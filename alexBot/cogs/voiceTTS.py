@@ -15,8 +15,8 @@ from asyncgTTS import (
     TextSynthesizeRequestBody,
 )
 from discord import app_commands
-from alexBot.fixes import FFmpegPCMAudioBytes
 
+from alexBot.fixes import FFmpegPCMAudioBytes
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
