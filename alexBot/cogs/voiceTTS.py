@@ -66,11 +66,15 @@ class VoiceTTS(Cog):
         except Exception as e:
             log.exception(e)
             return
-        source = FFmpegPCMAudioBytes(synth_bytes, pipe=True)
-
-        vc.play(source, after=self.after)
+        f_name = f"tts_{mid}.ogg"
+        f = open(f_name, "wb")
+        f.write(synth_bytes)
+        f.close()
+        sound = await discord.FFmpegOpusAudio.from_probe(f_name)
+        vc.play(sound, after=self.after)
         while vc.is_playing():
             await asyncio.sleep(0.1)
+        os.remove(f_name)
 
     async def vc_tts(self, interaction: discord.Interaction):
         if interaction.guild is None:
