@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 import logging
-from typing import List, Optional
+from typing import Coroutine, List, Optional
 import discord
 from alexBot.classes import RecurringReminder
 from discord import app_commands
@@ -39,6 +39,11 @@ class RecurringReminders(Cog):
         for task in self.tasks:
             task.cancel()
 
+    @staticmethod
+    async def wait_a_moment(partial: Coroutine):
+        await asyncio.sleep(65)
+        await partial
+
     async def setup_remind(self, reminder: RecurringReminder):
         now = datetime.datetime.utcnow()
         curr_minute = now.minute + now.hour * 60
@@ -55,7 +60,7 @@ class RecurringReminders(Cog):
         if not target:
             log.warning(f"Could not find target {reminder.target} for reminder {reminder}")
             return
-        self.tasks.append(self.bot.loop.create_task(self.remind(reminder)))
+        self.bot.loop.create_task(self.wait_a_moment(self.setup_remind(reminder)))
         if reminder.require_clearing:
             v = ClearReminderView()
             message = await target.send(reminder.message, view=v)
