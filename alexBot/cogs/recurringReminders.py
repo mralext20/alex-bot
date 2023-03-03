@@ -32,7 +32,6 @@ class RecurringReminders(Cog):
         self.reminders: List[RecurringReminder] = []
 
     async def cog_load(self):
-        await self.bot.wait_until_ready()
         self.reminders = await self.bot.db.get_recurring_reminders()
         for reminder in self.reminders:
             self.tasks.append(self.bot.loop.create_task(self.setup_remind(reminder)))
@@ -47,6 +46,7 @@ class RecurringReminders(Cog):
         await partial
 
     async def setup_remind(self, reminder: RecurringReminder):
+        await self.bot.wait_until_ready()
         now = datetime.datetime.utcnow()
         curr_minute = now.minute + now.hour * 60
         reminder_minute = reminder.UTC_minute
