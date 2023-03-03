@@ -10,8 +10,8 @@ from discord.ext import tasks
 from ..tools import Cog, get_json
 
 if TYPE_CHECKING:
-    from bot import Bot
     from alexBot.cogs.mqttDispatcher import HomeAssistantIntigreation
+    from bot import Bot
 
 
 log = logging.getLogger(__name__)
