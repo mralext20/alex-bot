@@ -1,11 +1,12 @@
 import asyncio
 import datetime
 import logging
+import random
 from typing import Coroutine, List, Optional
 import discord
 from alexBot.classes import RecurringReminder
 from discord import app_commands
-from alexBot.tools import Cog
+from alexBot.tools import Cog, resolve_duration
 
 log = logging.getLogger(__name__)
 
@@ -62,34 +63,49 @@ class RecurringReminders(Cog):
             log.warning(f"Could not find target {reminder.target} for reminder {reminder}")
             return
         self.bot.loop.create_task(self.wait_a_moment(self.setup_remind(reminder)))
+        message = reminder.message
+        if message.startswith("["):
+            # random messages;
+            message = reminder.message.lstrip('[')
+            messages = message.split(',')
+            message = random.choice(messages)
+
         if reminder.require_clearing:
             v = ClearReminderView()
-            message = await target.send(reminder.message, view=v)
+            dis_message = await target.send(message, view=v)
 
             while v.waiting:
                 await asyncio.sleep(300)
                 if v.waiting:
-                    await message.reply("reminder!")
+                    await dis_message.reply("reminder!")
 
             return
-        await target.send(reminder.message)
+        await target.send(message)
 
     remindersGroup = app_commands.Group(
         name="reminders", description="menu for working with reminders", guild_ids=[791528974442299412]
     )
 
     @remindersGroup.command(name="add", description="add a new reminder")
-    @app_commands.describe(time="the time in mminutes after UTC Midnight to run the reminder at")
+    @app_commands.describe(time="when to schedule the reminder, from now in the format xhym")
     @app_commands.describe(require_clearing="if the reminder requires clearing to stop")
     @app_commands.describe(target="if set, will send the reminder to this set channel instead of the user")
     async def add_reminder(
         self,
         interaction: discord.Interaction,
         message: str,
-        time: int,
+        time: str,
         target: Optional[discord.TextChannel],
         require_clearing: bool = False,
     ):
+        try:
+            dt = resolve_duration(time)
+            if dt.hour > 23 or dt.minute > 59:
+                await interaction.response.send_message("time too long :(", ephemeral=True)
+                return
+        except KeyError:
+            await interaction.response.send_message("Invalid time format", ephemeral=True)
+            return
         if target:
             if not target.permissions_for(interaction.user).manage_channels:
                 await interaction.response.send_message(
@@ -97,11 +113,11 @@ class RecurringReminders(Cog):
                     ephemeral=True,
                 )
                 return
-
+        time_min = dt.minute + dt.hour * 60
         reminder = RecurringReminder(
             target=target.id if target else interaction.user.id,
             message=message,
-            UTC_minute=time,
+            UTC_minute=time_min,
             require_clearing=require_clearing,
         )
         self.reminders.append(reminder)

@@ -1,12 +1,14 @@
+import datetime
 import math
 import posixpath
 import time
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, Generator, Iterable, TypeVar
+from typing import TYPE_CHECKING, Callable, Generator, Iterable, Tuple, TypeVar, Union
 from urllib.parse import urlparse
 
 import discord
 from jishaku.paginators import PaginatorInterface
+from pytz import timezone
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -117,3 +119,36 @@ def grouper(iterable: Iterable[_T], n: int) -> Generator[Iterable[_T], None, Non
 def transform_neosdb(url: str) -> str:
     url = urlparse(url)
     return f"https://cloudxstorage.blob.core.windows.net/assets{posixpath.splitext(url.path)[0]}"
+
+
+timeUnits = {
+    's': lambda v: v,
+    'm': lambda v: v * 60,
+    'h': lambda v: v * 60 * 60,
+    'd': lambda v: v * 60 * 60 * 24,
+    'w': lambda v: v * 60 * 60 * 24 * 7,
+}
+
+
+def resolve_duration(data) -> datetime.datetime:
+    """
+    Takes a raw input string formatted 1w1d1h1m1s (any order)
+    and converts to timedelta
+    Credit https://github.com/b1naryth1ef/rowboat via MIT license
+    data: str
+    """
+    value = 0
+    digits = ''
+
+    for char in data:
+        if char.isdigit():
+            digits += char
+            continue
+
+        if char not in timeUnits or not digits:
+            raise KeyError('Time format not a valid entry')
+
+        value += timeUnits[char](int(digits))
+        digits = ''
+
+    return datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=value + 1)
