@@ -22,7 +22,7 @@ TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
 TABLE["Garrett's Home"] = "🏠"
 GUILD = 791528974442299412
-members = {'alex': 108429628560924672, 'garrett': 326410251546918913}
+MEMBERS = {'alex': 108429628560924672, 'garrett': 326410251546918913}
 NEWLINE = '\n'
 USER_TO_HA_DEVICE = {
     108429628560924672: 'mobile_app_pixel_7_pro',
@@ -33,7 +33,6 @@ USER_TO_HA_DEVICE = {
 class PhoneMonitor(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
-        self.lastLocations: Dict[int, str] = {}
         self.mqttCog: "HomeAssistantIntigreation" = None
 
     @Cog.listener()
@@ -42,9 +41,9 @@ class PhoneMonitor(Cog):
         log.info(f"HA update: {name} -> {location}")
         await self.bot.wait_until_ready()
 
-        if name in members:
+        if name in MEMBERS:
             g = self.bot.get_guild(GUILD)
-            member: discord.Member = g.get_member(members[name])
+            member: discord.Member = g.get_member(MEMBERS[name])
             name = member.display_name
             for _, locator in TABLE.items():
                 name = name.rstrip(locator)
@@ -52,7 +51,6 @@ class PhoneMonitor(Cog):
             name += TABLE[location]
             log.info(f"Changing {member.display_name} to {name}")
             await member.edit(nick=name)
-            self.lastLocations[member.id] = location
 
     @Cog.listener()
     async def on_ha_vc_control(self, name: str, command: PayloadType):
@@ -60,8 +58,8 @@ class PhoneMonitor(Cog):
         await self.bot.wait_until_ready()
         g = self.bot.get_guild(GUILD)
         assert g is not None
-        if name in members:
-            member = g.get_member(members[name])
+        if name in MEMBERS:
+            member = g.get_member(MEMBERS[name])
             if not member or not member.voice:
                 return
             if command == 'mute':
@@ -81,9 +79,7 @@ class PhoneMonitor(Cog):
         if before.channel and after.channel and before.channel == after.channel:
             return  # noone moved
         on_mobile = [
-            m
-            for m, v in self.lastLocations.items()
-            if channel.guild.get_member(m) and channel.guild.get_member(m).is_on_mobile()
+            v for m, v in MEMBERS.items() if channel.guild.get_member(v) and channel.guild.get_member(v).is_on_mobile()
         ]
         log.debug(f"on_mobile: {on_mobile}")
         for user in on_mobile:
