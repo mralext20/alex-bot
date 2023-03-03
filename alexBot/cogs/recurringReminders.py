@@ -3,9 +3,11 @@ import datetime
 import logging
 import random
 from typing import Coroutine, List, Optional
+
 import discord
-from alexBot.classes import RecurringReminder
 from discord import app_commands
+
+from alexBot.classes import RecurringReminder
 from alexBot.tools import Cog, resolve_duration
 
 log = logging.getLogger(__name__)
