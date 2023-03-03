@@ -80,12 +80,14 @@ class PhoneMonitor(Cog):
             self.mqttCog: "HomeAssistantIntigreation" = self.bot.get_cog("HomeAssistantIntigreation")
         if before.channel and after.channel and before.channel == after.channel:
             return  # noone moved
-        at_work = [
+        on_mobile = [
             m
             for m, v in self.lastLocations.items()
             if channel.guild.get_member(m) and channel.guild.get_member(m).is_on_mobile()
         ]
-        for user in at_work:
+        log.debug(f"on_mobile: {on_mobile}")
+        for user in on_mobile:
+            log.debug(f"checking {user}")
             SELF_MOVED = user == member.id
             message = None
             if before.channel and after.channel and (before.channel != after.channel):
@@ -105,7 +107,7 @@ class PhoneMonitor(Cog):
             if not before.channel and after.channel and user in [user.id for user in after.channel.members]:
                 # person joined chat
                 message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
-
+            log.debug(f"message: {message}")
             if message:
                 await self.mqttCog.mqttPublish(f"alexBot/send_message{USER_TO_HA_DEVICE[user]}", message)
 
