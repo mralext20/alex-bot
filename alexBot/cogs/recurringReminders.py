@@ -33,7 +33,7 @@ class RecurringReminders(Cog):
     async def cog_load(self):
         self.reminders = await self.bot.db.get_recurring_reminders()
         for reminder in self.reminders:
-            self.tasks.append(self.bot.loop.create_task(self.remind(reminder)))
+            self.tasks.append(self.bot.loop.create_task(self.setup_remind(reminder)))
 
     async def cog_unload(self) -> None:
         for task in self.tasks:
@@ -50,6 +50,7 @@ class RecurringReminders(Cog):
         await self.remind(reminder)
 
     async def remind(self, reminder: RecurringReminder):
+        log.debug(f"reminding {reminder}")
         target = self.bot.get_channel(reminder.target) or self.bot.get_user(reminder.target)
         if not target:
             log.warning(f"Could not find target {reminder.target} for reminder {reminder}")
@@ -99,7 +100,7 @@ class RecurringReminders(Cog):
         )
         self.reminders.append(reminder)
         await self.bot.db.save_recurring_reminders(self.reminders)
-
+        self.tasks.append(self.bot.loop.create_task(self.setup_remind(reminder)))
         await interaction.response.send_message("Reminder added")
 
     @remindersGroup.command(name="remove", description="remove a reminder")
@@ -122,6 +123,7 @@ class RecurringReminders(Cog):
                 self.reminders.remove(reminder)
                 await self.bot.db.save_recurring_reminders(self.reminders)
                 await interaction.response.send_message("Reminder removed")
+                await self.bot.reload_extension("alexBot.cogs.recurringReminders")
                 return
         await interaction.response.send_message("Reminder not found")
 
