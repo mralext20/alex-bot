@@ -151,4 +151,4 @@ def resolve_duration(data) -> datetime.datetime:
         value += timeUnits[char](int(digits))
         digits = ''
 
-    return datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=value + 1)
+    return datetime.datetime.now(tz=timezone('UTC')) + datetime.timedelta(seconds=value + 1)

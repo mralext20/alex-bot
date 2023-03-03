@@ -83,7 +83,8 @@ class RecurringReminders(Cog):
         await target.send(message)
 
     remindersGroup = app_commands.Group(
-        name="reminders", description="menu for working with reminders", guild_ids=[791528974442299412]
+        name="reminders",
+        description="menu for working with reminders",
     )
 
     @remindersGroup.command(name="add", description="add a new reminder")
