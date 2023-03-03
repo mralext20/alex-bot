@@ -105,7 +105,7 @@ class PhoneMonitor(Cog):
                 message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
             log.debug(f"message: {message}")
             if message:
-                await self.mqttCog.mqttPublish(f"alexBot/send_message{USER_TO_HA_DEVICE[user]}", message)
+                await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
 
 
 async def setup(bot: "Bot"):
