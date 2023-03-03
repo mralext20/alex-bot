@@ -152,6 +152,26 @@ class RecurringReminders(Cog):
                 return
         await interaction.response.send_message("Reminder not found")
 
+    def user_can_manage_reminder(self, reminder:RecurringReminder, user:discord.Member):
+        if reminder.target == user.id:
+            return True
+        target_chan = self.bot.get_channel(reminder.target)
+        if not target_chan:
+            return False
+        if target_chan.permissions_for(user).manage_channels:
+            return True
+        return False
+
+    @remove_reminder.autocomplete('message')
+    async def autocomplete_remove(self, interaction: discord.Interaction, msg: str):
+        reminders = [reminder for reminder in self.reminders if self.user_can_manage_reminder(reminder, interaction.user))]
+       
+        return [
+            discord.app_commands.Choice(name=reminder.message, value=reminder.message)
+            for reminder in reminders
+            if msg.lower() in reminder.message.lower()
+        ]
+
 
 async def setup(bot):
     await bot.add_cog(RecurringReminders(bot))
