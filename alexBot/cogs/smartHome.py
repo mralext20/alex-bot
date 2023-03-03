@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import asyncio_mqtt as aiomqtt
 import discord
@@ -11,6 +11,7 @@ from ..tools import Cog, get_json
 
 if TYPE_CHECKING:
     from bot import Bot
+    from alexBot.cogs.mqttDispatcher import HomeAssistantIntigreation
 
 
 log = logging.getLogger(__name__)
@@ -22,9 +23,19 @@ TABLE['Walmart'] = "🏪"
 TABLE["Garrett's Home"] = "🏠"
 GUILD = 791528974442299412
 members = {'alex': 108429628560924672, 'garrett': 326410251546918913}
+NEWLINE = '\n'
+USER_TO_HA_DEVICE = {
+    108429628560924672: 'mobile_app_pixel_7_pro',
+    326410251546918913: 'mobile_app_game_s_iphone',
+}
 
 
 class PhoneMonitor(Cog):
+    def __init__(self, bot: "Bot"):
+        super().__init__(bot)
+        self.lastLocations: Dict[int, str] = {}
+        self.mqttCog: "HomeAssistantIntigreation" = None
+
     @Cog.listener()
     async def on_ha_update_location(self, name: str, location: PayloadType):
         print('HERE!')
@@ -41,6 +52,7 @@ class PhoneMonitor(Cog):
             name += TABLE[location]
             log.info(f"Changing {member.display_name} to {name}")
             await member.edit(nick=name)
+            self.lastLocations[member.id] = location
 
     @Cog.listener()
     async def on_ha_vc_control(self, name: str, command: PayloadType):
@@ -58,6 +70,44 @@ class PhoneMonitor(Cog):
                 await member.edit(deafen=not member.voice.deaf, mute=not member.voice.deaf)
             elif command == 'disconnect':
                 await member.move_to(None)
+
+    @Cog.listener()
+    async def on_voice_state_update(
+        self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
+    ):
+        channel = before.channel or after.channel
+        if self.mqttCog is None:
+            self.mqttCog: "HomeAssistantIntigreation" = self.bot.get_cog("HomeAssistantIntigreation")
+        if before.channel and after.channel and before.channel == after.channel:
+            return  # noone moved
+        at_work = [
+            m
+            for m, v in self.lastLocations.items()
+            if channel.guild.get_member(m) and channel.guild.get_member(m).is_on_mobile()
+        ]
+        for user in at_work:
+            SELF_MOVED = user == member.id
+            message = None
+            if before.channel and after.channel and (before.channel != after.channel):
+                if user in [user.id for user in before.channel.members]:
+                    # person left chat to another channel in server
+                    if SELF_MOVED:
+                        message = f"you were moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
+                    else:
+                        message = f"{member.name} was moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
+                if user in [user.id for user in after.channel.members]:
+                    # person joined chat from another channel in server
+                    message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
+            if before.channel and not after.channel and user in [user.id for user in before.channel.members]:
+                # person left chat
+                message = f"{member.name} left {before.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in before.channel.members])}"
+                pass
+            if not before.channel and after.channel and user in [user.id for user in after.channel.members]:
+                # person joined chat
+                message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
+
+            if message:
+                await self.mqttCog.mqttPublish(f"alexBot/send_message{USER_TO_HA_DEVICE[user]}", message)
 
 
 async def setup(bot: "Bot"):

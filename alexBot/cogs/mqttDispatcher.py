@@ -23,6 +23,10 @@ class HomeAssistantIntigreation(Cog):
                     if message.topic.matches("alex-bot/vcControl/#"):
                         self.bot.dispatch("ha_vc_control", message.topic.value.split('/')[2], message.payload.decode())
 
+    async def mqttPublish(self, topic, payload):
+        async with aiomqtt.Client(**self.bot.config.mqttServer) as client:
+            await client.publish(topic, payload)
+
     async def cog_load(self):
         self.task = self.bot.loop.create_task(self.mqttLoop())
 
