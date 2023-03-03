@@ -14,7 +14,7 @@ class ClearReminderView(discord.ui.View):
     def __init__(
         self,
     ):
-        super().__init__(timeout=300)
+        super().__init__(timeout=None)
         self.waiting = True
 
     @discord.ui.button(label="Clear", style=discord.ButtonStyle.red)
@@ -31,6 +31,7 @@ class RecurringReminders(Cog):
         self.reminders: List[RecurringReminder] = []
 
     async def cog_load(self):
+        await self.bot.wait_until_ready()
         self.reminders = await self.bot.db.get_recurring_reminders()
         for reminder in self.reminders:
             self.tasks.append(self.bot.loop.create_task(self.setup_remind(reminder)))
