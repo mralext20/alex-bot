@@ -52,6 +52,14 @@ class VoiceStat:
 
 
 @dataclass
+class RecurringReminder:
+    target: int  # the messegable to remind to (user or channel)
+    message: str  # the message to send
+    UTC_minute: int  # the minute of the day in UTC to remind at
+    require_clearing: bool = False  # if the reminder requires interaction to clear
+
+
+@dataclass
 class ReactionRoleConfig:
     message: int
     role: int

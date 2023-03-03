@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import aiosqlite
 
-from alexBot.classes import ButtonRole, ButtonType, FeedConfig, GuildData, MovieSuggestion, UserData
+from alexBot.classes import ButtonRole, ButtonType, FeedConfig, GuildData, MovieSuggestion, RecurringReminder, UserData
 
 from .tools import Cog
 
@@ -135,6 +135,26 @@ class Data(Cog):
             for movie in data:
                 await conn.execute(
                     "INSERT INTO movieSuggestions (data) VALUES (?)", (json.dumps(dataclasses.asdict(movie)),)
+                )
+            await conn.commit()
+
+    async def get_recurring_reminders(self):
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            async with conn.execute("SELECT data FROM recurringReminders") as cur:
+                data = await cur.fetchall()
+                reminders = []
+                for row in data:
+                    reminders.append(RecurringReminder(**json.loads(row[0])))
+                if not data:
+                    return []
+                return reminders
+
+    async def save_recurring_reminders(self, reminders: List[RecurringReminder]):
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            await conn.execute("DELETE FROM recurringReminders")
+            for reminder in reminders:
+                await conn.execute(
+                    "INSERT INTO recurringReminders (data) VALUES (?)", (json.dumps(dataclasses.asdict(reminder)),)
                 )
             await conn.commit()
 
