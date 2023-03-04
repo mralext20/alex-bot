@@ -200,7 +200,7 @@ class NerdiowoMovies(Cog):
 
         # the next time we watch a movie will  be the next time Saturday at 3:30PM Alaska time happens.
         now = datetime.datetime.now(tz=pytz.timezone("America/Anchorage"))
-        start_time = now.replace(hour=15, minute=30, second=0, microsecond=0)
+        start_time = now.replace(hour=15, minute=25, second=0, microsecond=0)
         # set the day to saturday
         start_time += datetime.timedelta(days=(5 - start_time.weekday()) % 7)
 
