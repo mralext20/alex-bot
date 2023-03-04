@@ -167,7 +167,6 @@ class RecurringReminders(Cog):
         reminders = [
             reminder for reminder in self.reminders if self.user_can_manage_reminder(reminder, interaction.user)
         ]
-        log.debug(f"{reminders} valid from {msg}")
         return [
             discord.app_commands.Choice(name=reminder.message, value=reminder.message)
             for reminder in reminders
