@@ -100,9 +100,9 @@ class nOfThesePeopleAreLying(Cog):
 
     @app_commands.guilds(discord.Object(791528974442299412))
     @app_commands.command(name="n-of-these-people-are-lying")
-    async def nLyers(self, interaction: Interaction):
+    async def nLyers(self, interaction: discord.Interaction):
         v = self.ImPlaying(timeout=None)
-        v.orig = interaction.edit_original_message
+        v.orig = interaction.edit_original_response
         await interaction.response.send_message("are you playing? hit 'I'm Playing'! ", view=v)
         await v.wait()
         players = v.players
