@@ -1,5 +1,5 @@
 import random
-from typing import Dict, List, Tuple, Callable
+from typing import Callable, Dict, List, Tuple
 from urllib.parse import urlparse
 
 import discord
