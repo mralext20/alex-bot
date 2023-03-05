@@ -1,5 +1,5 @@
 import random
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Callable
 from urllib.parse import urlparse
 
 import discord
@@ -44,7 +44,7 @@ class nOfThesePeopleAreLying(Cog):
         def __init__(self, *, timeout=180):
             super().__init__(timeout=timeout)
             self.players: List[Interaction] = []
-            self.orig = None
+            self.orig: Callable = None
 
         @ui.button(label="I'm playing!")
         async def playerConfirm(self, interaction: Interaction, button: ui.Button):
@@ -55,7 +55,7 @@ class nOfThesePeopleAreLying(Cog):
             if len(self.players) > 2:
                 self.startGame.disabled = False
             await self.orig(
-                content=f"are you playing? hit 'I'm Playing'! I've Got ', '.join([f'**{player.user.display_name}**' for player in players]) players so far!",
+                content=f"are you playing? hit 'I'm Playing'! I've Got {', '.join([f'**{player.user.display_name}**' for player in players])} players so far!",
                 view=self,
             )
 
