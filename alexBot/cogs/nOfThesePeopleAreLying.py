@@ -96,13 +96,13 @@ class nOfThesePeopleAreLying(Cog):
             await interaction.response.send_modal(m)
             if not await m.wait():  # this is dum
                 self.articles[interaction.user.id] = (m.article.value, m.link.value)
-
+                current_waiting = [p for p in self.players if p.user.id not in self.articles]
                 await self.message.edit(
-                    content=f"alright! i need {', '.join([f'**{player.user.display_name}**' for player in self.players])} to each go to wikipedia and grab a random article, then let me know the name of it. **{self.tom.display_name}** will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
+                    content=f"alright! i need {', '.join([f'**{player.user.display_name}**' for player in current_waiting])} to each go to wikipedia and grab a random article, then let me know the name of it. **{self.tom.display_name}** will be guessing who's got the article once all of you submit it.\n\nRemember, you don't have to pick the first article you get on the Random button.",
                     view=self,
                 )
             if len(self.players) == len(self.articles):
-                await self.message.edit(content="everyone has submitted their articles!", view=None)
+                await self.message.edit(view=None)
                 self.stop()
 
     @app_commands.guilds(discord.Object(791528974442299412))
