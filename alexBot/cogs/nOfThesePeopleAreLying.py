@@ -55,13 +55,19 @@ class nOfThesePeopleAreLying(Cog):
             if len(self.players) > 2:
                 self.startGame.disabled = False
             await self.orig(
-                content=f"are you playing? hit 'I'm Playing'! I've Got {', '.join([f'**{player.user.display_name}**' for player in self.players])} players so far!",
+                content=f"are you playing? hit 'I'm Playing'! I've Got {', '.join([f'**{player.user.display_name}**' for player in self.players])} as players so far!",
                 view=self,
             )
 
         @ui.button(label="Let's Play!", style=ButtonStyle.green, disabled=True)
         async def startGame(self, interaction: Interaction, button: ui.Button):
             await interaction.response.defer(ephemeral=True)
+            for btn in self.children:
+                btn.disabled = True
+            await interaction.message.edit(
+                content=f"Game started with {', '.join([f'**{player.user.display_name}**' for player in self.players])}",
+                view=self,
+            )
             self.stop()
 
     class Articles(ui.View):
@@ -96,6 +102,7 @@ class nOfThesePeopleAreLying(Cog):
                     view=self,
                 )
             if len(self.players) == len(self.articles):
+                await self.message.edit(content="everyone has submitted their articles!", view=None)
                 self.stop()
 
     @app_commands.guilds(discord.Object(791528974442299412))
