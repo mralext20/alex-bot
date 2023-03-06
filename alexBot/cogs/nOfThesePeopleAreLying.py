@@ -55,7 +55,7 @@ class nOfThesePeopleAreLying(Cog):
             if len(self.players) > 2:
                 self.startGame.disabled = False
             await self.orig(
-                content=f"are you playing? hit 'I'm Playing'! I've Got {', '.join([f'**{player.user.display_name}**' for player in players])} players so far!",
+                content=f"are you playing? hit 'I'm Playing'! I've Got {', '.join([f'**{player.user.display_name}**' for player in self.players])} players so far!",
                 view=self,
             )
 
