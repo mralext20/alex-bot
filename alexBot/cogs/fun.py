@@ -176,7 +176,7 @@ class Fun(Cog):
         if interaction.guild is None:
             await interaction.response.send_message("this command can only be used in a server", ephemeral=True)
             return
-        if interaction.user.voice is None:
+        if not interaction.user.voice:
             await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
             return
         if interaction.user.voice.channel is None:
@@ -286,12 +286,15 @@ class Fun(Cog):
             allowed_mentions=discord.AllowedMentions.none(),
         )
         if interaction.guild.id == 791528974442299412:
+            self.bot.get_cog('VoiceLog').beingShaken[user.id] = False
             await interaction.guild.get_channel(974472799093661826).send(
                 f"shaking {user.display_name} for {interaction.user.display_name}"
             )
+
         for _ in range(4):
             await user.move_to(AFKChannel, reason="shake requested by {interaction.user.display_name}")
             await user.move_to(currentChannel, reason="shake requested by {interaction.user.display_name}")
+        del self.bot.get_cog('VoiceLog').beingShaken[user.id]
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):

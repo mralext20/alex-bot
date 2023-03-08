@@ -3,7 +3,7 @@
 import asyncio
 import datetime
 from asyncio import Task
-from typing import Dict
+from typing import Dict, List
 
 import discord
 from discord.member import VoiceState
@@ -19,6 +19,7 @@ class VoiceLog(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.waiting_for_afk: Dict[int, Task] = {}
+        self.beingShaken: Dict[int, bool] = {}
 
     @Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: VoiceState, after: VoiceState):
@@ -41,6 +42,9 @@ class VoiceLog(Cog):
         channel = self.bot.get_channel(LOGGING_CHANNEL)
         if not channel:
             return
+        if member.id in self.beingShaken:
+            await channel.send(f"{member.mention} was shaken")
+            self.beingShaken[member.id] = True
         stamp = discord.utils.format_dt(datetime.datetime.now(), style="T")
         if before.channel is None and after.channel is not None:
             # joined
