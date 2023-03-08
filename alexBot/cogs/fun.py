@@ -285,8 +285,10 @@ class Fun(Cog):
             f"shaking {user.mention}...",
             allowed_mentions=discord.AllowedMentions.none(),
         )
+        voiceLog = self.bot.get_cog("VoiceLog")
+        if voiceLog:
+            voiceLog.beingShaken[user.id] = False
         if interaction.guild.id == 791528974442299412:
-            self.bot.get_cog('VoiceLog').beingShaken[user.id] = False
             await interaction.guild.get_channel(974472799093661826).send(
                 f"shaking {user.display_name} for {interaction.user.display_name}"
             )
@@ -294,7 +296,8 @@ class Fun(Cog):
         for _ in range(4):
             await user.move_to(AFKChannel, reason="shake requested by {interaction.user.display_name}")
             await user.move_to(currentChannel, reason="shake requested by {interaction.user.display_name}")
-        del self.bot.get_cog('VoiceLog').beingShaken[user.id]
+        if voiceLog:
+            del voiceLog.beingShaken[user.id]
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
