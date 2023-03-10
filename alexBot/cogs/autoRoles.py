@@ -57,7 +57,7 @@ class autoRoles(Cog):
             ButtonType.GAME: discord.ui.View(timeout=None),
             ButtonType.PHONE: discord.ui.View(timeout=None),
             ButtonType.INTEREST: discord.ui.View(timeout=None),
-            ButtonType.PROUNOUNS: discord.ui.View(timeout=None),
+            ButtonType.PRONOUNS: discord.ui.View(timeout=None),
         }
         self.flat_roles = await self.bot.db.get_roles_data()
         for type in ButtonType:
