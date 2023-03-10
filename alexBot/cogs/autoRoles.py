@@ -1,4 +1,5 @@
 import asyncio
+import collections
 from typing import Dict, List, Optional
 
 import discord
@@ -31,12 +32,8 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
     return callback
 
 
-ALLOWMANYROLES = {
-    ButtonType.LOCATION: False,
-    ButtonType.GAME: True,
-    ButtonType.PHONE: True,
-    ButtonType.INTEREST: True,
-}
+ALLOWMANYROLES = collections.defaultdict(lambda: True)
+ALLOWMANYROLES[ButtonType.LOCATION] = False
 
 
 class autoRoles(Cog):
@@ -51,12 +48,7 @@ class autoRoles(Cog):
         )
 
     async def cog_load(self):
-        self.views = {
-            ButtonType.LOCATION: discord.ui.View(timeout=None),
-            ButtonType.GAME: discord.ui.View(timeout=None),
-            ButtonType.PHONE: discord.ui.View(timeout=None),
-            ButtonType.INTEREST: discord.ui.View(timeout=None),
-        }
+        self.views = {btnType: discord.ui.View(timeout=None) for btnType in ButtonType}
         self.flat_roles = await self.bot.db.get_roles_data()
         for type in ButtonType:
             self.roles[type] = [r for r in self.flat_roles if r.type == type]
