@@ -172,10 +172,10 @@ class ButtonType(int, enum.Enum):
 
 @dataclass
 class ButtonRole:
-    label: str
     role: int
     message: int
     type: ButtonType
+    label: Optional[str] = None
     emoji: Optional[str] = None
 
 
