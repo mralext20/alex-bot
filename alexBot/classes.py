@@ -166,7 +166,6 @@ class ButtonType(int, enum.Enum):
     GAME = 2
     PHONE = 3
     INTEREST = 4
-    PRONOUN = 5
 
 
 @dataclass
