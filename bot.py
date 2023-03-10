@@ -88,6 +88,7 @@ class Bot(commands.Bot):
                 log.info(f'loaded {cog}')
             except Exception as e:
                 log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
+                log.exception(e)
 
     @staticmethod
     def clean_mentions(content: str) -> str:
