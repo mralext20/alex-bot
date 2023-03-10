@@ -37,6 +37,7 @@ ALLOWMANYROLES = {
     ButtonType.PHONE: True,
     ButtonType.INTEREST: True,
     ButtonType.PRONOUNS: True,
+    ButtonType.COLOR: False,
 }
 
 
@@ -58,6 +59,7 @@ class autoRoles(Cog):
             ButtonType.PHONE: discord.ui.View(timeout=None),
             ButtonType.INTEREST: discord.ui.View(timeout=None),
             ButtonType.PRONOUNS: discord.ui.View(timeout=None),
+            ButtonType.COLOR: discord.ui.View(timeout=None),
         }
         self.flat_roles = await self.bot.db.get_roles_data()
         for type in ButtonType:
