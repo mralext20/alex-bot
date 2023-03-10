@@ -20,13 +20,20 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
         roles = [interaction.guild.get_role(role.role) for role in otherRoles if role.role != btnRole.role]
         if any([role.id in [r.id for r in interaction.user.roles] for role in roles]):
             asyncio.get_event_loop().create_task(interaction.user.remove_roles(*roles))
-
+        role = interaction.guild.get_role(btnRole.role)
+        if not role:
+            await interaction.response.send_message(
+                "that role doesn't exist anymore, please contact an admin", ephemeral=True
+            )
+            return
         if interaction.user.get_role(btnRole.role):
-            await interaction.user.remove_roles(interaction.guild.get_role(btnRole.role))
+            await interaction.user.remove_roles(role)
             await interaction.response.send_message(f"removed the {btnRole.label} role for you!", ephemeral=True)
         else:
-            await interaction.user.add_roles(interaction.guild.get_role(btnRole.role))
-            await interaction.response.send_message(f"added the {btnRole.label} role for you!", ephemeral=True)
+            await interaction.user.add_roles(role)
+            await interaction.response.send_message(
+                f"added the {btnRole.label if btnRole.label else str(role.color)} role for you!", ephemeral=True
+            )
 
     return callback
 
