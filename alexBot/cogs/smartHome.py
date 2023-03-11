@@ -56,12 +56,14 @@ class PhoneMonitor(Cog):
     async def on_ha_vc_control(self, name: str, command: PayloadType):
         log.info(f"HA vc control: {name} -> {command}")
         await self.bot.wait_until_ready()
-        g = self.bot.get_guild(GUILD)
-        assert g is not None
         if name in MEMBERS:
-            member = g.get_member(MEMBERS[name])
-            if not member or not member.voice:
+            user = self.bot.get_user(MEMBERS[name])
+            if not user:
                 return
+            targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
+            if not targets:
+                return
+            member = targets[0].get_member(user.id)
             if command == 'mute':
                 await member.edit(mute=not member.voice.mute)
             elif command == 'deafen':
