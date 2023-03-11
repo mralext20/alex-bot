@@ -44,7 +44,10 @@ class Fun(Cog):
         g = self.bot.get_guild(1083141160198996038)
         for channel in g.voice_channels:
             if len(channel.members) > 0:
-                await channel.send(f"{','.join([u.mention for u in channel.members])}\n{random.choice(FUNNY_MESSAGES)}")
+                await channel.send(
+                    f"{','.join([u.mention for u in channel.members])}\n{random.choice(FUNNY_MESSAGES)}",
+                    allowed_mentions=discord.AllowedMentions.all(),
+                )
 
     @remind_channel.before_loop
     async def before_feedUpdate(self):
