@@ -17,7 +17,6 @@ AYYGEN = re.compile("[aA][yY][Yy][yY]*")
 YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})")
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 
-FUNNY_MESSAGES = ['and then i ask myself, self: is this the right place?', 'why are you here???', ':eyes:']
 
 # regex to capture all regional indicators
 
@@ -45,7 +44,7 @@ class Fun(Cog):
         for channel in g.voice_channels:
             if len(channel.members) > 0:
                 await channel.send(
-                    f"{','.join([u.mention for u in channel.members])}\n{random.choice(FUNNY_MESSAGES)}",
+                    f"{','.join([u.mention for u in channel.members])}\n\nStill busy?",
                     allowed_mentions=discord.AllowedMentions.all(),
                 )
 
