@@ -27,11 +27,11 @@ class VoiceTTS(Cog):
         super().__init__(bot)
         self.runningTTS: Dict[int, Tuple[discord.TextChannel, discord.VoiceClient]] = {}
         self.gtts: AsyncGTTSSession = None
+
+    async def cog_load(self):
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(name="tts", description="Send text to speech", callback=self.vc_tts)
         )
-
-    async def cog_load(self):
         self.gtts = AsyncGTTSSession.from_service_account(
             ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
         )
@@ -41,6 +41,7 @@ class VoiceTTS(Cog):
         for vc in self.runningTTS.values():
             await vc[1].disconnect()
         await self.gtts.__aexit__(None, None, None)
+        self.bot.voiceCommandsGroup.remove_command("tts")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):

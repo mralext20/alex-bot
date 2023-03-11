@@ -14,8 +14,7 @@ log = logging.getLogger(__name__)
 
 
 class VoiceStats(Cog):
-    def __init__(self, bot: "Bot"):
-        super().__init__(bot)
+    async def cog_load(self):
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
                 name="stats",
@@ -23,6 +22,9 @@ class VoiceStats(Cog):
                 callback=self.voiceStats,
             )
         )
+
+    async def cog_unload(self):
+        self.bot.voiceCommandsGroup.remove_command("stats")
 
     @Cog.listener()
     async def on_voice_state_update(

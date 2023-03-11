@@ -33,6 +33,23 @@ class Fun(Cog):
             name='How Long is this Video?',
             callback=self.videoLength,
         )
+
+        self.remind_channel.start()
+
+    @tasks.loop(hours=1, reconnect=True)
+    async def remind_channel(self):
+        g = self.bot.get_guild(1083141160198996038)
+        for channel in g.voice_channels:
+            if len(channel.members) > 1:
+                await channel.send("and then i ask myself, self: is this the right place?")
+
+    @remind_channel.before_loop
+    async def before_feedUpdate(self):
+        await self.bot.wait_until_ready()
+
+    async def cog_load(self) -> None:
+        self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
+        self.bot.tree.add_command(self.videoLengthMenu, guild=discord.Object(791528974442299412))
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
                 name="shake",
@@ -55,26 +72,13 @@ class Fun(Cog):
             )
         )
 
-        self.remind_channel.start()
-
-    @tasks.loop(hours=1, reconnect=True)
-    async def remind_channel(self):
-        g = self.bot.get_guild(1083141160198996038)
-        for channel in g.voice_channels:
-            if len(channel.members) > 1:
-                await channel.send("and then i ask myself, self: is this the right place?")
-
-    @remind_channel.before_loop
-    async def before_feedUpdate(self):
-        await self.bot.wait_until_ready()
-
-    async def cog_load(self) -> None:
-        self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
-        self.bot.tree.add_command(self.videoLengthMenu, guild=discord.Object(791528974442299412))
-
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
         self.bot.tree.remove_command(self.videoLengthMenu.name, type=self.videoLengthMenu.type)
+        self.bot.voiceCommandsGroup.remove_command("shake")
+        self.bot.voiceCommandsGroup.remove_command("disconnect")
+        self.bot.voiceCommandsGroup.remove_command("move_me")
+
         self.remind_channel.cancel()
 
     async def videoLength(self, interaction: discord.Interaction, message: discord.Message):

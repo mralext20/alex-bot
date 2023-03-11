@@ -16,8 +16,7 @@ DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
-    def __init__(self, bot: "Bot"):
-        super().__init__(bot)
+    async def cog_load(self):
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
                 name="move",
@@ -25,6 +24,9 @@ class Utils(Cog):
                 callback=self.voice_move,
             )
         )
+
+    async def cog_unload(self):
+        self.bot.voiceCommandsGroup.remove_command("move")
 
     @commands.command(aliases=['diff'])
     async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
