@@ -39,7 +39,10 @@ class Fun(Cog):
 
         self.remind_channel.start()
 
-    @tasks.loop(time=[datetime.time(hour=hour, minute=5, tzinfo=datetime.timezone.utc) for hour in range(0, 24, 1)] reconnect=True, )
+    @tasks.loop(
+        time=[datetime.time(hour=hour, minute=5, tzinfo=datetime.timezone.utc) for hour in range(0, 24, 1)],
+        reconnect=True,
+    )
     async def remind_channel(self):
         g = self.bot.get_guild(1083141160198996038)
         for channel in g.voice_channels:
