@@ -20,7 +20,7 @@ class Utils(Cog):
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
                 name="move",
-                description="tells you how long your average, longest, and current voice sessions is.",
+                description="Moves the current group to another voice channel.",
                 callback=self.voice_move,
             )
         )
