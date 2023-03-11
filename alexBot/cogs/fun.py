@@ -40,7 +40,7 @@ class Fun(Cog):
     async def remind_channel(self):
         g = self.bot.get_guild(1083141160198996038)
         for channel in g.voice_channels:
-            if len(channel.members) > 1:
+            if len(channel.members) > 0:
                 await channel.send("and then i ask myself, self: is this the right place?")
 
     @remind_channel.before_loop
