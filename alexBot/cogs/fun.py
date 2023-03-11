@@ -63,14 +63,14 @@ class Fun(Cog):
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
                 name="disconnect",
-                description="disconnect yourself from the voice channel you're in.",
+                description="Disconnect yourself from the voice channel you're in.",
                 callback=self.vc_disconnect,
             )
         )
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
                 name="move_me",
-                description="move you to another channel",
+                description="Move you to another channel",
                 callback=self.vc_move,
             )
         )

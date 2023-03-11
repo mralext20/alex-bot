@@ -18,7 +18,7 @@ class VoiceStats(Cog):
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
                 name="stats",
-                description="tells you how long your average, longest, and current voice sessions is.",
+                description="Tells you how long your average, longest, and current voice sessions is.",
                 callback=self.voiceStats,
             )
         )
