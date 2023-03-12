@@ -19,9 +19,6 @@ YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|you
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 
 
-# regex to capture all regional indicators
-
-
 class Fun(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
