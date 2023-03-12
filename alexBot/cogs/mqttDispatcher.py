@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import asyncio_mqtt as aiomqtt
-import discord
 
-from ..tools import Cog, InteractionPaginator
+from ..tools import Cog
 
 
 class HomeAssistantIntigreation(Cog):
