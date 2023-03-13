@@ -43,7 +43,7 @@ class Fun(Cog):
     async def remind_channel(self):
         g = self.bot.get_guild(1083141160198996038)
         for channel in g.voice_channels:
-            if len(channel.members) > 0 and not any([u.id == 483835143115636778 for u in channel.members]):
+            if False and len(channel.members) > 0 and not any([u.id == 483835143115636778 for u in channel.members]):
                 await channel.send(
                     f"{','.join([u.mention for u in channel.members])}\n\nStill busy?",
                     allowed_mentions=discord.AllowedMentions.all(),
