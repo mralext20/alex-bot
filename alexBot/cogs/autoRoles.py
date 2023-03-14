@@ -120,7 +120,7 @@ class autoRoles(Cog):
                 reason=f"nerdiowo role requested by {interaction.user}",
             )
         mid = self.roles[btntype][0].message
-        br = ButtonRole(name, role.id, mid, btntype, str(emoji) if emoji else None)
+        br = ButtonRole(role.id, mid, btntype, name, str(emoji) if emoji else None)
         self.roles[btntype].append(br)
         self.flat_roles.append(br)
         await self.bot.db.save_roles_data(self.flat_roles)
