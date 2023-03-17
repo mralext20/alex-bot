@@ -97,7 +97,7 @@ class PhoneMonitor(Cog):
         if before.channel and after.channel and before.channel == after.channel:
             return  # noone moved
 
-        for user in [channel.guild.get_member(x) for x in self.notifiable if channel.guild.get_member(x) is not None]:
+        for user in self.notifiable:
             log.debug(f"checking {user}")
             SELF_MOVED = user == member.id
             message = None
@@ -120,7 +120,7 @@ class PhoneMonitor(Cog):
                 message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
             log.debug(f"message: {message}")
             if message:
-                await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user.id]}", message)
+                await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
 
 
 async def setup(bot: "Bot"):
