@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, List
 
 import asyncio_mqtt as aiomqtt
 import discord
@@ -34,10 +34,25 @@ class PhoneMonitor(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.mqttCog: "HomeAssistantIntigreation" = None
+        self.notifiable: List[int] = []
+
+    @discord.app_commands.command(name="ha-vc-notifs", description="Toggle voice channel notifications for your phone")
+    @discord.app_commands.guilds([discord.Object(id=GUILD)])
+    async def ha_vc_notifs(self, interaction: discord.Interaction):
+        if interaction.user.id not in USER_TO_HA_DEVICE:
+            await interaction.response.send_message("You can not use this command", ephemeral=True)
+            return
+        if interaction.user.id in self.notifiable:
+            self.notifiable.remove(interaction.user.id)
+            await interaction.response.send_message(
+                "You will no longer be notified of voice channel changes", ephemeral=True
+            )
+        else:
+            self.notifiable.append(interaction.user.id)
+            await interaction.response.send_message("You will now be notified of voice channel changes", ephemeral=True)
 
     @Cog.listener()
     async def on_ha_update_location(self, name: str, location: PayloadType):
-        print('HERE!')
         log.info(f"HA update: {name} -> {location}")
         await self.bot.wait_until_ready()
 
@@ -76,16 +91,13 @@ class PhoneMonitor(Cog):
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
-        channel = before.channel or after.channel
+        channel: discord.VoiceChannel = before.channel or after.channel
         if self.mqttCog is None:
             self.mqttCog: "HomeAssistantIntigreation" = self.bot.get_cog("HomeAssistantIntigreation")
         if before.channel and after.channel and before.channel == after.channel:
             return  # noone moved
-        on_mobile = [
-            v for m, v in MEMBERS.items() if channel.guild.get_member(v) and channel.guild.get_member(v).is_on_mobile()
-        ]
-        log.debug(f"on_mobile: {on_mobile}")
-        for user in on_mobile:
+
+        for user in [channel.guild.get_member(x) for x in self.notifiable if channel.guild.get_member(x) is not None]:
             log.debug(f"checking {user}")
             SELF_MOVED = user == member.id
             message = None
