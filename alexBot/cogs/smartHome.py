@@ -37,7 +37,7 @@ class PhoneMonitor(Cog):
         self.notifiable: List[int] = []
 
     @discord.app_commands.command(name="ha-vc-notifs", description="Toggle voice channel notifications for your phone")
-    @discord.app_commands.guilds([discord.Object(id=GUILD)])
+    @discord.app_commands.guilds(GUILD)
     async def ha_vc_notifs(self, interaction: discord.Interaction):
         if interaction.user.id not in USER_TO_HA_DEVICE:
             await interaction.response.send_message("You can not use this command", ephemeral=True)
