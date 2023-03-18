@@ -107,7 +107,7 @@ class PhoneMonitor(Cog):
                     if SELF_MOVED:
                         message = f"you were moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
                     else:
-                        message = f"{member.name} was moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
+                        message = f"{member.name} was moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in before.channel.members])}"
                 if user in [user.id for user in after.channel.members]:
                     # person joined chat from another channel in server
                     message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
