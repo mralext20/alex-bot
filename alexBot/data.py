@@ -161,7 +161,7 @@ class Data(Cog):
     async def get_voice_name(self, channelId: int, memherId: int):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             async with conn.execute(
-                "SELECT data FROM voiceNames WHERE channelId=? AND memberId=?", (channelId, memherId)
+                "SELECT name FROM voiceNames WHERE channelId=? AND userId=?", (channelId, memherId)
             ) as cur:
                 data = await cur.fetchone()
                 if not data:
@@ -171,13 +171,13 @@ class Data(Cog):
     async def save_voice_name(self, channelId: int, memherId: int, name: str):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute(
-                "REPLACE INTO voiceNames (channelId, memberId, data) VALUES (?,?,?)", (channelId, memherId, name)
+                "REPLACE INTO voiceNames (channelId, userId, name) VALUES (?,?,?)", (channelId, memherId, name)
             )
             await conn.commit()
 
     async def delete_voice_name(self, channelId: int, memherId: int):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
-            await conn.execute("DELETE FROM voiceNames WHERE channelId=? AND memberId=?", (channelId, memherId))
+            await conn.execute("DELETE FROM voiceNames WHERE channelId=? AND userId=?", (channelId, memherId))
             await conn.commit()
 
 
