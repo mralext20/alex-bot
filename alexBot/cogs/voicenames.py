@@ -16,11 +16,11 @@ log = logging.getLogger(__name__)
 class VoiceNames(Cog):
     namesGroup = app_commands.Group(name="names", description="Manage voice channel nicknames")
 
-    async def cog_load(self):
-        self.bot.voiceCommandsGroup.add_command(self.namesGroup)
+    # async def cog_load(self):
+    #     self.bot.voiceCommandsGroup.add_command(self.namesGroup)
 
-    async def cog_unload(self):
-        self.bot.voiceCommandsGroup.remove_command(self.namesGroup.name)
+    # async def cog_unload(self):
+    #     self.bot.voiceCommandsGroup.remove_command(self.namesGroup.name)
 
     @Cog.listener()
     async def on_voice_state_update(
@@ -74,3 +74,4 @@ class VoiceNames(Cog):
 
 async def setup(bot: "Bot"):
     await bot.add_cog(VoiceNames(bot))
++
