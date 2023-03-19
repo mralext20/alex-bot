@@ -48,8 +48,10 @@ class PhoneMonitor(Cog):
             await interaction.response.send_message(
                 "You will no longer be notified of voice channel changes", ephemeral=True
             )
+            log.debug(f"Removing {interaction.user.id} from notifiable")
         else:
             self.notifiable.append(interaction.user.id)
+            log.debug(f"Adding {interaction.user.id} to notifiable")
             await interaction.response.send_message("You will now be notified of voice channel changes", ephemeral=True)
 
     @Cog.listener()
@@ -67,6 +69,9 @@ class PhoneMonitor(Cog):
             name += TABLE[location]
             log.info(f"Changing {member.display_name} to {name}")
             await member.edit(nick=name)
+            if member.id not in self.notifiable and location == "Walmart":
+                self.notifiable.append(member.id)
+                log.info(f"Adding {member.display_name} to notifiable for being at walmart")
 
     @Cog.listener()
     async def on_ha_vc_control(self, name: str, command: PayloadType):
