@@ -16,15 +16,21 @@ log = logging.getLogger(__name__)
 class VoiceNames(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
-        self.namesGroup = app_commands.Group(parent=self.bot.voiceCommandsGroup, name="names", description="Manage voice channel nicknames")
-        
+        self.namesGroup = app_commands.Group(
+            parent=self.bot.voiceCommandsGroup, name="names", description="Manage voice channel nicknames"
+        )
+
     async def cog_load(self):
         self.namesGroup.add_command(
-            app_commands.Command(name="set", description="Set a nickname for a user in a voice channel", callback=self.set_name)
+            app_commands.Command(
+                name="set", description="Set a nickname for a user in a voice channel", callback=self.set_name
             )
+        )
         self.namesGroup.add_command(
-            app_commands.Command(name="remove", description="Remove a nickname for a user in a voice channel", callback=self.remove_name)
+            app_commands.Command(
+                name="remove", description="Remove a nickname for a user in a voice channel", callback=self.remove_name
             )
+        )
 
     async def cog_unload(self):
         self.bot.remove_command(self.namesGroup.name)
@@ -79,4 +85,3 @@ class VoiceNames(Cog):
 
 async def setup(bot: "Bot"):
     await bot.add_cog(VoiceNames(bot))
-+
