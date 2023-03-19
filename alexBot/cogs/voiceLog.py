@@ -27,6 +27,15 @@ class VoiceLog(Cog):
         only for actions in nerdiowo
         hide events that do with ther admin category in any way
         """
+        gd = await self.bot.db.get_guild_data(member.guild.id)
+        if gd.config.privateOnePersonVCs:
+            if after.channel and after.channel.user_limit == 1 and len(after.channel.members) == 1:
+                # give the user channel override for manage menbers
+                await after.channel.set_permissions(member, overwrite=discord.PermissionOverwrite(move_members=True))
+            if before.channel and before.channel.user_limit == 1:
+                # remove the user channel override for manage menbers
+                await before.channel.set_permissions(member, overwrite=None)
+
         if member.id in self.waiting_for_afk:
             self.waiting_for_afk[member.id].cancel()
             del self.waiting_for_afk[member.id]

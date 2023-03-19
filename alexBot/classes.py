@@ -123,6 +123,7 @@ class GuildConfig:
     veryCool: bool = False
     collectVoiceData: bool = True
     firstAmendment: bool = False
+    privateOnePersonVCs: bool = False
     minecraft: str = ""
 
     @classmethod
