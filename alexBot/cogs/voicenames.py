@@ -14,13 +14,20 @@ log = logging.getLogger(__name__)
 
 
 class VoiceNames(Cog):
-    namesGroup = app_commands.Group(name="names", description="Manage voice channel nicknames")
+    def __init__(self, bot: "Bot"):
+        super().__init__(bot)
+        self.namesGroup = app_commands.Group(parent=self.bot.voiceCommandsGroup, name="names", description="Manage voice channel nicknames")
+        
+    async def cog_load(self):
+        self.namesGroup.add_command(
+            app_commands.Command(name="set", description="Set a nickname for a user in a voice channel", callback=self.set_name)
+            )
+        self.namesGroup.add_command(
+            app_commands.Command(name="remove", description="Remove a nickname for a user in a voice channel", callback=self.remove_name)
+            )
 
-    # async def cog_load(self):
-    #     self.bot.voiceCommandsGroup.add_command(self.namesGroup)
-
-    # async def cog_unload(self):
-    #     self.bot.voiceCommandsGroup.remove_command(self.namesGroup.name)
+    async def cog_unload(self):
+        self.bot.remove_command(self.namesGroup.name)
 
     @Cog.listener()
     async def on_voice_state_update(
@@ -32,7 +39,6 @@ class VoiceNames(Cog):
         if name:
             await member.edit(nick=name)
 
-    @namesGroup.command(name="set", description="Set a nickname for a user in a voice channel")
     async def set_name(
         self,
         interaction: discord.Interaction,
@@ -52,7 +58,6 @@ class VoiceNames(Cog):
         await self.bot.db.save_voice_name(channel.id, target.id, name)
         await interaction.response.send_message(f"Set nickname for {target.mention} to {name} in {channel.mention}")
 
-    @namesGroup.command(name="remove", description="Remove a nickname for a user in a voice channel")
     async def remove_name(
         self,
         interaction: discord.Interaction,
