@@ -35,7 +35,7 @@ class PhoneMonitor(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.mqttCog: "HomeAssistantIntigreation" = None
-        self.notifiable: List[int] = []
+        self.notifiable: List[int] = list(USER_TO_HA_DEVICE.keys())
 
     @discord.app_commands.command(name="ha-vc-notifs", description="Toggle voice channel notifications for your phone")
     @discord.app_commands.guilds(GUILD)
