@@ -21,6 +21,7 @@ TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default val
 TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
 TABLE["Garrett's Home"] = "🏠"
+TABLE['Boston'] = "🎮"
 GUILD = 791528974442299412
 MEMBERS = {'alex': 108429628560924672, 'garrett': 326410251546918913}
 NEWLINE = '\n'
