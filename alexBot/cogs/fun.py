@@ -19,6 +19,7 @@ YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|you
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
 ARSON_STRINGS = ["fire", "arson", "kat", "cat", "arsn"]
 
+
 class Fun(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
@@ -402,7 +403,11 @@ class Fun(Cog):
                     pass
 
                 await message.delete()
-        if message.guild and message.guild.id==791528974442299412 and any(word in message.content.lower() for word in ARSON_STRING):
+        if (
+            message.guild
+            and message.guild.id == 791528974442299412
+            and any(word in message.content.lower() for word in ARSON_STRING)
+        ):
             await message.reply("arson", mention_author=False)
 
 
