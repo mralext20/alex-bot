@@ -35,32 +35,7 @@ class Fun(Cog):
             callback=self.videoLength,
         )
 
-        self.remind_channel.start()
         self.recentlyReminded: List[int] = []
-
-    @tasks.loop(
-        time=[datetime.time(hour=hour, minute=5, tzinfo=datetime.timezone.utc) for hour in range(0, 24, 1)],
-        reconnect=True,
-    )
-    async def remind_channel(self):
-        g = self.bot.get_guild(1083141160198996038)
-        for channel in g.voice_channels:
-            if False and len(channel.members) > 0:
-                if channel.id not in self.recentlyReminded:
-                    self.recentlyReminded.append(channel.id)
-
-                    msg = await channel.send(
-                        f"{','.join([u.mention for u in channel.members])}\n\nStill busy?",
-                        allowed_mentions=discord.AllowedMentions.all(),
-                    )
-                    await asyncio.sleep(60 * 5)
-                    await msg.delete()
-            elif channel.id in self.recentlyReminded:
-                self.recentlyReminded.remove(channel.id)
-
-    @remind_channel.before_loop
-    async def before_feedUpdate(self):
-        await self.bot.wait_until_ready()
 
     async def cog_load(self) -> None:
         self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
