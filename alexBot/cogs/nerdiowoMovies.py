@@ -3,6 +3,7 @@
 import asyncio
 import datetime
 import enum
+import logging
 import random
 from typing import List, Optional
 
@@ -20,6 +21,8 @@ NERDIOWO_VOICE_CHANNEL = 1069499258115477525
 NERDIOWO_ANNOUNCENENTS = 910725067003027547
 NERDIOWO_MOVIE_NIGHT_ROLE = 1069492195415048192
 NUMBER_EMOJIS = ["1️⃣", "2️⃣", "3️⃣"]
+
+log = logging.getLogger(__name__)
 
 
 class WatchedSelector(enum.Enum):
@@ -197,7 +200,7 @@ class NerdiowoMovies(Cog):
         except IndexError:
             await interaction.response.send_message("That movie has not been suggested", ephemeral=True)
             return
-
+        log.debug(f"Creating event for movie {movie.title}")
         # the next time we watch a movie will  be the next time Saturday at 3:30PM Alaska time happens.
         now = datetime.datetime.now(tz=pytz.timezone("America/Anchorage"))
         start_time = now.replace(hour=15, minute=25, second=0, microsecond=0)
@@ -207,12 +210,13 @@ class NerdiowoMovies(Cog):
         #  if the time has already passed, set it for next week
         if start_time < now:
             start_time += datetime.timedelta(days=7)
-
+        log.debug(f"Creating event for {start_time} for movie {movie.title}")
         event = await interaction.guild.create_scheduled_event(
             name=f"Movie Night: {movie.title}",
             channel=interaction.guild.get_channel(NERDIOWO_VOICE_CHANNEL),
             start_time=start_time,
         )
+        log.debug(f"Created event {event.url}")
         await interaction.response.send_message("Event created.")
         await self.bot.get_channel(NERDIOWO_ANNOUNCENENTS).send(
             f"{event.url} <@&{NERDIOWO_MOVIE_NIGHT_ROLE}>",
