@@ -33,11 +33,11 @@ class CommandErrorHandler(Cog):
         log.exception(error)
         if interaction.response.is_done():
             await interaction.followup.send(
-                "An Error Occurred while running this command. please contact {ctx.bot.owner.mention}", ephemeral=True
+                f"An Error Occurred while running this command. please contact {self.bot.owner.mention}", ephemeral=True
             )
         else:
             await interaction.response.send_message(
-                "An Error Occurred while running this command. please contact {ctx.bot.owner.mention}", ephemeral=True
+                f"An Error Occurred while running this command. please contact {self.bot.owner.mention}", ephemeral=True
             )
 
     @Cog.listener()
