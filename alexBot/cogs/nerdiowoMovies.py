@@ -202,6 +202,7 @@ class NerdiowoMovies(Cog):
         except IndexError:
             await interaction.response.send_message("That movie has not been suggested", ephemeral=True)
             return
+        await interaction.response.defer(thinking=True)
         log.debug(f"Creating event for movie {movie.title}")
         # the next time we watch a movie will  be the next time Saturday at 3:30PM Alaska time happens.
         now = datetime.datetime.now(tz=pytz.timezone("America/Anchorage"))
@@ -221,7 +222,7 @@ class NerdiowoMovies(Cog):
             start_time=start_time,
         )
         log.debug(f"Created event {event.url}")
-        await interaction.response.send_message("Event created.")
+        await interaction.followup.send("Event created.")
         await self.bot.get_channel(NERDIOWO_ANNOUNCENENTS).send(
             f"{event.url} <@&{NERDIOWO_MOVIE_NIGHT_ROLE}>",
             allowed_mentions=discord.AllowedMentions.all(),
