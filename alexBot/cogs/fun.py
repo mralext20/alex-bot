@@ -39,7 +39,12 @@ class Fun(Cog):
 
     async def cog_load(self) -> None:
         self.bot.tree.add_command(
-            self.stealEmojiMenu, guilds=[discord.Object(791528974442299412), discord.Object(384843279042084865)]
+            self.stealEmojiMenu,
+            guilds=[
+                discord.Object(791528974442299412),
+                discord.Object(384843279042084865),
+                discord.Object(1083141160198996038),
+            ],
         )
         self.bot.tree.add_command(self.videoLengthMenu, guild=discord.Object(791528974442299412))
         self.bot.voiceCommandsGroup.add_command(
