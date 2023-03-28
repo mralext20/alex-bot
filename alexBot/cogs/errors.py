@@ -5,6 +5,8 @@ import traceback
 
 import discord
 from discord.ext import commands
+from discord import Interaction
+from discord.app_commands import AppCommandError
 
 from ..tools import Cog
 
@@ -12,6 +14,32 @@ log = logging.getLogger(__name__)
 
 
 class CommandErrorHandler(Cog):
+    def cog_load(self):
+        tree = self.bot.tree
+        self._old_tree_error = tree.on_error
+        tree.on_error = self.on_app_command_error
+
+    # -> Option 1 ---
+    # detaching the handler when the cog is unloaded
+    # this is optional for option 1
+    def cog_unload(self):
+        tree = self.bot.tree
+        tree.on_error = self._old_tree_error
+
+    # -> Option 1 ---
+    # the global error handler for all app commands (slash & ctx menus)
+    async def on_app_command_error(self, interaction: Interaction, error: AppCommandError):
+        log.error(f"app command error: {error} from {interaction.user} in {interaction.guild or 'DM'}")
+        log.exception(error)
+        if interaction.response.is_done():
+            await interaction.followup.send(
+                "An Error Occurred while running this command. please contact {ctx.bot.owner.mention}", ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                "An Error Occurred while running this command. please contact {ctx.bot.owner.mention}", ephemeral=True
+            )
+
     @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         """The event triggered when an error is raised while invoking a command."""
@@ -19,7 +47,6 @@ class CommandErrorHandler(Cog):
             return
 
         msg = None
-        alex = ctx.bot.owner
         if isinstance(error, asyncio.TimeoutError):
             msg = f"timed out. you can start again with {ctx.prefix}{ctx.command}"
 
@@ -70,7 +97,7 @@ class CommandErrorHandler(Cog):
             trace = traceback.format_exception(type(error), error, error.__traceback__, limit=5)
             actual_trace = '\n'.join(trace)
             msg = (
-                f"Something, somewhere, broke. if {alex.mention} isnt in this server, "
+                f"Something, somewhere, broke. if {ctx.bot.owner.mention} isnt in this server, "
                 f"so you'll have to join the server in `a!about`."
             )
             log.error(
