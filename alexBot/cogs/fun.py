@@ -76,8 +76,6 @@ class Fun(Cog):
         self.bot.voiceCommandsGroup.remove_command("disconnect")
         self.bot.voiceCommandsGroup.remove_command("move_me")
 
-        self.remind_channel.cancel()
-
     async def videoLength(self, interaction: discord.Interaction, message: discord.Message):
         matches = YOUTUBE_REGEX.findall(message.content)
         if len(matches) == 0:
