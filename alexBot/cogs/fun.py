@@ -38,7 +38,9 @@ class Fun(Cog):
         self.recentlyReminded: List[int] = []
 
     async def cog_load(self) -> None:
-        self.bot.tree.add_command(self.stealEmojiMenu, guild=discord.Object(791528974442299412))
+        self.bot.tree.add_command(
+            self.stealEmojiMenu, guilds=[discord.Object(791528974442299412), discord.Object(384843279042084865)]
+        )
         self.bot.tree.add_command(self.videoLengthMenu, guild=discord.Object(791528974442299412))
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
@@ -142,12 +144,12 @@ class Fun(Cog):
             async def callback(self, interaction: discord.Interaction):
                 await interaction.response.send_message("i'll get right on that!", ephemeral=True)
                 uploads = []
-                nerdiowo = bot.get_guild(791528974442299412)
+
                 for i in self.values:
                     index = int(i)
                     emoji = emojis[index]
                     data = await emoji.read()
-                    uploaded = await nerdiowo.create_custom_emoji(name=emoji.name, image=data)
+                    uploaded = await interaction.guild.create_custom_emoji(name=emoji.name, image=data)
                     await interaction.followup.send(f"{uploaded}", ephemeral=True)
                     uploads.append(f"{uploaded}")
 
