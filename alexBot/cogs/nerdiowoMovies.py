@@ -187,11 +187,13 @@ class NerdiowoMovies(Cog):
         if not (
             interaction.user.guild_permissions.administrator or interaction.user.get_role(NERDIOWO_MANAGE_SERVER_ID)
         ):
+            log.debug(f"{interaction.user} is not an admin")
             await interaction.response.send_message("You are not an admin.", ephemeral=True)
             return
         all_movies = await self.bot.db.get_movies_data()
         # only unwatched movies
         movies = [movie for movie in all_movies if not movie.watched]
+        log.debug(f"Found {len(movies)} unwatched movies")
         if not movies:
             await interaction.response.send_message("There are no movies to vote on.", ephemeral=True)
             return
@@ -206,9 +208,11 @@ class NerdiowoMovies(Cog):
         start_time = now.replace(hour=15, minute=25, second=0, microsecond=0)
         # set the day to saturday
         start_time += datetime.timedelta(days=(5 - start_time.weekday()) % 7)
+        log.debug(f"inintial Next movie night will be at {start_time}")
 
         #  if the time has already passed, set it for next week
         if start_time < now:
+            log.debug(f"Next movie night is in the past, setting it for next week")
             start_time += datetime.timedelta(days=7)
         log.debug(f"Creating event for {start_time} for movie {movie.title}")
         event = await interaction.guild.create_scheduled_event(
