@@ -220,7 +220,7 @@ class NerdiowoMovies(Cog):
             name=f"Movie Night: {movie.title}",
             channel=interaction.guild.get_channel(NERDIOWO_VOICE_CHANNEL),
             start_time=start_time,
-            privacy_level=discord.ScheduledEvent.privacy_level.guild_only,
+            privacy_level=discord.PrivacyLevel.guild_only,
         )
         log.debug(f"Created event {event.url}")
         await interaction.followup.send("Event created.")
