@@ -44,7 +44,7 @@ class RecurringReminders(Cog):
 
     @staticmethod
     async def wait_a_moment(partial: Coroutine):
-        await asyncio.sleep(65)
+        await asyncio.sleep(125)
         await partial
 
     async def setup_remind(self, reminder: RecurringReminder):
@@ -82,7 +82,8 @@ class RecurringReminders(Cog):
                     await dis_message.reply("reminder!")
 
             return
-        await target.send(message)
+        else:
+            await target.send(message)
 
     remindersGroup = app_commands.Group(
         name="recurring-reminders",
