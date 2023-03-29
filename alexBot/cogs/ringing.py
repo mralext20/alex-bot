@@ -59,7 +59,7 @@ class Ringing(Cog):
         times = 0
         allowed_mentions = discord.AllowedMentions(users=[target])
 
-        while times < ringRate.times:
+        while times <= ringRate.times:
             if channel.guild.get_member(target.id).voice:
                 return  #  they joined voice
             await channel.send(
