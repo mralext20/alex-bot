@@ -333,7 +333,7 @@ class Fun(Cog):
                 await message.reply("very cool", mention_author=False)
         if cfg.firstAmendment:
             if any([check in message.content.lower() for check in ["free speech", "first amendment"]]):
-                if self.last_posted.get(message.channel.id, time.time() - 60 * 60 * 24) < time.time() - 60 * 5:
+                if self.last_posted.get(message.channel.id, time.time() - 60 * 60 * 24) < time.time() - 60 * 60:
                     await message.reply("https://xkcd.com/1357/", mention_author=True)
                     self.last_posted[message.channel.id] = time.time()
 
