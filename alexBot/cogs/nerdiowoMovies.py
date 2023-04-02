@@ -178,7 +178,7 @@ class NerdiowoMovies(Cog):
         await interaction.response.send_message("Vote started.", ephemeral=True)
         thread = await msg.create_thread(name="Movie Night Vote")
         thread.send(
-            f"{interaction.guild.get_role(NERDIOWO_EVERYBODY_VOTES).mention} Vote for the next movie!",
+            f"{interaction.guild.get_role(NERDIOWO_MOVIE_NIGHT_ROLE).mention} Vote for the next movie!",
             allowed_mentions=discord.AllowedMentions.all(),
         )
 
