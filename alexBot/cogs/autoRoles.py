@@ -27,12 +27,15 @@ def make_callback(btnRole: ButtonRole, otherRoles: List[ButtonRole]):
                 "that role doesn't exist anymore, please contact an admin", ephemeral=True
             )
             return
+        await interaction.response.defer(ephemeral=True)
         if interaction.user.get_role(btnRole.role):
             await interaction.user.remove_roles(role)
-            await interaction.response.send_message(f"removed the {btnRole.label} role for you!", ephemeral=True)
+            await interaction.followup.send(
+                f"removed the {btnRole.label if btnRole.label else str(role.color)} role for you!", ephemeral=True
+            )
         else:
             await interaction.user.add_roles(role)
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"added the {btnRole.label if btnRole.label else str(role.color)} role for you!", ephemeral=True
             )
 
