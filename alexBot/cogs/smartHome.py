@@ -1,7 +1,7 @@
 import logging
+import typing
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List
-import typing
 
 import asyncio_mqtt as aiomqtt
 import discord
