@@ -19,6 +19,7 @@ class ClearReminderView(discord.ui.View):
     ):
         super().__init__(timeout=None)
         self.waiting = True
+        self.times = 0
 
     @discord.ui.button(label="Clear", style=discord.ButtonStyle.red)
     async def clear(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -28,9 +29,9 @@ class ClearReminderView(discord.ui.View):
 
 
 class RecurringReminders(Cog):
-    def __init__(self, bot: "Bot"):
+    def __init__(self, bot):
         super().__init__(bot)
-        self.tasks = []
+        self.tasks: List[asyncio.Task] = []
         self.reminders: List[RecurringReminder] = []
 
     async def cog_load(self):
@@ -76,9 +77,10 @@ class RecurringReminders(Cog):
             v = ClearReminderView()
             dis_message = await target.send(message, view=v)
 
-            while v.waiting:
+            while v.waiting and v.times < 8:  # 8 * 5 minutes = 40 minutes
                 await asyncio.sleep(300)
                 if v.waiting:
+                    v.times += 1
                     await dis_message.reply("reminder!")
 
             return
