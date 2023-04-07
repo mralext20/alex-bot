@@ -107,22 +107,28 @@ class PhoneMonitor(Cog):
             log.debug(f"checking {user}")
             SELF_MOVED = user == member.id
             message = None
+
             if before.channel and after.channel and (before.channel != after.channel):
                 if user in [user.id for user in before.channel.members]:
                     # person left chat to another channel in server
                     if SELF_MOVED:
+                        log.debug(f"Self moved from {before.channel.name} to {after.channel.name}")
                         message = f"you were moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
                     else:
+                        log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
                         message = f"{member.name} was moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in before.channel.members])}"
                 if user in [user.id for user in after.channel.members]:
                     # person joined chat from another channel in server
+                    log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
                     message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
             if before.channel and not after.channel and user in [user.id for user in before.channel.members]:
                 # person left chat
+                log.debug(f"{member.name} left {before.channel.name}")
                 message = f"{member.name} left {before.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in before.channel.members])}"
                 pass
             if not before.channel and after.channel and user in [user.id for user in after.channel.members]:
                 # person joined chat
+                log.debug(f"{member.name} joined {after.channel.name}")
                 message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
             log.debug(f"message: {message}")
             if message:
