@@ -104,10 +104,14 @@ class PhoneMonitor(Cog):
             return  # noone moved
 
         for user in self.notifiable:
+            oldAfter = after.channel
             log.debug(f"checking {user}")
             SELF_MOVED = user == member.id
             message = None
-
+            if not (targtetMember := channel.guild.get_member(user)):
+                return  #  user not in server
+            if after.channel and not after.channel.permissions_for(targtetMember).view_channel:
+                after.channel = None
             if before.channel and after.channel and (before.channel != after.channel):
                 if user in [user.id for user in before.channel.members]:
                     # person left chat to another channel in server
@@ -133,6 +137,8 @@ class PhoneMonitor(Cog):
             log.debug(f"message: {message}")
             if message:
                 await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
+
+            after.channel = oldAfter
 
 
 async def setup(bot: "Bot"):
