@@ -25,7 +25,10 @@ TABLE['Walmart'] = "🏪"
 TABLE["Garrett's Home"] = "🏠"
 TABLE['Boston'] = "🎮"
 GUILD = 791528974442299412
-MEMBERS = {'alex': 108429628560924672, 'garrett': 326410251546918913}
+MEMBERS = {  # ha-name: (discord-id, [guild-ids])
+    'alex': (108429628560924672, [791528974442299412, 384843279042084865]),
+    'garrett': (326410251546918913, [791528974442299412, 384843279042084865]),
+}
 NEWLINE = '\n'
 USER_TO_HA_DEVICE = {
     108429628560924672: 'mobile_app_pixel_7_pro',
@@ -62,15 +65,22 @@ class PhoneMonitor(Cog):
         await self.bot.wait_until_ready()
 
         if name in MEMBERS:
-            g = self.bot.get_guild(GUILD)
-            member: discord.Member = g.get_member(MEMBERS[name])
-            name = member.display_name
-            for _, locator in TABLE.items():
-                name = name.rstrip(locator)
+            for g in MEMBERS[name][1]:
+                g = self.bot.get_guild(GUILD)
 
-            name += TABLE[location]
-            log.info(f"Changing {member.display_name} to {name}")
-            await member.edit(nick=name)
+                member: discord.Member = g.get_member(MEMBERS[name])
+                if not member:
+                    continue
+                name = member.display_name
+                for _, locator in TABLE.items():
+                    name = name.rstrip(locator)
+
+                name += TABLE[location]
+                log.info(f"Changing {member.display_name} to {name}")
+                try:
+                    await member.edit(nick=name)
+                except discord.errors.Forbidden:
+                    pass  # permission fault, probably because server owner
             if member.id not in self.notifiable and location == "Walmart":
                 self.notifiable.append(member.id)
                 log.info(f"Adding {member.display_name} to notifiable for being at walmart")
@@ -80,7 +90,7 @@ class PhoneMonitor(Cog):
         log.info(f"HA vc control: {name} -> {command}")
         await self.bot.wait_until_ready()
         if name in MEMBERS:
-            user = self.bot.get_user(MEMBERS[name])
+            user = self.bot.get_user(MEMBERS[name][0])
             if not user:
                 return
             targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
