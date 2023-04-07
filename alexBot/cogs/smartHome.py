@@ -1,6 +1,7 @@
 import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List
+import typing
 
 import asyncio_mqtt as aiomqtt
 import discord
@@ -15,6 +16,8 @@ if TYPE_CHECKING:
 
 
 log = logging.getLogger(__name__)
+
+VocalGuildChannel = typing.Union[discord.VoiceChannel, discord.StageChannel]
 
 TABLE = defaultdict(lambda: "💨")
 TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default value
@@ -108,34 +111,44 @@ class PhoneMonitor(Cog):
             log.debug(f"checking {user}")
             SELF_MOVED = user == member.id
             message = None
+            tc: List[discord.Member] = []
             if not (targtetMember := channel.guild.get_member(user)):
                 return  #  user not in server
             if after.channel and not after.channel.permissions_for(targtetMember).view_channel:
                 after.channel = None
+
             if before.channel and after.channel and (before.channel != after.channel):
                 if user in [user.id for user in before.channel.members]:
                     # person left chat to another channel in server
-                    if SELF_MOVED:
-                        log.debug(f"Self moved from {before.channel.name} to {after.channel.name}")
-                        message = f"you were moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
-                    else:
-                        log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
-                        message = f"{member.name} was moved to {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in before.channel.members])}"
+                    log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
+                    message = f"{member.name} was moved to {after.channel.name}"
+                    tc = after.channel.members
                 if user in [user.id for user in after.channel.members]:
                     # person joined chat from another channel in server
-                    log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
-                    message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
+                    if SELF_MOVED:
+                        log.debug(f"Self moved from {before.channel.name} to {after.channel.name}")
+                        message = f"you were moved to {after.channel.name}"
+                    else:
+                        log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
+                        message = f"{member.name} joined {after.channel.name}"
+
+                    tc = after.channel.members
+
             if before.channel and not after.channel and user in [user.id for user in before.channel.members]:
                 # person left chat
                 log.debug(f"{member.name} left {before.channel.name}")
-                message = f"{member.name} left {before.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in before.channel.members])}"
+                message = f"{member.name} left {before.channel.name}"
+                tc = before.channel.members
                 pass
             if not before.channel and after.channel and user in [user.id for user in after.channel.members]:
                 # person joined chat
                 log.debug(f"{member.name} joined {after.channel.name}")
-                message = f"{member.name} joined {after.channel.name}\n\nCurrent members are:\n{NEWLINE.join([m.name for m in after.channel.members])}"
-            log.debug(f"message: {message}")
+                message = f"{member.name} joined {after.channel.name}"
+                tc = after.channel.members
+
             if message:
+                message = message + f"\n\nCurrent members are:\n{NEWLINE.join([m.name for m in tc])}"
+                log.debug(f"message: {message}")
                 await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
 
             after.channel = oldAfter
