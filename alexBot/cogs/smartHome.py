@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-VocalGuildChannel = typing.Union[discord.VoiceChannel, discord.StageChannel]
 
 TABLE = defaultdict(lambda: "💨")
 TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default value
