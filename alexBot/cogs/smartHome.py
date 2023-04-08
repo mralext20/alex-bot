@@ -114,6 +114,10 @@ class PhoneMonitor(Cog):
             self.mqttCog: "HomeAssistantIntigreation" = self.bot.get_cog("HomeAssistantIntigreation")
         if before.channel and after.channel and before.channel == after.channel:
             return  # noone moved
+        voiceLog = self.bot.get_cog('VoiceLog')
+        if voiceLog:
+            if voiceLog.beingShaken.get(member.id):
+                return  # ignore person being shaken
 
         for user in self.notifiable:
             oldAfter = after.channel
