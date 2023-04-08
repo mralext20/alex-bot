@@ -51,9 +51,11 @@ class VoiceLog(Cog):
         channel = self.bot.get_channel(LOGGING_CHANNEL)
         if not channel:
             return
-        if member.id in self.beingShaken and not self.beingShaken[member.id]:
-            await channel.send(f"{member.mention} was shaken")
-            self.beingShaken[member.id] = True
+        if member.id in self.beingShaken:
+            if not self.beingShaken[member.id]:
+                await channel.send(f"{member.mention} was shaken")
+                self.beingShaken[member.id] = True
+            return
         stamp = discord.utils.format_dt(datetime.datetime.now(), style="T")
         if before.channel is None and after.channel is not None:
             # joined
