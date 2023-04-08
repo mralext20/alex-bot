@@ -135,7 +135,7 @@ class PhoneMonitor(Cog):
                     # person left chat to another channel in server
                     log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
                     message = f"{member.name} was moved to {after.channel.name}"
-                    tc = after.channel.members
+                    tc = before.channel.members
                 if user in [user.id for user in after.channel.members]:
                     # person joined chat from another channel in server
                     if SELF_MOVED:
@@ -160,7 +160,7 @@ class PhoneMonitor(Cog):
                 tc = after.channel.members
 
             if message:
-                message = message + f"\n\nCurrent members are:\n{NEWLINE.join([m.name for m in tc])}"
+                message = message + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([m.name for m in tc])}"
                 log.debug(f"message: {message}")
                 await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
 
