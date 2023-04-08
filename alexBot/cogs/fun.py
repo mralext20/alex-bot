@@ -307,8 +307,8 @@ class Fun(Cog):
             )
 
         for _ in range(4):
-            await user.move_to(AFKChannel, reason="shake requested by {interaction.user.display_name}")
-            await user.move_to(currentChannel, reason="shake requested by {interaction.user.display_name}")
+            await user.move_to(AFKChannel, reason=f"shake requested by {interaction.user.display_name}")
+            await user.move_to(currentChannel, reason=f"shake requested by {interaction.user.display_name}")
         if voiceLog:
             del voiceLog.beingShaken[user.id]
 
