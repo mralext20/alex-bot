@@ -67,8 +67,9 @@ class PhoneMonitor(Cog):
         if name in MEMBERS:
             for g in MEMBERS[name][1]:
                 g = self.bot.get_guild(GUILD)
-
-                member: discord.Member = g.get_member(MEMBERS[name])
+                if not g:
+                    continue
+                member = g.get_member(MEMBERS[name][0])
                 if not member:
                     continue
                 name = member.display_name
@@ -80,9 +81,9 @@ class PhoneMonitor(Cog):
                 try:
                     await member.edit(nick=name)
                 except discord.errors.Forbidden:
-                    pass  # permission fault, probably because server owner
-            if member.id not in self.notifiable and location == "Walmart":
-                self.notifiable.append(member.id)
+                    continue  # permission fault, probably because server owner
+            if MEMBERS[name][0] not in self.notifiable and location == "Walmart":
+                self.notifiable.append(MEMBERS[name][0])
                 log.info(f"Adding {member.display_name} to notifiable for being at walmart")
 
     @Cog.listener()
