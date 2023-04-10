@@ -65,8 +65,8 @@ class PhoneMonitor(Cog):
         await self.bot.wait_until_ready()
 
         if name in MEMBERS:
-            for g in MEMBERS[name][1]:
-                g = self.bot.get_guild(GUILD)
+            for gid in MEMBERS[name][1]:
+                g = self.bot.get_guild(gid)
                 if not g:
                     continue
                 member = g.get_member(MEMBERS[name][0])
