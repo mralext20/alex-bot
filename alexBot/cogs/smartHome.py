@@ -75,14 +75,14 @@ class PhoneMonitor(Cog):
                 if not member:
                     log.debug(f"Skipping {name} because {MEMBERS[name][0]} is not a valid member in {g}")
                     continue
-                name = member.display_name
+                g_name = member.display_name
                 for _, locator in TABLE.items():
-                    name = name.rstrip(locator)
+                    g_name = g_name.rstrip(locator)
 
-                name += TABLE[location]
-                log.info(f"Changing {member.display_name} in {g} to {name}")
+                g_name += TABLE[location]
+                log.info(f"Changing {member.display_name} in {g} to {g_name}")
                 try:
-                    await member.edit(nick=name)
+                    await member.edit(nick=g_name)
                 except discord.errors.Forbidden as e:
                     log.debug(e)
                     continue  # permission fault, probably because server owner
