@@ -68,19 +68,22 @@ class PhoneMonitor(Cog):
             for gid in MEMBERS[name][1]:
                 g = self.bot.get_guild(gid)
                 if not g:
+                    log.debug(f"Skipping {name} because {gid} is not a valid guild")
                     continue
                 member = g.get_member(MEMBERS[name][0])
                 if not member:
+                    log.debug(f"Skipping {name} because {MEMBERS[name][0]} is not a valid member in {g}")
                     continue
                 name = member.display_name
                 for _, locator in TABLE.items():
                     name = name.rstrip(locator)
 
                 name += TABLE[location]
-                log.info(f"Changing {member.display_name} to {name}")
+                log.info(f"Changing {member.display_name} in {g} to {name}")
                 try:
                     await member.edit(nick=name)
-                except discord.errors.Forbidden:
+                except discord.errors.Forbidden as e:
+                    log.debug(e)
                     continue  # permission fault, probably because server owner
             if MEMBERS[name][0] not in self.notifiable and location == "Walmart":
                 self.notifiable.append(MEMBERS[name][0])
