@@ -66,6 +66,7 @@ class PhoneMonitor(Cog):
 
         if name in MEMBERS:
             for gid in MEMBERS[name][1]:
+                log.debug(f"Checking {name} in {gid}")
                 g = self.bot.get_guild(gid)
                 if not g:
                     log.debug(f"Skipping {name} because {gid} is not a valid guild")
