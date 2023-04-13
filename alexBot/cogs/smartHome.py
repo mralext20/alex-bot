@@ -109,11 +109,10 @@ class PhoneMonitor(Cog):
             elif command == 'disconnect':
                 await member.edit(deafen=False, mute=False)
                 await member.move_to(None)
-            if command in ['mute', 'deafen', 'disconnect']:
-                voiceState = targets[0].get_member(user.id).voice
-                await self.send_notification(
-                    MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", voiceState.channel.members
-                )
+            voiceState = targets[0].get_member(user.id).voice
+            await self.send_notification(
+                MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", voiceState.channel.members
+            )
 
     @staticmethod
     def render_voiceState(member: discord.Member) -> str:
