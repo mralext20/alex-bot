@@ -175,7 +175,7 @@ class PhoneMonitor(Cog):
             if message:
                 message = (
                     message
-                    + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {render_voiceState(m)}' for m in tc])}"
+                    + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in tc])}"
                 )
                 log.debug(f"message: {message}")
                 await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
