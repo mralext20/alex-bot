@@ -117,10 +117,10 @@ class PhoneMonitor(Cog):
     @staticmethod
     def render_voiceState(member: discord.Member) -> str:
         s = ""
-        if not member.voice.mute and not member.voice.self_mute:
-            s += "🎤"
+        if member.voice.mute and member.voice.self_mute:
+            s += "🙊"
         if member.voice.deaf or member.voice.self_deaf:
-            s += "🔇"
+            s += "🙉"
         if member.voice.self_video:
             s += "📹"
         if member.voice.self_stream:
