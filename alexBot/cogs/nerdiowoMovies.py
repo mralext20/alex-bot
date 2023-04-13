@@ -172,12 +172,13 @@ class NerdiowoMovies(Cog):
         msg = "Vote for the next movie! React with the number of the movie you want to watch.\n"
         for i, movie in enumerate(random_movies):
             msg += f"{NUMBER_EMOJIS[i]} {movie.title} suggested by  <@{movie.suggestor}>\n"
+        msg += "🔁 Pick somthing else"
         msg = await self.bot.get_channel(NERDIOWO_EVERYBODY_VOTES).send(
             msg, allowed_mentions=discord.AllowedMentions.none()
         )
         await interaction.response.send_message("Vote started.", ephemeral=True)
         thread = await msg.create_thread(name="Movie Night Vote")
-        thread.send(
+        await thread.send(
             f"{interaction.guild.get_role(NERDIOWO_MOVIE_NIGHT_ROLE).mention} Vote for the next movie!",
             allowed_mentions=discord.AllowedMentions.all(),
         )
