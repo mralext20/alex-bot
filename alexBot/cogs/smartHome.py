@@ -117,6 +117,8 @@ class PhoneMonitor(Cog):
             s += "🎤"
         if member.voice.deaf or member.voice.self_deaf:
             s += "🔇"
+        if member.voice.self_video:
+            s += "📹"
         return s
 
     @Cog.listener()
