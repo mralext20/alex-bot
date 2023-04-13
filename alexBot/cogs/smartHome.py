@@ -109,6 +109,11 @@ class PhoneMonitor(Cog):
             elif command == 'disconnect':
                 await member.edit(deafen=False, mute=False)
                 await member.move_to(None)
+            if command in ['mute', 'deafen', 'disconnect']:
+                voiceState = targets[0].get_member(user.id).voice
+                await self.send_notification(
+                    MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", voiceState.channel.members
+                )
 
     @staticmethod
     def render_voiceState(member: discord.Member) -> str:
@@ -142,7 +147,7 @@ class PhoneMonitor(Cog):
             log.debug(f"checking {user}")
             SELF_MOVED = user == member.id
             message = None
-            tc: List[discord.Member] = []
+            memberList: List[discord.Member] = []
             if not (targtetMember := channel.guild.get_member(user)):
                 return  #  user not in server
             if after.channel and not after.channel.permissions_for(targtetMember).view_channel:
@@ -153,7 +158,7 @@ class PhoneMonitor(Cog):
                     # person left chat to another channel in server
                     log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
                     message = f"{member.name} was moved to {after.channel.name}"
-                    tc = before.channel.members
+                    memberList = before.channel.members
                 if user in [user.id for user in after.channel.members]:
                     # person joined chat from another channel in server
                     if SELF_MOVED:
@@ -163,30 +168,33 @@ class PhoneMonitor(Cog):
                         log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
                         message = f"{member.name} joined {after.channel.name}"
 
-                    tc = after.channel.members
+                    memberList = after.channel.members
 
             if before.channel and not after.channel and user in [user.id for user in before.channel.members]:
                 # person left chat
                 log.debug(f"{member.name} left {before.channel.name}")
                 message = f"{member.name} left {before.channel.name}"
-                tc = before.channel.members
+                memberList = before.channel.members
                 pass
             if not before.channel and after.channel and user in [user.id for user in after.channel.members]:
                 # person joined chat
                 log.debug(f"{member.name} joined {after.channel.name}")
                 message = f"{member.name} joined {after.channel.name}"
-                tc = after.channel.members
+                memberList = after.channel.members
 
             if message:
-                log.debug(f"message pre members: {message}")
-                message = (
-                    message
-                    + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in tc])}"
-                )
-                log.debug(f"message post members : {message}")
-                await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
+                await self.send_notification(user, message, memberList)
 
             after.channel = oldAfter
+
+    async def send_notification(self, user: int, message: str, members: List[discord.Member]):
+        log.debug(f"message pre members: {message}")
+        message = (
+            message
+            + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in members])}"
+        )
+        log.debug(f"message post members : {message}")
+        await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
 
 
 async def setup(bot: "Bot"):
