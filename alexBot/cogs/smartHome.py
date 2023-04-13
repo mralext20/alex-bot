@@ -110,6 +110,14 @@ class PhoneMonitor(Cog):
                 await member.edit(deafen=False, mute=False)
                 await member.move_to(None)
 
+    def render_voiceState(member: discord.Member)-> str:
+        s = ""
+        if not member.voice.mute and not member.voice.self_mute:
+            s += "🎤"
+        if member.voice.deaf or member.voice.self_deaf:
+            s += "🔇"
+        return s
+
     @Cog.listener()
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
@@ -165,7 +173,7 @@ class PhoneMonitor(Cog):
                 tc = after.channel.members
 
             if message:
-                message = message + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([m.name for m in tc])}"
+                message = message + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {render_voiceState(m)}' for m in tc])}"
                 log.debug(f"message: {message}")
                 await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
 
