@@ -24,6 +24,9 @@ class Fun(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
+        self.FALLBACK_EMOJI_REGEX = re.compile(
+            r":(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>\d{18,22})>>"
+        )  # matches :a?:name:ID for manual addition from emoji ID. the a is indicating if the emoji is animated or not
         self.last_posted: Dict[int, float] = {}
 
         self.stealEmojiMenu = app_commands.ContextMenu(
@@ -120,12 +123,14 @@ class Fun(Cog):
 
     async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
         raw_emojis = self.EMOJI_REGEX.findall(message.content)
+        raw_emojis += self.FALLBACK_EMOJI_REGEX.findall(message.content)
         emojis = [
             PartialEmoji.with_state(self.bot._connection, animated=(e[0] == 'a'), name=e[1], id=e[2])
             for e in raw_emojis
         ]
         if len(emojis) == 0:
             await interaction.response.send_message("there's no Emoji to steal :(", ephemeral=True)
+            return
         bot = self.bot
 
         class IndexSelector(ui.Select):
