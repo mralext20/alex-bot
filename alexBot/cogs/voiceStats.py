@@ -105,6 +105,7 @@ class VoiceStats(Cog):
         userData = await self.bot.db.get_user_data(member.id)  # refresh data
         if not userData.voiceStat.recently_ended:
             log.debug("late return: recently_ended is false")
+
             return  # they reconnected
         userData.voiceStat.recently_ended = False
 
@@ -117,7 +118,13 @@ class VoiceStats(Cog):
             + current_session_length.total_seconds()
         ) / (userData.voiceStat.total_sessions + 1)
         userData.voiceStat.total_sessions += 1
-        userData.voiceStat.currently_running = False
+        # check if user is active in another server we know about
+        for guild in member.mutual_guilds:
+            if guild.get_member(member.id).voice is not None:
+                log.debug(f"{member=} is active in {guild=}")
+                break
+        else:
+            userData.voiceStat.currently_running = False
         await self.bot.db.save_user_data(member.id, userData)
 
         return
@@ -174,7 +181,7 @@ class VoiceStats(Cog):
                 embed.set_author(name=target.name, icon_url=target.icon.url if target.icon else None)
             if vs is None:
                 return
-            if self.any_other_voice_chats(target) if isinstance(target, discord.Guild) else vs.currently_running:
+            if vs.currently_running:
                 embed.add_field(
                     name="Current Session Length",
                     value=datetime.timedelta(seconds=int((datetime.datetime.now() - vs.last_started).total_seconds())),
