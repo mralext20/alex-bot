@@ -44,7 +44,12 @@ class VoiceNames(Cog):
             return
         name = await self.bot.db.get_voice_name(after.channel.id, member.id)
         if name:
-            await member.edit(nick=name)
+            try:
+                await member.edit(nick=name)
+            except discord.Forbidden:
+                await member.send(
+                    f"I don't have permission to change your nickname (triggered by voice channel names)\n\ni wanted to change it to {name}"
+                )
 
     async def set_name(
         self,
