@@ -135,16 +135,23 @@ class RecurringReminders(Cog):
     async def remove_reminder(self, interaction: discord.Interaction, message: str):
         for reminder in self.reminders:
             if reminder.message == message:
-                if reminder.target != interaction.user.id:
+                targetChannel = self.bot.get_channel(reminder.target)
+                if not targetChannel:
+                    # target is a user
+                    if reminder.target != interaction.user.id:
+                        await interaction.response.send_message(
+                            "You do not have permission to remove that reminder",
+                            ephemeral=True,
+                        )
+                        return
+                if (
+                    targetChannel
+                    and not targetChannel.permissions_for(
+                        targetChannel.guild.get_member(interaction.user.id)
+                    ).manage_channels
+                ):
                     await interaction.response.send_message(
-                        "You do not have permission to remove that reminder",
-                        ephemeral=True,
-                    )
-                    return
-                target = self.bot.get_channel(reminder.target)
-                if target and not target.permissions_for(interaction.user).manage_channels:
-                    await interaction.response.send_message(
-                        "You do not have permission to set reminders in that channel",
+                        "You do not have permission to remove reminders in that channel",
                         ephemeral=True,
                     )
                     return
