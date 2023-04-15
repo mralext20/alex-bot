@@ -26,7 +26,7 @@ class Fun(Cog):
         self.EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
         self.FALLBACK_EMOJI_REGEX = re.compile(
             r":(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>\d{18,22})>>"
-        )  # matches :a?:name:ID for manual addition from emoji ID. the a is indicating if the emoji is animated or not
+        )  # matches :a?:name:ID>> for manual addition from emoji ID. the a is indicating if the emoji is animated or not
         self.last_posted: Dict[int, float] = {}
 
         self.stealEmojiMenu = app_commands.ContextMenu(
