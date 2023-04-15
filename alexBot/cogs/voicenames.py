@@ -35,6 +35,7 @@ class VoiceNames(Cog):
     async def cog_unload(self):
         self.namesGroup.remove_command('set')
         self.namesGroup.remove_command('remove')
+        self.bot.voiceCommandsGroup.remove_command('names')
 
     @Cog.listener()
     async def on_voice_state_update(
