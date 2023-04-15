@@ -39,7 +39,6 @@ USER_TO_HA_DEVICE = {
 class PhoneMonitor(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
-        self.mqttCog: "HomeAssistantIntigreation" = None
         self.notifiable: List[int] = list(USER_TO_HA_DEVICE.keys())
 
     @discord.app_commands.command(name="ha-vc-notifs", description="Toggle voice channel notifications for your phone")
@@ -94,21 +93,31 @@ class PhoneMonitor(Cog):
     async def on_ha_vc_control(self, name: str, command: PayloadType):
         log.info(f"HA vc control: {name} -> {command}")
         await self.bot.wait_until_ready()
+        mqttCog: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
         if name in MEMBERS:
             user = self.bot.get_user(MEMBERS[name][0])
             if not user:
                 return
             targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
             if not targets:
+                await mqttCog.mqttPublish(
+                    f"alex-bot/send_message/{USER_TO_HA_DEVICE[user.id]}", "Err: i can't see what VC you are in"
+                )
                 return
             member = targets[0].get_member(user.id)
-            if command == 'mute':
-                await member.edit(mute=not member.voice.mute)
-            elif command == 'deafen':
-                await member.edit(deafen=not member.voice.deaf, mute=not member.voice.deaf)
-            elif command == 'disconnect':
-                await member.edit(deafen=False, mute=False)
-                await member.move_to(None)
+            try:
+                if command == 'mute':
+                    await member.edit(mute=not member.voice.mute)
+                elif command == 'deafen':
+                    await member.edit(deafen=not member.voice.deaf, mute=not member.voice.deaf)
+                elif command == 'disconnect':
+                    await member.edit(deafen=False, mute=False)
+                    await member.move_to(None)
+            except discord.errors.Forbidden as e:
+                await mqttCog.mqttPublish(
+                    f"alex-bot/send_message/{USER_TO_HA_DEVICE[user.id]}",
+                    "Err: i don't have permission to do that in {member.guild}",
+                )
             voiceState = targets[0].get_member(user.id).voice
             await self.send_notification(
                 MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", voiceState.channel.members
@@ -132,8 +141,6 @@ class PhoneMonitor(Cog):
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
         channel: discord.VoiceChannel = before.channel or after.channel
-        if self.mqttCog is None:
-            self.mqttCog: "HomeAssistantIntigreation" = self.bot.get_cog("HomeAssistantIntigreation")
         if before.channel and after.channel and before.channel == after.channel:
             return  # noone moved
         voiceLog = self.bot.get_cog('VoiceLog')
@@ -193,7 +200,8 @@ class PhoneMonitor(Cog):
             + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in members])}"
         )
         log.debug(f"message post members : {message}")
-        await self.mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
+        mqttCog: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
+        await mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
 
 
 async def setup(bot: "Bot"):
