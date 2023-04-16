@@ -1,14 +1,12 @@
 import functools
+import io
+import logging
 
 import discord
-from ..tools import Cog
-
-import speech_recognition
-import functools
 import pydub
-import io
+import speech_recognition
 
-import logging
+from ..tools import Cog
 
 log = logging.getLogger(__name__)
 
