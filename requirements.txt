@@ -12,6 +12,12 @@ python-slugify[unidecode]~=4.0.1
 avwx-engine~=1.6.5
 mcstatus~=5.1.4
 
+SpeechRecognition==3.10.0
+numba==0.57.0rc1
+openai-whisper==20230314
+pydub==0.25.1
+soundfile==0.12.1
+
 git+https://github.com/mralext20/geomag#egg=geomag
 pytz
 yt-dlp

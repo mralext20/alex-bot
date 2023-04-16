@@ -124,6 +124,7 @@ class GuildConfig:
     collectVoiceData: bool = True
     firstAmendment: bool = False
     privateOnePersonVCs: bool = False
+    transcribeVoiceMessages: bool = False
     minecraft: str = ""
 
     @classmethod
