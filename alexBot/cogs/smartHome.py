@@ -123,6 +123,7 @@ class PhoneMonitor(Cog):
                 )
                 return
             member = targets[0].get_member(user.id)
+            channel = member.voice.channel
             try:
                 if command == 'mute':
                     await member.edit(mute=not member.voice.mute)
@@ -136,14 +137,13 @@ class PhoneMonitor(Cog):
                     f"alex-bot/send_message/{USER_TO_HA_DEVICE[user.id]}",
                     "Err: i don't have permission to do that in {member.guild}",
                 )
-            voiceState = targets[0].get_member(user.id).voice
-            await self.send_notification(
-                MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", voiceState.channel.members
-            )
+            await self.send_notification(MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", channel.members)
 
     @staticmethod
     def render_voiceState(member: discord.Member) -> str:
         s = ""
+        if not member.voice:
+            return "❌"
         if member.voice.mute or member.voice.self_mute:
             s += "🙊"
         if member.voice.deaf or member.voice.self_deaf:
@@ -172,9 +172,9 @@ class PhoneMonitor(Cog):
             SELF_MOVED = user == member.id
             message = None
             memberList: List[discord.Member] = []
-            if not (targtetMember := channel.guild.get_member(user)):
+            if not (targetMember := channel.guild.get_member(user)):
                 return  #  user not in server
-            if after.channel and not after.channel.permissions_for(targtetMember).view_channel:
+            if after.channel and not after.channel.permissions_for(targetMember).view_channel:
                 after.channel = None
 
             if before.channel and after.channel and (before.channel != after.channel):
