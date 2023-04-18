@@ -2,8 +2,8 @@ import logging
 import typing
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List
-import aiohttp
 
+import aiohttp
 import asyncio_mqtt as aiomqtt
 import discord
 from asyncio_mqtt.types import PayloadType
