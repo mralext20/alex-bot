@@ -2,6 +2,7 @@ import logging
 import typing
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List
+import aiohttp
 
 import asyncio_mqtt as aiomqtt
 import discord
@@ -40,6 +41,23 @@ class PhoneMonitor(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.notifiable: List[int] = list(USER_TO_HA_DEVICE.keys())
+
+    @Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if not message.guild:
+            return
+        if message.channel.id not in self.bot.config.ha_voice_message_broadcast:
+            return
+
+        if message.flags.value >> 13 and len(message.attachments) == 1:
+            if message.attachments[0].content_type != "audio/ogg":
+                return
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    self.bot.config.ha_voice_message_broadcast[message.channel.id],
+                    data={"url": message.attachments[0].url},
+                ) as resp:
+                    log.debug(f"Sent voice message to HA: {resp.status}")
 
     @discord.app_commands.command(name="ha-vc-notifs", description="Toggle voice channel notifications for your phone")
     @discord.app_commands.guilds(GUILD)
