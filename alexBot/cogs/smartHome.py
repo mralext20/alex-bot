@@ -55,7 +55,7 @@ class PhoneMonitor(Cog):
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                     self.bot.config.ha_voice_message_broadcast[message.channel.id],
-                    data={"url": message.attachments[0].url},
+                    json={"url": message.attachments[0].url},
                 ) as resp:
                     log.debug(f"Sent voice message to HA: {resp.status}")
 
