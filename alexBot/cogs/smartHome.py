@@ -121,7 +121,7 @@ class PhoneMonitor(Cog):
                 hook = self.bot.config.ha_webhook_notifs.get(user.id)
                 if hook:
                     async with aiohttp.ClientSession() as session:
-                        async with session.post(hook, json={"content": f"Err: i can't see what VC you are in"}) as resp:
+                        async with session.post(hook, json={"content": "Err: i can't see what VC you are in"}) as resp:
                             log.debug(f"Sent voice message to HA: {resp.status}")
                 return
             member = targets[0].get_member(user.id)
@@ -138,7 +138,9 @@ class PhoneMonitor(Cog):
                 hook = self.bot.config.ha_webhook_notifs.get(user.id)
                 if hook:
                     async with aiohttp.ClientSession() as session:
-                        async with session.post(hook, json={"content": f"Err: i can't see what VC you are in"}) as resp:
+                        async with session.post(
+                            hook, json={"content": f"Err: i don't have permissions in {channel.guild}"}
+                        ) as resp:
                             log.debug(f"Sent voice message to HA: {resp.status}")
                 return
             await self.send_notification(MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", channel.members)
