@@ -118,9 +118,11 @@ class PhoneMonitor(Cog):
                 return
             targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
             if not targets:
-                await mqttCog.mqttPublish(
-                    f"alex-bot/send_message/{USER_TO_HA_DEVICE[user.id]}", "Err: i can't see what VC you are in"
-                )
+                hook = self.bot.config.ha_webhook_notifs.get(user.id)
+                if hook:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(hook, json={"content": f"Err: i can't see what VC you are in"}) as resp:
+                            log.debug(f"Sent voice message to HA: {resp.status}")
                 return
             member = targets[0].get_member(user.id)
             channel = member.voice.channel
@@ -133,10 +135,12 @@ class PhoneMonitor(Cog):
                     await member.edit(deafen=False, mute=False)
                     await member.move_to(None)
             except discord.errors.Forbidden as e:
-                await mqttCog.mqttPublish(
-                    f"alex-bot/send_message/{USER_TO_HA_DEVICE[user.id]}",
-                    "Err: i don't have permission to do that in {member.guild}",
-                )
+                hook = self.bot.config.ha_webhook_notifs.get(user.id)
+                if hook:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(hook, json={"content": f"Err: i can't see what VC you are in"}) as resp:
+                            log.debug(f"Sent voice message to HA: {resp.status}")
+                return
             await self.send_notification(MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", channel.members)
 
     @staticmethod
@@ -218,8 +222,11 @@ class PhoneMonitor(Cog):
             + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in members])}"
         )
         log.debug(f"message post members : {message}")
-        mqttCog: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
-        await mqttCog.mqttPublish(f"alex-bot/send_message/{USER_TO_HA_DEVICE[user]}", message)
+        webhook_target = self.bot.config.ha_webhook_notifs.get(user)
+        if webhook_target:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(webhook_target, json={"content": message}) as r:
+                    log.debug(f"webhook response: {r.status}")
 
 
 async def setup(bot: "Bot"):

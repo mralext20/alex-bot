@@ -35,8 +35,7 @@ class HomeAssistantIntigreation(Cog):
                 await asyncio.sleep(5 * 60)
 
     async def mqttPublish(self, topic, payload):
-        async with aiomqtt.Client(**self.bot.config.mqttServer) as client:
-            await client.publish(topic, payload)
+        raise NotImplementedError
 
     async def cog_load(self):
         self.task = self.bot.loop.create_task(self.mqttLoop())
