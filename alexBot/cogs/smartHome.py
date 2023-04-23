@@ -184,7 +184,9 @@ class PhoneMonitor(Cog):
                 after.channel = None
             log.debug(f"checking {member.name} in {channel.guild.name} ({channel.guild.id})")
             log.debug(f"before: {before.channel} after: {after.channel}")
-            log.debug(f"before.member: {before.channel.members} after.members: {after.channel.members}")
+            log.debug(
+                f"before.member: {before.channel.members if before.channel else None} after.members: {after.channel.members if after.channel else None}"
+            )
 
             if before.channel and after.channel and (before.channel != after.channel):
                 if user in [user.id for user in before.channel.members]:
