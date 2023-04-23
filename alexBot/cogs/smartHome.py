@@ -188,6 +188,11 @@ class PhoneMonitor(Cog):
                 f"before.member: {before.channel.members if before.channel else None} after.members: {after.channel.members if after.channel else None}"
             )
 
+            if before.channel and not after.channel and user == member.id:
+                # our current person left chat
+                # because channel.members on before is after change members, we need to insert the user into before
+                before.channel.members.append(member)
+
             if before.channel and after.channel and (before.channel != after.channel):
                 if user in [user.id for user in before.channel.members]:
                     # person left chat to another channel in server
