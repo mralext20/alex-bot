@@ -17,14 +17,12 @@ class VoiceMessageTranscriber(Cog):
         # message in a guild
         if not message.guild:
             return
-
+        if not (message.flags.value >> 13 and len(message.attachments) == 1):
+            return
         log.debug(f"Getting guild data for {message.guild}")
         gd = await self.bot.db.get_guild_data(message.guild.id)
 
-        if not gd.config.transcribeVoiceMessages:
-            return
-
-        if message.flags.value >> 13 and len(message.attachments) == 1:
+        if gd.config.transcribeVoiceMessages:
             if message.attachments[0].content_type != "audio/ogg":
                 log.debug(f"Transcription failed! Attachment not a Voice Message. message.id={message.id}")
                 await message.reply("Transcription failed! (Attachment not a Voice Message)", mention_author=False)
