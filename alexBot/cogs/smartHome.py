@@ -150,14 +150,18 @@ class PhoneMonitor(Cog):
         s = ""
         if not member.voice:
             return "❌"
-        if member.voice.mute or member.voice.self_mute:
-            s += "🙊"
-        if member.voice.deaf or member.voice.self_deaf:
-            s += "🙉"
+        if member.voice.self_mute:
+            s += "🙊 "
+        if member.voice.mute:
+            s += "🖥️🙊 "
+        if member.voice.self_deaf:
+            s += "🙉 "
+        if member.voice.deaf:
+            s += "🖥️🙉 "
         if member.voice.self_video:
-            s += "📹"
+            s += "📹 "
         if member.voice.self_stream:
-            s += "🔴"
+            s += "🔴 "
         return s
 
     @Cog.listener()
