@@ -56,6 +56,7 @@ class Utils(Cog):
 
         chan = await interaction.guild.create_voice_channel(name=name, category=target_catagory)
         self.current_thatars.append(chan)
+        await interaction.response.send_message(f"Created a new theatre channel, {chan.mention}", ephemeral=False)
         await asyncio.sleep(5 * 60)
         chan: discord.VoiceChannel = await self.bot.fetch_channel(chan.id)
         if chan is not None:
@@ -161,7 +162,7 @@ class Utils(Cog):
                         )
                     )
                     vc.source.volume = 0.25
-        if after.channel is None and before.channel.id in self.current_thatars:
+        if before.channel.id in self.current_thatars:
             if len(before.channel.members) == 0:
                 await before.channel.delete(reason="no one left")
                 self.current_thatars.remove(before.channel.id)
