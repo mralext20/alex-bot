@@ -58,10 +58,13 @@ class Utils(Cog):
         self.current_thatars.append(chan.id)
         await interaction.response.send_message(f"Created a new theatre channel, {chan.mention}", ephemeral=False)
         await asyncio.sleep(5 * 60)
-        chan: discord.VoiceChannel = await self.bot.fetch_channel(chan.id)
-        if chan is not None:
-            if len(chan.members) == 0:
-                await chan.delete()
+        try:
+            chan: discord.VoiceChannel = await self.bot.fetch_channel(chan.id)
+            if chan is not None:
+                if len(chan.members) == 0:
+                    await chan.delete()
+        except discord.NotFound:
+            pass
 
     @commands.command(aliases=['diff'])
     async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
