@@ -55,7 +55,7 @@ class Utils(Cog):
             target_catagory = interaction.channel.category
 
         chan = await interaction.guild.create_voice_channel(name=name, category=target_catagory)
-        self.current_thatars.append(chan)
+        self.current_thatars.append(chan.id)
         await interaction.response.send_message(f"Created a new theatre channel, {chan.mention}", ephemeral=False)
         await asyncio.sleep(5 * 60)
         chan: discord.VoiceChannel = await self.bot.fetch_channel(chan.id)
