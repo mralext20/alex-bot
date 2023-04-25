@@ -16,6 +16,10 @@ DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
+    def __init__(self, bot: Bot):
+        super().__init__(bot)
+        self.current_thatars = []
+
     async def cog_load(self):
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(
@@ -24,9 +28,39 @@ class Utils(Cog):
                 callback=self.voice_move,
             )
         )
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(
+                name="theatre",
+                description="create a temporary channel for watching videos with friends",
+                callback=self.voice_theatre,
+            )
+        )
 
     async def cog_unload(self):
         self.bot.voiceCommandsGroup.remove_command("move")
+        self.bot.voiceCommandsGroup.remove_command("theatre")
+
+    @app_commands.checks.bot_has_permissions(manage_channels=True)
+    @app_commands.checks.has_permissions(manage_channels=True)
+    async def voice_theatre(self, interaction: discord.Interaction, name: Optional[str]):
+        if name is None:
+            name = "Theatre"
+        target_catagory = None
+        if interaction.user.voice:
+            # we have a voice channel, is it in a category?
+            if interaction.user.voice.channel.category:
+                target_catagory = interaction.user.voice.channel.category
+        if target_catagory is None:
+            # if the current channel is in a catagory, put it there
+            target_catagory = interaction.channel.category
+
+        chan = await interaction.guild.create_voice_channel(name=name, category=target_catagory)
+        self.current_thatars.append(chan)
+        await asyncio.sleep(5 * 60)
+        chan: discord.VoiceChannel = await self.bot.fetch_channel(chan.id)
+        if chan is not None:
+            if len(chan.members) == 0:
+                await chan.delete()
 
     @commands.command(aliases=['diff'])
     async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
@@ -116,16 +150,21 @@ class Utils(Cog):
 
     @Cog.listener()
     async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
-        if after is None or after.channel is None:
-            return
-        if after.channel.id == 889031486978785312:
-            # check for existing instance and close
-            if (not after.channel.guild.voice_client) or (not after.channel.guild.voice_client.is_connected()):
-                vc = await after.channel.connect()
-                vc.play(
-                    discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3"))
-                )
-                vc.source.volume = 0.25
+        if not (after is None or after.channel is None):
+            if after.channel.id == 889031486978785312:
+                # check for existing instance and close
+                if (not after.channel.guild.voice_client) or (not after.channel.guild.voice_client.is_connected()):
+                    vc = await after.channel.connect()
+                    vc.play(
+                        discord.PCMVolumeTransformer(
+                            discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3")
+                        )
+                    )
+                    vc.source.volume = 0.25
+        if after.channel is None and before.channel.id in self.current_thatars:
+            if len(before.channel.members) == 0:
+                await before.channel.delete(reason="no one left")
+                self.current_thatars.remove(before.channel.id)
 
 
 async def setup(bot):
