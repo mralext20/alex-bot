@@ -16,7 +16,7 @@ DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
 
 
 class Utils(Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot):
         super().__init__(bot)
         self.current_thatars = []
 
