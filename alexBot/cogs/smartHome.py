@@ -143,7 +143,6 @@ class PhoneMonitor(Cog):
                         ) as resp:
                             log.debug(f"Sent voice message to HA: {resp.status}")
                 return
-            await self.send_notification(MEMBERS[name][0], f"ACK: {command}ed in {targets[0].name}", channel.members)
 
     @staticmethod
     def render_voiceState(member: discord.Member) -> str:
@@ -170,7 +169,34 @@ class PhoneMonitor(Cog):
     ):
         channel: discord.VoiceChannel = before.channel or after.channel
         if before.channel and after.channel and before.channel == after.channel:
-            return  # noone moved
+            # no one moved, check if user acted on is notifiable
+            if member.id in self.notifiable:
+                # find the differences between before.voice and after.voice
+                # if there is a difference, send a notification
+                # if there is no difference, ignore
+                message = ""
+                if before.self_mute != after.self_mute:
+                    message += f"you were {'un' if after.self_mute else ''}muted\n"
+                if before.self_deaf != after.self_deaf:
+                    message += f"you were {'un' if after.self_deaf else ''}deafened\n"
+                if before.mute != after.mute:
+                    message += f"you were {'un' if after.mute else ''}server muted\n"
+                if before.deaf != after.deaf:
+                    message += f"you were {'un' if after.deaf else ''}server deafened\n"
+                # if before.self_video != after.self_video:
+                #     message += f"you {'un' if after.self_video else ''}started video\n"
+                # if before.self_stream != after.self_stream:
+                #     message += f"you {'un' if after.self_stream else ''}started streaming\n"
+
+                else:
+                    return
+                message = self.render_voiceState(member) + message
+                await self.send_notification(member.id, message, channel.members)
+                return
+
+            else:
+                return
+
         voiceLog = self.bot.get_cog('VoiceLog')
         if voiceLog:
             if voiceLog.beingShaken.get(member.id):
