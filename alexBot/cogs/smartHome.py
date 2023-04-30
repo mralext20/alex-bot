@@ -169,8 +169,12 @@ class PhoneMonitor(Cog):
     ):
         channel: discord.VoiceChannel = before.channel or after.channel
         if before.channel and after.channel and before.channel == after.channel:
+            log.debug(f"no one moved in {channel.name}")
             # no one moved, check if user acted on is notifiable
             if member.id in self.notifiable:
+                log.debug(f"checking {member.name} in {channel.guild.name} ({channel.guild.id}) for self_voice changes")
+                log.debug(f"{before=} {after=}")
+                log.debug()
                 # find the differences between before.voice and after.voice
                 # if there is a difference, send a notification
                 # if there is no difference, ignore
@@ -187,7 +191,7 @@ class PhoneMonitor(Cog):
                 #     message += f"you {'un' if after.self_video else ''}started video\n"
                 # if before.self_stream != after.self_stream:
                 #     message += f"you {'un' if after.self_stream else ''}started streaming\n"
-
+                log.debug(f"message: {message}")
                 else:
                     return
                 message = self.render_voiceState(member) + message
