@@ -174,7 +174,6 @@ class PhoneMonitor(Cog):
             if member.id in self.notifiable:
                 log.debug(f"checking {member.name} in {channel.guild.name} ({channel.guild.id}) for self_voice changes")
                 log.debug(f"{before=} {after=}")
-                log.debug()
                 # find the differences between before.voice and after.voice
                 # if there is a difference, send a notification
                 # if there is no difference, ignore
