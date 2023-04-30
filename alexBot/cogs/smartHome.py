@@ -192,8 +192,9 @@ class PhoneMonitor(Cog):
                 # if before.self_stream != after.self_stream:
                 #     message += f"you {'un' if after.self_stream else ''}started streaming\n"
                 log.debug(f"message: {message}")
-                else:
+                if message == "":
                     return
+
                 message = self.render_voiceState(member) + message
                 await self.send_notification(member.id, message, channel.members)
                 return
