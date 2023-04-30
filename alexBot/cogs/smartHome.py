@@ -179,17 +179,17 @@ class PhoneMonitor(Cog):
                 # if there is no difference, ignore
                 message = ""
                 if before.self_mute != after.self_mute:
-                    message += f"you were {'un' if after.self_mute else ''}muted\n"
+                    message += f"you were {'' if after.self_mute else 'un'}muted\n"
                 if before.self_deaf != after.self_deaf:
-                    message += f"you were {'un' if after.self_deaf else ''}deafened\n"
+                    message += f"you were {'' if after.self_deaf else 'un'}deafened\n"
                 if before.mute != after.mute:
-                    message += f"you were {'un' if after.mute else ''}server muted\n"
+                    message += f"you were {'' if after.mute else 'un'}server muted\n"
                 if before.deaf != after.deaf:
-                    message += f"you were {'un' if after.deaf else ''}server deafened\n"
+                    message += f"you were {'' if after.deaf else 'un'}server deafened\n"
                 # if before.self_video != after.self_video:
-                #     message += f"you {'un' if after.self_video else ''}started video\n"
+                #     message += f"you {'' if after.self_video else 'un'}started video\n"
                 # if before.self_stream != after.self_stream:
-                #     message += f"you {'un' if after.self_stream else ''}started streaming\n"
+                #     message += f"you {'' if after.self_stream else 'un'}started streaming\n"
                 log.debug(f"message: {message}")
                 if message == "":
                     return
