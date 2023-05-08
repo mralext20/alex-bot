@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import typing
 from collections import defaultdict
@@ -167,6 +168,23 @@ class PhoneMonitor(Cog):
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
+        if member.id in self.notifiable and before.channel and not after.channel and before.mute:
+            # member we care about, left a channel
+            log.debug(
+                f"{member.name} left {before.channel.name}, waiting 5 minutes to see if they come back, then remembering to unmute them"
+            )
+            await asyncio.sleep(300)
+            if member.voice:
+                log.debug(f"{member.name} came back, not unmuting")
+                return
+            log.debug(f"{member.name} did not come back, unmuting")
+            await self.bot.wait_for(
+                "voice_state_update",
+                check=lambda m, b, a: m.guild == member.guild.id and m.id == member.id,
+                timeout=None,
+            )
+            await member.edit(mute=False)
+
         channel: discord.VoiceChannel = before.channel or after.channel
         if before.channel and after.channel and before.channel == after.channel:
             log.debug(f"no one moved in {channel.name}")
@@ -191,6 +209,7 @@ class PhoneMonitor(Cog):
                 # if before.self_stream != after.self_stream:
                 #     message += f"you {'' if after.self_stream else 'un'}started streaming\n"
                 log.debug(f"message: {message}")
+
                 if message == "":
                     return
 
