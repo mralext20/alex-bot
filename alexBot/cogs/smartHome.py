@@ -279,6 +279,7 @@ class PhoneMonitor(Cog):
                 memberList = after.channel.members
 
             if message:
+                message = self.render_voiceState(targetMember) + message
                 await self.send_notification(user, message, memberList)
 
             after.channel = oldAfter
