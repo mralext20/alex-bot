@@ -243,10 +243,28 @@ class Fun(Cog):
     async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         if interaction.user.voice is None:
             return [app_commands.Choice(name="err: not in a voice channel", value="0")]
-        if interaction.guild.afk_channel is None:
-            return [app_commands.Choice(name="err: no afk channel", value="0")]
-        if interaction.user.voice.channel == interaction.guild.afk_channel:
-            return [app_commands.Choice(name="err: in afk channel", value="0")]
+        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
+        if channel is None:
+            if interaction.user.voice.channel.category is not None:
+                for chan in interaction.user.voice.channel.category.channels:
+                    if (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel)) and len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                for chan in interaction.guild.voice_channels:
+                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                for chan in interaction.guild.stage_channels:
+                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
+                return
+        if channel is None or interaction.user.voice.channel == channel:
+            return [app_commands.Choice(name="err: no suitable shake channel found", value="0")]
 
         valid_targets = [
             m
@@ -277,12 +295,29 @@ class Fun(Cog):
         if interaction.user.voice is None:
             await interaction.response.send_message("you are not in a voice channel", ephemeral=True)
             return
-        if interaction.guild.afk_channel is None:
-            await interaction.response.send_message("there is no afk channel", ephemeral=True)
-            return
+        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
+        if channel is None:
+            if interaction.user.voice.channel.category is not None:
+                for chan in interaction.user.voice.channel.category.channels:
+                    if (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel)) and len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                for chan in interaction.guild.voice_channels:
+                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                for chan in interaction.guild.stage_channels:
+                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
+                return
 
-        if interaction.user.voice.channel == interaction.guild.afk_channel:
-            await interaction.response.send_message("you are in the afk channel", ephemeral=True)
+        if interaction.user.voice.channel == channel:
+            await interaction.response.send_message("you are in the shaking channel, somehow", ephemeral=True)
             return
 
         valid_targets = [
@@ -297,7 +332,7 @@ class Fun(Cog):
             return
 
         currentChannel = interaction.user.voice.channel
-        AFKChannel = interaction.guild.afk_channel
+        AFKChannel = channel
 
         await interaction.response.send_message(
             f"shaking {user.mention}...",
