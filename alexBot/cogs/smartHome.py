@@ -222,7 +222,7 @@ class PhoneMonitor(Cog):
 
         voiceLog = self.bot.get_cog('VoiceLog')
         if voiceLog:
-            if voiceLog.beingShaken.get(member.id):
+            if voiceLog.beingShaken.get(member.id) is not None:
                 return  # ignore person being shaken
 
         for user in self.notifiable:
