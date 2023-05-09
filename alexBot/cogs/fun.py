@@ -247,7 +247,11 @@ class Fun(Cog):
         if channel is None:
             if interaction.user.voice.channel.category is not None:
                 for chan in interaction.user.voice.channel.category.channels:
-                    if (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel)) and len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                    if (
+                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
+                        and len(chan.members) == 0
+                        and chan.permissions_for(interaction.user).view_channel
+                    ):
                         channel = chan
                         break
             if channel is None:
@@ -299,7 +303,11 @@ class Fun(Cog):
         if channel is None:
             if interaction.user.voice.channel.category is not None:
                 for chan in interaction.user.voice.channel.category.channels:
-                    if (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel)) and len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                    if (
+                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
+                        and len(chan.members) == 0
+                        and chan.permissions_for(interaction.user).view_channel
+                    ):
                         channel = chan
                         break
             if channel is None:
