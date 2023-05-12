@@ -186,7 +186,11 @@ class Fun(Cog):
         if interaction.user.voice.channel.guild != interaction.guild:
             await interaction.response.send_message("you're not in this server's voice channel", ephemeral=True)
             return
-        await interaction.user.voice.channel.disconnect()
+        try:
+            await interaction.user.move_to(None)
+        except:
+            await interaction.response.send_message("i can't disconnect you from voice", ephemeral=True)
+            return
         await interaction.response.send_message("ok, bye", ephemeral=True)
 
     async def vc_move(self, interaction: discord.Interaction, channel: discord.VoiceChannel):
