@@ -180,11 +180,9 @@ class PhoneMonitor(Cog):
             log.debug(f"{member.name} did not come back, unmuting")
             await self.bot.wait_for(
                 "voice_state_update",
-                check=lambda m, b, a: m.guild == member.guild.id and m.id == member.id and a.channel is not None,
+                check=lambda m, b, a: m.guild.id == member.guild.id and m.id == member.id and a.channel is not None,
                 timeout=None,
             )
-            await asyncio.sleep(1)
-            member = await member.guild.fetch_member(member.id)
             await member.edit(mute=False, deafen=False)
 
         channel: discord.VoiceChannel = before.channel or after.channel
