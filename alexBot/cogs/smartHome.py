@@ -168,7 +168,7 @@ class PhoneMonitor(Cog):
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
-        if member.id in self.notifiable and before.channel and not after.channel and before.mute:
+        if member.id in self.notifiable and before.channel and not after.channel and (before.mute or before.deaf):
             # member we care about, left a channel
             log.debug(
                 f"{member.name} left {before.channel.name}, waiting 5 minutes to see if they come back, then remembering to unmute them"
@@ -183,7 +183,7 @@ class PhoneMonitor(Cog):
                 check=lambda m, b, a: m.guild == member.guild.id and m.id == member.id,
                 timeout=None,
             )
-            await member.edit(mute=False)
+            await member.edit(mute=False, deafen=False)
 
         channel: discord.VoiceChannel = before.channel or after.channel
         if before.channel and after.channel and before.channel == after.channel:
