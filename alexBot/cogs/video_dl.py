@@ -67,6 +67,8 @@ class Video_DL(Cog):
         try:
             if data['requested_downloads'][0]['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
                 raise NotAVideo(data['url'])
+            if data['requested_downloads'][0]['width'] == 0:
+                raise NotAVideo(False, 'SlideShow')
         except KeyError:
             pass
         return (
@@ -166,6 +168,7 @@ class Video_DL(Cog):
         if matches:
             async with httpx.AsyncClient() as session:
                 resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
+                log.debug(resp)
                 message.content = str(resp.next_request.url)
         return None
 
@@ -229,6 +232,14 @@ class Video_DL(Cog):
                                 await message.add_reaction('✅')
                             except DiscordException:
                                 pass
+                        elif e.args[1] == 'SlideShow':
+                            try:
+                                # react with 🛝 📺
+                                await message.add_reaction('🛝')
+                                await message.add_reaction('📺')
+                            except DiscordException:
+                                pass
+
                         return
                     loop.create_task(message.remove_reaction('📥', self.bot.user))
 
