@@ -14,6 +14,9 @@ hass_host = os.environ.get('HASS_HOST')
 
 hass_target = os.environ.get('HASS_TARGET')
 
+ha_webhook_notifs: str = None
+
+
 token = os.environ.get('BOT_TOKEN')
 
 cat_token = os.environ.get('THECATAPI_KEY')

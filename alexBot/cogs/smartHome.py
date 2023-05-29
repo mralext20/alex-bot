@@ -2,7 +2,7 @@ import asyncio
 import logging
 import typing
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import aiohttp
 import asyncio_mqtt as aiomqtt
@@ -284,17 +284,17 @@ class PhoneMonitor(Cog):
 
             after.channel = oldAfter
 
-    async def send_notification(self, user: int, message: str, members: List[discord.Member]):
-        log.debug(f"message pre members: {message}")
-        message = (
-            message
-            + f"\n\nCurrent members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in members])}"
-        )
-        log.debug(f"message post members : {message}")
-        webhook_target = self.bot.config.ha_webhook_notifs.get(user)
+    async def send_notification(self, user: int, title: str, members: List[discord.Member]):
+        log.debug(f"title: {title}")
+        content = f"Current members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in members])}"
+
+        log.debug(f"message content: {content}")
+        webhook_target = self.bot.config.ha_webhook_notifs
         if webhook_target:
             async with aiohttp.ClientSession() as session:
-                async with session.post(webhook_target, json={"content": message}) as r:
+                async with session.post(
+                    webhook_target, json={"content": content, "title": title, "target_device": USER_TO_HA_DEVICE[user]}
+                ) as r:
                     log.debug(f"webhook response: {r.status}")
 
 
