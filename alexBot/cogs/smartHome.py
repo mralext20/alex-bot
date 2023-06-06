@@ -176,13 +176,13 @@ class PhoneMonitor(Cog):
         if member.id in self.notifiable and before.channel and not after.channel and (before.mute or before.deaf):
             # member we care about, left a channel
             log.debug(
-                f"{member.name} left {before.channel.name}, waiting 5 minutes to see if they come back, then remembering to unmute them"
+                f"{member.display_name} left {before.channel.name}, waiting 5 minutes to see if they come back, then remembering to unmute them"
             )
             await asyncio.sleep(300)
             if member.voice:
-                log.debug(f"{member.name} came back, not unmuting")
+                log.debug(f"{member.display_name} came back, not unmuting")
                 return
-            log.debug(f"{member.name} did not come back, unmuting")
+            log.debug(f"{member.display_name} did not come back, unmuting")
             await self.bot.wait_for(
                 "voice_state_update",
                 check=lambda m, b, a: m.guild.id == member.guild.id and m.id == member.id and a.channel is not None,
@@ -195,7 +195,9 @@ class PhoneMonitor(Cog):
             log.debug(f"no one moved in {channel.name}")
             # no one moved, check if user acted on is notifiable
             if member.id in self.notifiable:
-                log.debug(f"checking {member.name} in {channel.guild.name} ({channel.guild.id}) for self_voice changes")
+                log.debug(
+                    f"checking {member.display_name} in {channel.guild.name} ({channel.guild.id}) for self_voice changes"
+                )
                 log.debug(f"{before=} {after=}")
                 # find the differences between before.voice and after.voice
                 # if there is a difference, send a notification
@@ -240,7 +242,7 @@ class PhoneMonitor(Cog):
                 return  #  user not in server
             if after.channel and not after.channel.permissions_for(targetMember).view_channel:
                 after.channel = None
-            log.debug(f"checking {member.name} in {channel.guild.name} ({channel.guild.id})")
+            log.debug(f"checking {member.display_name} in {channel.guild.name} ({channel.guild.id})")
             log.debug(f"before: {before.channel} after: {after.channel}")
             log.debug(
                 f"before.member: {before.channel.members if before.channel else None} after.members: {after.channel.members if after.channel else None}"
@@ -250,15 +252,15 @@ class PhoneMonitor(Cog):
                 # our current person left chat
                 # because channel.members on before is after change members, we need to insert the user into before
                 # we're just going to manually assign the message and memberList
-                log.debug(f"{member.name} left {before.channel.name}")
-                message = f"{member.name} left {before.channel.name}"
+                log.debug(f"{member.display_name} left {before.channel.name}")
+                message = f"{member.display_name} left {before.channel.name}"
                 memberList = before.channel.members
 
             if before.channel and after.channel and (before.channel != after.channel):
                 if user in [user.id for user in before.channel.members]:
                     # person left chat to another channel in server
-                    log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
-                    message = f"{member.name} was moved to {after.channel.name}"
+                    log.debug(f"{member.display_name} moved from {before.channel.name} to {after.channel.name}")
+                    message = f"{member.display_name} was moved to {after.channel.name}"
                     memberList = before.channel.members
                 if user in [user.id for user in after.channel.members]:
                     # person joined chat from another channel in server
@@ -266,21 +268,21 @@ class PhoneMonitor(Cog):
                         log.debug(f"Self moved from {before.channel.name} to {after.channel.name}")
                         message = f"you were moved to {after.channel.name}"
                     else:
-                        log.debug(f"{member.name} moved from {before.channel.name} to {after.channel.name}")
-                        message = f"{member.name} joined {after.channel.name}"
+                        log.debug(f"{member.display_name} moved from {before.channel.name} to {after.channel.name}")
+                        message = f"{member.display_name} joined {after.channel.name}"
 
                     memberList = after.channel.members
 
             if before.channel and not after.channel and user in [user.id for user in before.channel.members]:
                 # person left chat
-                log.debug(f"{member.name} left {before.channel.name}")
-                message = f"{member.name} left {before.channel.name}"
+                log.debug(f"{member.display_name} left {before.channel.name}")
+                message = f"{member.display_name} left {before.channel.name}"
                 memberList = before.channel.members
                 pass
             if not before.channel and after.channel and user in [user.id for user in after.channel.members]:
                 # person joined chat
-                log.debug(f"{member.name} joined {after.channel.name}")
-                message = f"{member.name} joined {after.channel.name}"
+                log.debug(f"{member.display_name} joined {after.channel.name}")
+                message = f"{member.display_name} joined {after.channel.name}"
                 memberList = after.channel.members
 
             if message:
@@ -291,7 +293,7 @@ class PhoneMonitor(Cog):
 
     async def send_notification(self, user: int, title: str, members: List[discord.Member]):
         log.debug(f"title: {title}")
-        content = f"Current members in your channel are:\n{NEWLINE.join([f'{m.name} {self.render_voiceState(m)}' for m in members])}"
+        content = f"Current members in your channel are:\n{NEWLINE.join([f'{m.display_name} {self.render_voiceState(m)}' for m in members])}"
 
         log.debug(f"message content: {content}")
         webhook_target = self.bot.config.ha_webhook_notifs
