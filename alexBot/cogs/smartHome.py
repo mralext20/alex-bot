@@ -300,7 +300,13 @@ class PhoneMonitor(Cog):
         if webhook_target:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    webhook_target, json={"content": content, "title": title, "target_device": USER_TO_HA_DEVICE[user]}
+                    webhook_target,
+                    json={
+                        "content": content,
+                        "title": title,
+                        "target_device": USER_TO_HA_DEVICE[user],
+                        "channel": "vcNotifs",
+                    },
                 ) as r:
                     log.debug(f"webhook response: {r.status}")
 
