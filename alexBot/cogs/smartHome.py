@@ -169,10 +169,7 @@ class PhoneMonitor(Cog):
             s += "🔴 "
         return s
 
-    @Cog.listener()
-    async def on_voice_state_update(
-        self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
-    ):
+    async def handle_auto_unmute(self, member, before, after):
         if member.id in self.notifiable and before.channel and not after.channel and (before.mute or before.deaf):
             # member we care about, left a channel
             log.debug(
@@ -190,6 +187,14 @@ class PhoneMonitor(Cog):
             )
             await member.edit(mute=False, deafen=False)
 
+
+
+    @Cog.listener()
+    async def on_voice_state_update(
+        self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
+    ):
+        task = handle_auto_unmute(member, before, after)
+        asyncio.create_task(task)
         channel: discord.VoiceChannel = before.channel or after.channel
         if before.channel and after.channel and before.channel == after.channel:
             log.debug(f"no one moved in {channel.name}")
