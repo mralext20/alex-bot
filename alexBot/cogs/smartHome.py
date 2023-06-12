@@ -173,23 +173,6 @@ class PhoneMonitor(Cog):
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
-        if member.id in self.notifiable and before.channel and not after.channel and (before.mute or before.deaf):
-            # member we care about, left a channel
-            log.debug(
-                f"{member.display_name} left {before.channel.name}, waiting 5 minutes to see if they come back, then remembering to unmute them"
-            )
-            await asyncio.sleep(300)
-            if member.voice:
-                log.debug(f"{member.display_name} came back, not unmuting")
-                return
-            log.debug(f"{member.display_name} did not come back, unmuting")
-            await self.bot.wait_for(
-                "voice_state_update",
-                check=lambda m, b, a: m.guild.id == member.guild.id and m.id == member.id and a.channel is not None,
-                timeout=None,
-            )
-            await member.edit(mute=False, deafen=False)
-
         channel: discord.VoiceChannel = before.channel or after.channel
         if before.channel and after.channel and before.channel == after.channel:
             log.debug(f"no one moved in {channel.name}")
@@ -290,6 +273,23 @@ class PhoneMonitor(Cog):
                 await self.send_notification(user, message, memberList)
 
             after.channel = oldAfter
+
+        if member.id in self.notifiable and before.channel and not after.channel and (before.mute or before.deaf):
+            # member we care about, left a channel
+            log.debug(
+                f"{member.display_name} left {before.channel.name}, waiting 5 minutes to see if they come back, then remembering to unmute them"
+            )
+            await asyncio.sleep(300)
+            if member.voice:
+                log.debug(f"{member.display_name} came back, not unmuting")
+                return
+            log.debug(f"{member.display_name} did not come back, unmuting")
+            await self.bot.wait_for(
+                "voice_state_update",
+                check=lambda m, b, a: m.guild.id == member.guild.id and m.id == member.id and a.channel is not None,
+                timeout=None,
+            )
+            await member.edit(mute=False, deafen=False)
 
     async def send_notification(self, user: int, title: str, members: List[discord.Member]):
         log.debug(f"title: {title}")
