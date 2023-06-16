@@ -306,6 +306,7 @@ class PhoneMonitor(Cog):
                         "title": title,
                         "target_device": USER_TO_HA_DEVICE[user],
                         "channel": "vcNotifs",
+                        "group": "vcNotifs",
                     },
                 ) as r:
                     log.debug(f"webhook response: {r.status}")
