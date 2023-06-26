@@ -60,6 +60,13 @@ class RecurringReminder:
 
 
 @dataclass
+class UndefenTimes:
+    times: List[int] = field(default_factory=list)
+    userId: int = 0
+    guildId: int = 0
+
+
+@dataclass
 class ReactionRoleConfig:
     message: int
     role: int

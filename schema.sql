@@ -18,3 +18,5 @@ CREATE TABLE IF NOT EXISTS rssFeeds (data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS recurringReminders (data TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS voiceNames (channelId BIGINT, userId BIGINT, name TEXT);
+
+CREATE TABLE IF NOT EXISTS voiceUnDeafenTimers (guildId BIGINT NOT NULL, userId BIGINT NOT NULL, times TEXT NOT NULL, PRIMARY KEY (guildId, userId));

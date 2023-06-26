@@ -133,7 +133,7 @@ timeUnits = {
 def resolve_duration(data) -> datetime.datetime:
     """
     Takes a raw input string formatted 1w1d1h1m1s (any order)
-    and converts to timedelta
+    and converts to the datetime object of when it will expire
     Credit https://github.com/b1naryth1ef/rowboat via MIT license
     data: str
     """

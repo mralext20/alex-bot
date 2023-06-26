@@ -4,7 +4,16 @@ from typing import List, Optional
 
 import aiosqlite
 
-from alexBot.classes import ButtonRole, ButtonType, FeedConfig, GuildData, MovieSuggestion, RecurringReminder, UserData
+from alexBot.classes import (
+    ButtonRole,
+    ButtonType,
+    FeedConfig,
+    GuildData,
+    MovieSuggestion,
+    RecurringReminder,
+    UndefenTimes,
+    UserData,
+)
 
 from .tools import Cog
 
@@ -178,6 +187,20 @@ class Data(Cog):
     async def delete_voice_name(self, channelId: int, memherId: int):
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute("DELETE FROM voiceNames WHERE channelId=? AND userId=?", (channelId, memherId))
+            await conn.commit()
+
+    async def add_undeafenTimer(self, times: UndefenTimes):
+        # table schema CREATE TABLE IF NOT EXISTS voiceUnDeafenTimers (guildId BIGINT NOT NULL, userId BIGINT NOT NULL, times TEXT NOT NULL, PRIMARY KEY (guildId, userId));
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            await conn.execute(
+                "REPLACE INTO voiceUnDeafenTimers (guildId, userId, times) VALUES (?,?,?)",
+                (times.guildId, times.userId, json.dumps(dataclasses.asdict(times))),
+            )
+            await conn.commit()
+
+    async def remove_undeafenTimer(self, guildId, userId):
+        async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
+            await conn.execute("DELETE FROM voiceUnDeafenTimers WHERE guildId=? AND userId=?", (guildId, userId))
             await conn.commit()
 
 
