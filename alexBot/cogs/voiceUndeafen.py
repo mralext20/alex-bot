@@ -1,21 +1,16 @@
 import asyncio
 import ctypes
-from datetime import datetime, timedelta
 import logging
 import os
+from datetime import datetime, timedelta
 from io import BytesIO
 from typing import Dict, List, Optional, Tuple
 
 import discord
-from asyncgTTS import (
-    AsyncGTTSSession,
-    ServiceAccount,
-    SynthesisInput,
-    TextSynthesizeRequestBody,
-)
+from asyncgTTS import AsyncGTTSSession, ServiceAccount, SynthesisInput, TextSynthesizeRequestBody
 from discord import app_commands
-from alexBot.classes import UndefenTimes
 
+from alexBot.classes import UndefenTimes
 from alexBot.tools import Cog, resolve_duration
 
 log = logging.getLogger(__name__)
