@@ -129,7 +129,10 @@ class Fun(Cog):
             for e in raw_emojis
         ]
         if len(emojis) == 0:
-            await interaction.response.send_message("there's no Emoji to steal :(", ephemeral=True)
+            if len(message.stickers) > 0:
+                await self.stealSticker(interaction, message)
+            else:
+                await interaction.response.send_message("there's no Emoji to steal :(", ephemeral=True)
             return
         bot = self.bot
 
@@ -171,6 +174,17 @@ class Fun(Cog):
                 self.add_item(IndexSelector(message))
 
         await interaction.response.send_message(view=EmojiSelector(), ephemeral=True)
+
+    async def stealSticker(self, interaction: discord.Interaction, msg: discord.Message):
+        stick = await msg.stickers[0].fetch()
+        if interaction.guild is None:
+            # piss
+            return
+        await interaction.response.send_message("i'll get right on that!", ephemeral=True)
+        newstick = await interaction.guild.create_sticker(
+            name=stick.name, description=stick.description, emoji="", file=await stick.to_file()
+        )
+        await interaction.channel.send("This is mine now", stickers=[newstick])
 
     async def vc_disconnect(self, interaction: discord.Interaction):
         """Disconnects you from voice"""
