@@ -181,9 +181,15 @@ class Fun(Cog):
             # piss
             return
         await interaction.response.send_message("i'll get right on that!", ephemeral=True)
-        newstick = await interaction.guild.create_sticker(
-            name=stick.name, description=stick.description, emoji="", file=await stick.to_file()
+        payload = {}
+        payload['name'] = stick.name
+        payload['description'] = stick.description
+        payload['emoji'] = stick.emoji
+        payload['tags'] = 'stolen'
+        rawstick = await stick._state.http.create_guild_sticker(
+            guild_id=interaction.guild.id, payload=payload, file=await stick.to_file(), reason="stealing sticker"
         )
+        newstick = discord.GuildSticker(state=stick._state, data=rawstick)
         await interaction.channel.send("This is mine now", stickers=[newstick])
 
     async def vc_disconnect(self, interaction: discord.Interaction):
