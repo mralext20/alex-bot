@@ -40,9 +40,9 @@ class HomeAssistantIntigreation(Cog):
             finally:
                 self.active_client = None
 
-    async def mqttPublish(self, topic, payload):
+    async def mqttPublish(self, topic, payload, qos=1, retain=True):
         if self.active_client:
-            await self.active_client.publish(topic, payload)
+            await self.active_client.publish(topic, payload, qos=qos, retain=retain)
         else:
             raise aiomqtt.MqttError("No active MQTT client")
 
