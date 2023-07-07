@@ -3,7 +3,7 @@
 import asyncio
 import logging
 
-import asyncio_mqtt as aiomqtt
+import aiomqtt
 
 from ..tools import Cog
 

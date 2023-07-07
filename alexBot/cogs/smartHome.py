@@ -5,9 +5,9 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import aiohttp
-import asyncio_mqtt as aiomqtt
+import aiomqtt
 import discord
-from asyncio_mqtt.types import PayloadType
+from aiomqtt.types import PayloadType
 from discord.ext import tasks
 
 from ..tools import Cog, get_json
