@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import typing
 from collections import defaultdict
@@ -25,7 +26,7 @@ TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default val
 TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
 TABLE["Garrett's Home"] = "🏠"
-TABLE['Boston'] = "🎮"
+
 GUILD = 384843279042084865
 MEMBERS = {  # ha-name: (discord-id, [guild-ids])
     'alex': (108429628560924672, [791528974442299412, 384843279042084865]),
@@ -169,6 +170,14 @@ class PhoneMonitor(Cog):
             s += "🔴 "
         return s
 
+    async def update_mqtt_state(self, member: discord.Member, after: discord.VoiceState):
+        mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
+        jsonblob = {"state_str": self.render_voiceState(member)}
+
+        for key in ['self_deaf', 'self_mute', 'self_stream', 'self_video', 'mute', 'deaf']:
+            jsonblob[key] = getattr(member.voice, key)
+        await mqtt.mqttPublish(f"discord/{member.id}/voice", json.dumps(jsonblob))
+
     @Cog.listener()
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
@@ -181,6 +190,7 @@ class PhoneMonitor(Cog):
                 log.debug(
                     f"checking {member.display_name} in {channel.guild.name} ({channel.guild.id}) for self_voice changes"
                 )
+                await self.update_mqtt_state(member, after)
                 log.debug(f"{before=} {after=}")
                 # find the differences between before.voice and after.voice
                 # if there is a difference, send a notification
