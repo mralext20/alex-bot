@@ -51,7 +51,7 @@ class RecurringReminders(Cog):
     async def setup_remind(self, reminder: RecurringReminder):
         await self.bot.wait_until_ready()
         now = datetime.datetime.utcnow()
-        now = now.replace(seconds=0)
+        now = now.replace(second=0)
         curr_minute = now.minute + now.hour * 60
         reminder_minute = reminder.UTC_minute
         if curr_minute > reminder_minute:
