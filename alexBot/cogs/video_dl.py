@@ -18,8 +18,9 @@ from discord.ext import commands
 from slugify import slugify
 from yt_dlp import DownloadError, YoutubeDL
 
-from ..tools import Cog, grouper, is_in_guild, timing
 from alexBot import tools
+
+from ..tools import Cog, grouper, is_in_guild, timing
 
 log = logging.getLogger(__name__)
 
