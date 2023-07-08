@@ -1,4 +1,5 @@
 import asyncio
+import io
 import json
 import logging
 import math
@@ -7,7 +8,7 @@ import re
 import shutil
 import subprocess
 from functools import partial
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import aiohttp
 import discord
@@ -17,7 +18,8 @@ from discord.ext import commands
 from slugify import slugify
 from yt_dlp import DownloadError, YoutubeDL
 
-from ..tools import Cog, is_in_guild, timing
+from ..tools import Cog, grouper, is_in_guild, timing
+from alexBot import tools
 
 log = logging.getLogger(__name__)
 
@@ -172,6 +174,31 @@ class Video_DL(Cog):
                 message.content = str(resp.next_request.url)
         return None
 
+    async def do_tiktok_slideshow(self, message: discord.Message, match: str):
+        async with aiohttp.ClientSession() as client:
+            data = await client.post(
+                'https://co.wuk.sh/api/json', json={'url': match}, headers={'accept': 'application/json'}
+            )
+            data = await data.json()
+            if data['status'] == 'error' or data['pickerType'] != 'images':
+                raise Exception()
+
+            #  create tasks for downloading all of the images
+            tasks = [client.get(imageData['url']) for imageData in data['picker']]
+            # asyncio gather those
+            results: List[aiohttp.ClientResponse] = await asyncio.gather(*tasks)
+            # collect the iamges into bytes? discord.File ?
+            images: List[discord.File] = []
+            for index, task in enumerate(results):
+                buffer = io.BytesIO(await task.read())
+                images.append(discord.File(buffer, filename=f"{index}.{task.url.path.split('.')[-1]}"))
+            # grouper the images into groups of 10
+
+            for group in grouper(images, 10):
+                await message.channel.send(files=group)
+
+            # post messages in order
+
     @Cog.listener()
     async def on_message(self, message: discord.Message, override=False, new_deleter=None):
         loop = asyncio.get_running_loop()
@@ -234,9 +261,8 @@ class Video_DL(Cog):
                                 pass
                         elif e.args[1] == 'SlideShow':
                             try:
-                                # react with 🛝 📺
-                                await message.add_reaction('🛝')
-                                await message.add_reaction('📺')
+                                # use cobalt to collect slideshow images
+                                await self.do_tiktok_slideshow(message, match)
                             except DiscordException:
                                 pass
 

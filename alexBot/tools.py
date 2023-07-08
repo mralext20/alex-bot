@@ -3,7 +3,7 @@ import math
 import posixpath
 import time
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, Generator, Iterable, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Generator, Iterable, Sequence, Tuple, TypeVar, Union
 from urllib.parse import urlparse
 
 import discord
@@ -108,7 +108,7 @@ def timing(log=None):
     return inner_function
 
 
-def grouper(iterable: Iterable[_T], n: int) -> Generator[Iterable[_T], None, None]:
+def grouper(iterable: Sequence[_T], n: int) -> Generator[Sequence[_T], None, None]:
     """
     given a iterable, yield that iterable back in chunks of size n. last item will be any size.
     """
