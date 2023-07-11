@@ -63,6 +63,10 @@ class RecurringReminders(Cog):
     async def remind(self, reminder: RecurringReminder):
         log.debug(f"reminding {reminder}")
         target = self.bot.get_channel(reminder.target) or self.bot.get_user(reminder.target)
+        if isinstance(target, discord.User):
+            if not target.dm_channel:
+                await target.create_dm()
+        chan_id = target.dm_channel.id if isinstance(target, discord.User) else target.id
         if not target:
             log.warning(f"Could not find target {reminder.target} for reminder {reminder}")
             return
@@ -79,8 +83,14 @@ class RecurringReminders(Cog):
             dis_message = await target.send(message, view=v)
 
             while v.waiting and v.times < 8:  # 8 * 5 minutes = 40 minutes
-                await asyncio.sleep(300)
-                if v.waiting:
+                msg = None
+                try:
+                    msg = await self.bot.wait_for(
+                        "message", check=lambda m: m.channel.id == chan_id and m.content.lower() == 'ack', timeout=300
+                    )
+                except asyncio.TimeoutError:
+                    pass
+                if v.waiting and not msg:
                     v.times += 1
                     await dis_message.reply("reminder!")
 
