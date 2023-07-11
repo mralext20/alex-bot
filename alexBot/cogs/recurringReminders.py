@@ -88,9 +88,11 @@ class RecurringReminders(Cog):
                     msg = await self.bot.wait_for(
                         "message", check=lambda m: m.channel.id == chan_id and m.content.lower() == 'ack', timeout=300
                     )
+                    v.waiting = False
+                    await msg.reply("reminder cleared")
                 except asyncio.TimeoutError:
                     pass
-                if v.waiting and not msg:
+                if v.waiting:
                     v.times += 1
                     await dis_message.reply("reminder!")
 
