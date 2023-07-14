@@ -68,10 +68,10 @@ class Video_DL(Cog):
         except DownloadError:
             raise NotAVideo(False)
         try:
-            if data['requested_downloads'][0]['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
-                raise NotAVideo(data['url'])
             if data['requested_downloads'][0]['width'] == 0:
                 raise NotAVideo(False, 'SlideShow')
+            if data['requested_downloads'][0]['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
+                raise NotAVideo(data['url'])
         except KeyError:
             pass
         return (
