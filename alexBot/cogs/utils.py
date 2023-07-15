@@ -57,7 +57,7 @@ class Utils(Cog):
         roll_results: List[Roll] = []
         for rollset in dice.split(" "):
             try:
-                rolls, limit = map(int, dice.split("d"))
+                rolls, limit = map(int, rollset.split("d"))
             except Exception:
                 return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True)
             roll_results.append(Roll(f"{rolls}d{limit}", [random.randint(1, limit) for r in range(rolls)]))
