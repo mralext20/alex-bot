@@ -65,7 +65,7 @@ class Utils(Cog):
         result = "\n".join([str(r) for r in roll_results])
         raw_results = []
         for roll in roll_results:
-            raw_results.append(r for r in roll.rolls)
+            [raw_results.append(r) for r in roll.rolls]
 
         result += f"\n\nTotal: {sum(raw_results)}"
         result += f"\nAverage: {sum(raw_results) / len(raw_results)}"
