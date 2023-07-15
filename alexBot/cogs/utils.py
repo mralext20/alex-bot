@@ -52,6 +52,7 @@ class Utils(Cog):
         self.bot.voiceCommandsGroup.remove_command("theatre")
 
     @app_commands.command()
+    @app_commands.describe(dice="dice format in XdY. can be multiple sets, seperated by spaces")
     async def roll(self, interaction: discord.Interaction, dice: str):
         """Rolls a dice in NdN format."""
         roll_results: List[Roll] = []
