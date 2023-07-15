@@ -2,6 +2,7 @@
 
 import asyncio
 import datetime
+import random
 from typing import Optional
 
 import discord
@@ -39,6 +40,25 @@ class Utils(Cog):
     async def cog_unload(self):
         self.bot.voiceCommandsGroup.remove_command("move")
         self.bot.voiceCommandsGroup.remove_command("theatre")
+
+
+    @app_commands.command()
+    async def roll(self, interaction: discord.Interaction, dice: str):
+        """Rolls a dice in NdN format."""
+        try:
+            rolls, limit = map(int, dice.split("d"))
+        except Exception:
+            return await interaction.response.send_message("Format has to be in NdN!", ephemeral=True)
+        rolls = [random.randint(1, limit) for r in range(rolls))]
+
+        result = ", ".join(rolls)
+
+        result += f"\n\nTotal: {sum(rolls)}"
+        result += f"\nAverage: {sum(rolls) / len(rolls)}"
+        result += f"\nMax: {max(rolls)}"
+        result += f"\nMin: {min(rolls)}"
+
+        await interaction.response.send_message(result, ephemeral=False)
 
     @app_commands.checks.bot_has_permissions(manage_channels=True)
     @app_commands.checks.has_permissions(manage_channels=True)
