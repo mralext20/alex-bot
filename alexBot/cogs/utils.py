@@ -41,7 +41,6 @@ class Utils(Cog):
         self.bot.voiceCommandsGroup.remove_command("move")
         self.bot.voiceCommandsGroup.remove_command("theatre")
 
-
     @app_commands.command()
     async def roll(self, interaction: discord.Interaction, dice: str):
         """Rolls a dice in NdN format."""
