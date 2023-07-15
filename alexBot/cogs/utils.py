@@ -54,17 +54,17 @@ class Utils(Cog):
     @app_commands.command()
     async def roll(self, interaction: discord.Interaction, dice: str):
         """Rolls a dice in NdN format."""
-        rolls: List[Roll] = []
+        roll_results: List[Roll] = []
         for rollset in dice.split(" "):
             try:
                 rolls, limit = map(int, dice.split("d"))
             except Exception:
-                return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True)
-            rolls.append(Roll(f"{rolls}d{limit}", [random.randint(1, limit) for r in range(rolls)]))
+                return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True) 
+            roll_results.append(Roll(f"{rolls}d{limit}", [random.randint(1,limit) for r in range(rolls)]))
 
-        result = ", ".join([str(r) for r in rolls])
+        result = "\n".join([str(r) for r in roll_results])
         raw_results = []
-        for roll in rolls:
+        for roll in roll_results:
             raw_results.append(r for r in roll.rolls)
 
         result += f"\n\nTotal: {sum(raw_results)}"
