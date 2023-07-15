@@ -59,8 +59,8 @@ class Utils(Cog):
             try:
                 rolls, limit = map(int, dice.split("d"))
             except Exception:
-                return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True) 
-            roll_results.append(Roll(f"{rolls}d{limit}", [random.randint(1,limit) for r in range(rolls)]))
+                return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True)
+            roll_results.append(Roll(f"{rolls}d{limit}", [random.randint(1, limit) for r in range(rolls)]))
 
         result = "\n".join([str(r) for r in roll_results])
         raw_results = []
