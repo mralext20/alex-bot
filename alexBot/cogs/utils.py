@@ -59,6 +59,10 @@ class Utils(Cog):
         for rollset in dice.split(" "):
             try:
                 rolls, limit = map(int, rollset.split("d"))
+                if rolls > 100:
+                    return await interaction.response.send_message(
+                        "You can't roll more than 100 dice at once!", ephemeral=True
+                    )
             except Exception:
                 return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True)
             roll_results.append(Roll(f"{rolls}d{limit}", [random.randint(1, limit) for r in range(rolls)]))
@@ -72,8 +76,10 @@ class Utils(Cog):
         result += f"\nAverage: {sum(raw_results) / len(raw_results)}"
         result += f"\nMax: {max(raw_results)}"
         result += f"\nMin: {min(raw_results)}"
-
-        await interaction.response.send_message(result, ephemeral=False)
+        try:
+            await interaction.response.send_message(result, ephemeral=False)
+        except discord.HTTPException:
+            await interaction.response.send_message("Result too long!", ephemeral=True)
 
     @app_commands.checks.bot_has_permissions(manage_channels=True)
     @app_commands.checks.has_permissions(manage_channels=True)
