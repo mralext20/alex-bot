@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+from dataclasses import dataclass
 import datetime
 import random
-from typing import Optional
+from typing import List, Optional
 
 import discord
 import humanize
@@ -14,6 +15,14 @@ from discord.member import VoiceState
 from ..tools import Cog
 
 DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
+
+@dataclass
+class Roll:
+    dice: str
+    rolls: List[int]
+
+    def __str__(self):
+        return f"{self.dice}: {', '.join([str(r) for r in self.rolls])}"
 
 
 class Utils(Cog):
@@ -44,18 +53,23 @@ class Utils(Cog):
     @app_commands.command()
     async def roll(self, interaction: discord.Interaction, dice: str):
         """Rolls a dice in NdN format."""
-        try:
-            rolls, limit = map(int, dice.split("d"))
-        except Exception:
-            return await interaction.response.send_message("Format has to be in NdN!", ephemeral=True)
-        rolls = [random.randint(1, limit) for r in range(rolls)]
+        rolls: List[Roll] = []
+        for rollset in dice.split(" "):
+            try:
+                rolls, limit = map(int, dice.split("d"))
+            except Exception:
+                return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True) 
+            rolls.append(Roll(f"{rolls}d{limit}", [random.randint(1,limit) for r in range(rolls)]))
 
-        result = ", ".join(rolls)
+        result = ", ".join([str(r) for r in rolls])
+        raw_results = []
+        for roll in rolls:
+            raw_results.append(r for r in roll.rolls)
 
-        result += f"\n\nTotal: {sum(rolls)}"
-        result += f"\nAverage: {sum(rolls) / len(rolls)}"
-        result += f"\nMax: {max(rolls)}"
-        result += f"\nMin: {min(rolls)}"
+        result += f"\n\nTotal: {sum(raw_results)}"
+        result += f"\nAverage: {sum(raw_results) / len(raw_results)}"
+        result += f"\nMax: {max(raw_results)}"
+        result += f"\nMin: {min(raw_results)}"
 
         await interaction.response.send_message(result, ephemeral=False)
 
