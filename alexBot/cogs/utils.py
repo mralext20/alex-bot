@@ -49,7 +49,7 @@ class Utils(Cog):
             rolls, limit = map(int, dice.split("d"))
         except Exception:
             return await interaction.response.send_message("Format has to be in NdN!", ephemeral=True)
-        rolls = [random.randint(1, limit) for r in range(rolls))]
+        rolls = [random.randint(1, limit) for r in range(rolls)]
 
         result = ", ".join(rolls)
 
