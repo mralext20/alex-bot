@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-from dataclasses import dataclass
 import datetime
 import random
+from dataclasses import dataclass
 from typing import List, Optional
 
 import discord
@@ -15,6 +15,7 @@ from discord.member import VoiceState
 from ..tools import Cog
 
 DATEFORMAT = "%a, %e %b %Y %H:%M:%S (%-I:%M %p)"
+
 
 @dataclass
 class Roll:
@@ -58,8 +59,8 @@ class Utils(Cog):
             try:
                 rolls, limit = map(int, dice.split("d"))
             except Exception:
-                return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True) 
-            rolls.append(Roll(f"{rolls}d{limit}", [random.randint(1,limit) for r in range(rolls)]))
+                return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True)
+            rolls.append(Roll(f"{rolls}d{limit}", [random.randint(1, limit) for r in range(rolls)]))
 
         result = ", ".join([str(r) for r in rolls])
         raw_results = []
