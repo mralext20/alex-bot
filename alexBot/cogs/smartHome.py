@@ -26,7 +26,7 @@ TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default val
 TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
 TABLE["Garrett's Home"] = "🏠"
-TABLE["New Home"] = "🆕🏡" # new emoji, home emoji
+TABLE["New Home"] = "🆕🏡"  # new emoji, home emoji
 
 GUILD = 384843279042084865
 MEMBERS = {  # ha-name: (discord-id, [guild-ids])
