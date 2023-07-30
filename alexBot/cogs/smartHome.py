@@ -26,16 +26,13 @@ TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default val
 TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
 TABLE["Garrett's Home"] = "🏠"
-TABLE["New Home"] = "🆕🏡"  # new emoji, home emoji
+TABLE["New Home"] = "🏡"
 
 GUILD = 384843279042084865
 MEMBERS = {  # ha-name: (discord-id, [guild-ids])
-    'alex': (108429628560924672, [791528974442299412, 384843279042084865]),
-    'garrett': (326410251546918913, [791528974442299412, 384843279042084865]),
-    'abby': (
-        253233185800847361,
-        [384843279042084865, 791528974442299412],
-    ),
+    'alex': (108429628560924672, [384843279042084865]),
+    'garrett': (326410251546918913, [384843279042084865]),
+    'abby': (253233185800847361, [384843279042084865 ], ),
 }
 NEWLINE = '\n'
 USER_TO_HA_DEVICE = {
