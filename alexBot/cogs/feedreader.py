@@ -148,4 +148,4 @@ class FeedReader(Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(FeedReader(bot))
+    # await bot.add_cog(FeedReader(bot))
