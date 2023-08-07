@@ -455,12 +455,6 @@ class Fun(Cog):
                     pass
 
                 await message.delete()
-        if (
-            message.guild
-            and message.guild.id == 791528974442299412
-            and any(word in message.content.lower() for word in ARSON_STRING)
-        ):
-            await message.reply("arson", mention_author=False)
 
 
 async def setup(bot):
