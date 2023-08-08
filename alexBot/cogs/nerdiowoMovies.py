@@ -280,4 +280,5 @@ class NerdiowoMovies(Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(NerdiowoMovies(bot))
+    # await bot.add_cog(NerdiowoMovies(bot))
+    pass
