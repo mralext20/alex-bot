@@ -37,4 +37,5 @@ class Highlighter(Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Highlighter(bot))
+    # await bot.add_cog(Highlighter(bot))
+    pass
