@@ -156,11 +156,7 @@ class VoiceStats(Cog):
         gd.voiceStat.total_sessions += 1
         gd.voiceStat.currently_running = False
         await self.bot.db.save_guild_data(channel.guild.id, gd)
-        if channel.guild.id == 791528974442299412:
-            log.debug("ending a call: alex's server")
-            await self.bot.get_channel(791530687102451712).send(
-                f"Voice chat ended. It started at <t:{int(time.mktime(gd.voiceStat.last_started.timetuple()))}:f>, and lasted for {current_session_length}"
-            )
+
 
     async def voiceStats(self, interaction: discord.Interaction, target: Optional[discord.User]):
         """tells you how long your average, longest, and current voice sessions is."""
