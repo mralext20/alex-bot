@@ -33,6 +33,7 @@ class FeedReader(Cog):
     @tasks.loop(reconnect=True, time=times)
     async def feedUpdate(self):
         forumChannel: discord.ForumChannel = self.bot.get_channel(1054582714495414343)
+        raise NotImplementedError
         feeds = await self.bot.db.get_feeds()
         for feedData in feeds:
             async with aiohttp.ClientSession() as session:
@@ -83,6 +84,7 @@ class FeedReader(Cog):
             except:
                 await interaction.response.send_message("Invalid tag!", ephemeral=True)
                 return
+        raise NotImplementedError
         feeds = await self.bot.db.get_feeds()
         if 'youtube' in feedurl:
             # youtube channel, need to convert to rss
@@ -107,6 +109,7 @@ class FeedReader(Cog):
 
     @feedGroup.command(name="remove-feed", description="Remove a feed from the nerdiowo FeedChanel")
     async def removeFeed(self, interaction: discord.Interaction, feedurl: str):
+        raise NotImplementedError
         feeds = await self.bot.db.get_feeds()
         if feedurl not in [feed.feedUrl for feed in feeds]:
             await interaction.response.send_message("Feed not found!", ephemeral=True)
@@ -119,6 +122,7 @@ class FeedReader(Cog):
     async def removeFeed_autocomplete(
         self, interaction: discord.Interaction, guess: str
     ) -> List[discord.app_commands.Choice]:
+        raise NotImplementedError
         feeds = await self.bot.db.get_feeds()
         return [
             discord.app_commands.Choice(name=feed.feedUrl, value=feed.feedUrl)
@@ -148,4 +152,5 @@ class FeedReader(Cog):
 
 
 async def setup(bot):
+    pass
     # await bot.add_cog(FeedReader(bot))
