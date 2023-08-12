@@ -26,3 +26,8 @@ httpx
 feedparser
 aiomqtt
 async-gTTS
+SQLAlchemy~=2.0.0
+alembic
+psycopg2
+asyncpg
+python-dotenv
