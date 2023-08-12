@@ -165,7 +165,7 @@ class Fun(Cog):
                     uploads.append(f"{uploaded}")
 
                 await self.og_message.reply(
-                    f"{'these' if len(uploads) > 1 else 'this'} is mine now\n\n{' '.join(uploads)}"
+                    f"{'these are' if len(uploads) > 1 else 'this is'} mine now\n\n{' '.join(uploads)}"
                 )
 
         class EmojiSelector(ui.View):
