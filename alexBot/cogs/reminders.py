@@ -118,12 +118,15 @@ class Reminders(Cog):
                     edited.next_remind = (
                         edited.next_remind + reminder.frequency
                     )  # prevent drift by adding the frequency
+                    session.add(edited)
+                    await session.commit()
         else:
             # delete the reminder
             async with db.async_session() as session:
                 async with session.begin():
                     delete = await session.scalar(select(Reminder).where(Reminder.id == reminder.id))
                     await session.delete(delete)
+                    await session.commit()
         # remove task from tasks dict
         del self.tasks[reminder.id]
 
