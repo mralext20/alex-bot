@@ -6,16 +6,32 @@ services:
     volumes:
       - ./:/alexbot
     build: .
+    environment:
+      DATABASE_URL: postgresql://alexbot:alexbot@db/alexbot
     command:
       [
         "sh",
         "-c",
-        "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 bot.py"
+        "alembic upgrade head && pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 bot.py"
       ]
     ports:
       - 5678:5678
+    depends_on:
+      - db
   # firefox:
   #   image: selenium/standalone-firefox-debug
   #   shm_size: 2gb
-  #   ports:
-  #     - 5900:5900
+  #   restart: unless-stopped
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: alexbot
+      POSTGRES_PASSWORD: alexbot
+      POSTGRES_DB: alexbot
+    ports:
+      - 5432:5432
+    volumes:
+      - alex-bot-db:/var/lib/postgresql/data
+volumes:
+  alex-bot-db:

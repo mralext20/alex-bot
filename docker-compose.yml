@@ -3,11 +3,20 @@ version: '3.4'
 services:
   alexbot:
     build: .
-    volumes:
-      - ./:/alexbot
-    command: python bot.py
+    # command: python bot.py
     restart: unless-stopped
+    depends_on:
+      - db
   # firefox:
   #   image: selenium/standalone-firefox-debug
   #   shm_size: 2gb
   #   restart: unless-stopped
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: alexbot
+      POSTGRES_PASSWORD: alexbot
+      POSTGRES_DB: alexbot
+    volumes:
+      - ./db:/var/lib/postgresql/data

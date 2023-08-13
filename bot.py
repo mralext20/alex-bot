@@ -6,7 +6,6 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
@@ -15,9 +14,9 @@ from discord.ext import commands
 
 import config
 
-if TYPE_CHECKING:
-    from alexBot.data import Data
+from dotenv import load_dotenv
 
+load_dotenv()
 
 cogs = [
     x.stem
@@ -28,7 +27,7 @@ cogs = [
         "voiceTTS",
     ]
 ]
-# cogs = ['mqttDispatcher', 'phoneMonitor', 'errors']  # used to test single cog at a time
+# cogs = ['reminders', 'errors']  # used to test single cog at a time
 
 log = logging.getLogger('alexBot')
 log.setLevel(logging.DEBUG)
@@ -44,7 +43,9 @@ log.addHandler(handler)
 for logPath in ['discord', 'websockets', 'aiosqlite']:
     z = logging.getLogger(logPath)
     z.setLevel(logging.INFO)
-
+for logPath in ['sqlalchemy', 'discord.gateway']:
+    z = logging.getLogger(logPath)
+    z.setLevel(logging.ERROR)
 
 LINKWRAPPERREGEX = re.compile(r'(http[s]?://(?:[a-zA-Z]|[0-9]|[#-_]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)', re.I)
 
@@ -59,11 +60,10 @@ class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(command_prefix=config.prefix, intents=intents, allowed_mentions=allowed_mentions, **kwargs)
         self.session = None
-        self.config: config = config
+        self.config = config
         self.location = config.location
-        self.db: "Data" = None
+
         self.owner = None
-        logging.getLogger('discord.gateway').setLevel(logging.ERROR)
         self.setup_hook = self.cogSetup
         self.minecraft = True
         self.handler = handler
@@ -79,9 +79,9 @@ class Bot(commands.Bot):
         self.session = aiohttp.ClientSession()
 
     async def cogSetup(self):
-        await self.load_extension("alexBot.data")
         await self.load_extension('jishaku')
-        self.db: "Data" = self.get_cog('Data')
+        await self.load_extension('alexBot.data')
+        self.db = self.get_cog('Data')
         for cog in cogs:
             try:
                 await self.load_extension(f"alexBot.cogs.{cog}")
