@@ -2,9 +2,9 @@ from typing import Literal
 
 import discord
 from discord import app_commands
-
 from sqlalchemy import select
-from alexBot.database import async_session, GuildConfig, UserConfig
+
+from alexBot.database import GuildConfig, UserConfig, async_session
 
 from ..tools import Cog, convert_to_bool
 

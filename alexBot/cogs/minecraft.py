@@ -5,8 +5,10 @@ from typing import Optional
 import discord
 import mcstatus
 from discord import app_commands
-from alexBot import database as db
 from sqlalchemy import select
+
+from alexBot import database as db
+
 from ..tools import Cog
 
 log = logging.getLogger(__name__)

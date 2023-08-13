@@ -8,8 +8,8 @@ import discord
 from discord import MessageType, PartialEmoji, app_commands, ui
 from discord.ext import commands
 from emoji_data import EmojiSequence
-
 from sqlalchemy import select
+
 from alexBot import database as db
 
 from ..tools import Cog, get_json

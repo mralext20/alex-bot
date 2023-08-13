@@ -6,8 +6,9 @@ import discord
 import pydub
 import speech_recognition
 
-from ..tools import Cog
 from alexBot import database as db
+
+from ..tools import Cog
 
 log = logging.getLogger(__name__)
 

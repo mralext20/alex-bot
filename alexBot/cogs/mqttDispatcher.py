@@ -3,9 +3,9 @@
 import asyncio
 import logging
 from typing import Optional
+from urllib.parse import urlparse
 
 import aiomqtt
-from urllib.parse import urlparse
 
 from ..tools import Cog
 

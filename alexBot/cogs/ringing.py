@@ -5,9 +5,9 @@ import discord
 from discord import app_commands
 from sqlalchemy import select
 
+from alexBot import database as db
 from alexBot.classes import RingRate
 from alexBot.tools import Cog
-from alexBot import database as db
 
 
 def mk_callback(task: asyncio.Task):

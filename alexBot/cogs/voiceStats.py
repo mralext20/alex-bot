@@ -6,10 +6,10 @@ from typing import Optional, Union
 
 import discord
 from discord import app_commands
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from alexBot.database import GuildConfig, UserConfig, VoiceStat, async_session, select
 from alexBot.tools import Cog
-from sqlalchemy.ext.asyncio import AsyncSession
 
 log = logging.getLogger(__name__)
 
