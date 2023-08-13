@@ -50,7 +50,7 @@ class Reminders(Cog):
     async def reminder_loop(self):
         while True:
             async with db.async_session() as session:
-                time_soon = datetime.datetime.utcnow() + datetime.timedelta(minutes=5)
+                time_soon = datetime.datetime.utcnow() + datetime.timedelta(minutes=2)
                 stmt = select(Reminder).where(
                     and_(Reminder.next_remind <= time_soon, Reminder.id.not_in(self.tasks.keys()))
                 )
@@ -170,7 +170,7 @@ class Reminders(Cog):
         try:
             td = resolve_duration(time)
             assert td.total_seconds() >= 120
-            next_remind = datetime.datetime.now() + td
+            next_remind = datetime.datetime.utcnow() + td
         except KeyError:
             return await interaction.response.send_message("Invalid time format", ephemeral=True)
         except AssertionError:
@@ -235,7 +235,7 @@ class Reminders(Cog):
             # validate the time field and return the time, if we have the user's timezone, otherwise UTC time
             try:
                 td = resolve_duration(time)
-                dt = datetime.datetime.now() + td
+                dt = datetime.datetime.utcnow() + td
             except KeyError:
                 return [discord.app_commands.Choice(name="Invalid time format", value="Invalid time format")]
             return [
