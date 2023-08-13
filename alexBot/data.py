@@ -4,13 +4,14 @@ from typing import List, Optional
 
 import aiosqlite
 
-from alexBot.classes import ButtonRole, ButtonType, FeedConfig, GuildData, MovieSuggestion, RecurringReminder, UserData
+from alexBot.classes import FeedConfig, MovieSuggestion
 
 from .tools import Cog
 
 
 class Data(Cog):
     async def get_guild_data(self, guildId: int) -> GuildData:
+        raise NotImplementedError
         """
         used to retrive a GuildData from the database. see save_guild_data to save it back.
         """
@@ -23,6 +24,7 @@ class Data(Cog):
                 return GuildData.from_dict(raw)
 
     async def save_guild_data(self, guildId: int, data: GuildData):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute(
                 "REPLACE INTO guilds (guildId, data) VALUES (?,?)", (guildId, json.dumps(dataclasses.asdict(data)))
@@ -30,6 +32,7 @@ class Data(Cog):
             await conn.commit()
 
     async def get_user_data(self, userId: int) -> UserData:
+        raise NotImplementedError
         """
         used to retrive a GuildData from the database. see save_guild_data to save it back.
         """
@@ -42,6 +45,7 @@ class Data(Cog):
                 return UserData.from_dict(raw)
 
     async def save_user_data(self, userId: int, data: UserData):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute(
                 "REPLACE INTO users (userId, data) VALUES (?,?)", (userId, json.dumps(dataclasses.asdict(data)))
@@ -49,6 +53,7 @@ class Data(Cog):
             await conn.commit()
 
     async def get_feeds(self) -> List[FeedConfig]:
+        raise NotImplementedError
         """
         fetch all feeds
         """
@@ -61,6 +66,7 @@ class Data(Cog):
                 return feeds
 
     async def save_feeds(self, feeds: List[FeedConfig]):
+        raise NotImplementedError
         """
         deletes all feeds, then saves the all of them again
         """
@@ -71,6 +77,7 @@ class Data(Cog):
             await conn.commit()
 
     async def get_feed_data(self, feedId: str) -> Optional[int]:
+        raise NotImplementedError
         """
         used to get the latest feed entry ID from the database. see save_feed_data to save it back.
         """
@@ -82,11 +89,13 @@ class Data(Cog):
                 return int(data[0])
 
     async def save_feed_data(self, feedId: str, data: int):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute("REPLACE INTO rssFeedLastPosted (channelfeed, data) VALUES (?,?)", (feedId, str(data)))
             await conn.commit()
 
     async def get_roles_data(self) -> List[ButtonRole]:
+        raise NotImplementedError
         """
         fetch all roles for a givin guild
         """
@@ -103,6 +112,7 @@ class Data(Cog):
                 return roles
 
     async def save_roles_data(self, data: List[ButtonRole]):
+        raise NotImplementedError
         """
         deletes all roles, then saves the all of them again
         """
@@ -113,6 +123,7 @@ class Data(Cog):
             await conn.commit()
 
     async def get_movies_data(self) -> List[MovieSuggestion]:
+        raise NotImplementedError
         """
         fetch all movies for a givin guild
         """
@@ -127,6 +138,7 @@ class Data(Cog):
                 return movies
 
     async def save_movies_data(self, data: List[MovieSuggestion]):
+        raise NotImplementedError
         """
         deletes all movies, then saves the all of them again
         """
@@ -139,6 +151,7 @@ class Data(Cog):
             await conn.commit()
 
     async def get_recurring_reminders(self):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             async with conn.execute("SELECT data FROM recurringReminders") as cur:
                 data = await cur.fetchall()
@@ -150,6 +163,7 @@ class Data(Cog):
                 return reminders
 
     async def save_recurring_reminders(self, reminders: List[RecurringReminder]):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute("DELETE FROM recurringReminders")
             for reminder in reminders:
@@ -159,6 +173,7 @@ class Data(Cog):
             await conn.commit()
 
     async def get_voice_name(self, channelId: int, memherId: int):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             async with conn.execute(
                 "SELECT name FROM voiceNames WHERE channelId=? AND userId=?", (channelId, memherId)
@@ -169,6 +184,7 @@ class Data(Cog):
                 return data[0]
 
     async def save_voice_name(self, channelId: int, memherId: int, name: str):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute(
                 "REPLACE INTO voiceNames (channelId, userId, name) VALUES (?,?,?)", (channelId, memherId, name)
@@ -176,11 +192,13 @@ class Data(Cog):
             await conn.commit()
 
     async def delete_voice_name(self, channelId: int, memherId: int):
+        raise NotImplementedError
         async with aiosqlite.connect(self.bot.config.db or 'configs.db') as conn:
             await conn.execute("DELETE FROM voiceNames WHERE channelId=? AND userId=?", (channelId, memherId))
             await conn.commit()
 
 
 async def setup(bot):
+    raise NotImplementedError
     await bot.add_cog(Data(bot))
     bot.db = bot.get_cog('Data')

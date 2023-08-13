@@ -1,6 +1,4 @@
-import datetime
 import logging
-import random
 import re
 import time
 from typing import Dict, List
@@ -8,8 +6,11 @@ from typing import Dict, List
 import aiohttp
 import discord
 from discord import MessageType, PartialEmoji, app_commands, ui
-from discord.ext import commands, tasks
+from discord.ext import commands
 from emoji_data import EmojiSequence
+
+from sqlalchemy import select
+from alexBot import database as db
 
 from ..tools import Cog, get_json
 
@@ -17,11 +18,10 @@ log = logging.getLogger(__name__)
 AYYGEN = re.compile("[aA][yY][Yy][yY]*")
 YOUTUBE_REGEX = re.compile(r"https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})")
 VOTE_EMOJIS = ["<:greentick:1074791788205854731>", "<:yellowtick:872631240010899476>", "<:redtick:968969232870178896>"]
-ARSON_STRINGS = ["fire", "arson", "kat", "cat", "arsn"]
 
 
 class Fun(Cog):
-    def __init__(self, bot: "Bot"):
+    def __init__(self, bot):
         super().__init__(bot)
         self.EMOJI_REGEX = re.compile(r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>")
         self.FALLBACK_EMOJI_REGEX = re.compile(
@@ -386,10 +386,16 @@ class Fun(Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if self.bot.location == "dev" or message.guild is None:
+        if message.guild is None:
             return
-
-        cfg = (await self.bot.db.get_guild_data(message.guild.id)).config
+        cfg = None
+        async with db.async_session() as session:
+            cfg = await session.scalar(select(db.GuildConfig).where(db.GuildConfig.guildId == message.guild.id))
+            if not cfg:
+                # we need to create a new default config for this guild
+                async with session.begin():
+                    cfg = db.GuildConfig(guildId=message.guild.id)
+                    session.add(cfg)
         if cfg.ayy:
             if AYYGEN.fullmatch(message.content):
                 await message.reply("lmao", mention_author=False)

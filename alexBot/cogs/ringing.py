@@ -3,9 +3,11 @@ from typing import Dict
 
 import discord
 from discord import app_commands
+from sqlalchemy import select
 
 from alexBot.classes import RingRate
 from alexBot.tools import Cog
+from alexBot import database as db
 
 
 def mk_callback(task: asyncio.Task):
@@ -35,8 +37,16 @@ class Ringing(Cog):
         if target.voice:
             await interaction.response.send_message("cannot ring: they are already in voice", ephemeral=True)
             return
+        uc = None
+        async with db.async_session() as session:
+            uc = await session.scalar(select(db.UserConfig).where(db.UserConfig.userId == interaction.user.id))
+            if not uc:
+                # create one
+                uc = db.UserConfig(userId=interaction.user.id)
+                session.add(uc)
+                await session.commit()
 
-        if not (await self.bot.db.get_user_data(target.id)).config.ringable:
+        if not uc.ringable:
             await interaction.response.send_message("cannot ring: they do not want to be rung", ephemeral=True)
             return
 

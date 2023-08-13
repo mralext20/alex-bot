@@ -1,109 +1,113 @@
-import dataclasses
-from datetime import timezone
-from typing import Callable, Dict, TypeVar
+from typing import Literal
 
 import discord
-import pytz
-from discord.ext import commands
+from discord import app_commands
 
-from alexBot.classes import GuildConfig, UserData
+from sqlalchemy import select
+from alexBot.database import async_session, GuildConfig, UserConfig
 
-from ..tools import Cog
-
-_T = TypeVar("_T")
-
-typeMap: Dict[_T, Callable[[str], _T]] = {
-    bool: lambda s: s[0].lower() in ['y', 't'],
-    str: lambda s: s,
-    timezone: pytz.timezone,
-}
+from ..tools import Cog, convert_to_bool
 
 
 class Configs(Cog):
-    """handles guild config settings"""
+    """handles config settings"""
 
-    @commands.group(name="config", invoke_without_command=True)
-    async def config(self, ctx: commands.Context):
-        """how you configure your self, or the server if you have that permissions."""
-        embed = discord.Embed(title="Config")
-        if ctx.author.guild_permissions.manage_guild:
-            gdc = dataclasses.asdict((await self.bot.db.get_guild_data(ctx.guild.id)).config)
-            for key in gdc:
-                if isinstance(gdc[key], list):
-                    continue
-                embed.add_field(name=f"guild.{key}", value=gdc[key] if gdc[key] != '' else "*unset*")
+    configCommandGroup = app_commands.Group(
+        name="config", description="Guild and User config commands", guild_only=True
+    )
+    configGuildCommandGroup = app_commands.Group(
+        name="guild", parent=configCommandGroup, description="Guild config commands", guild_only=True
+    )
+    configUserCommandGroup = app_commands.Group(
+        name="user", parent=configCommandGroup, description="User config commands", guild_only=True
+    )
 
-        uc = dataclasses.asdict((await self.bot.db.get_user_data(ctx.author.id)).config)
-        [embed.add_field(name=f"user.{name}", value=uc[name]) for name in uc]
-        embed.set_footer(text=f"to set a field, use {self.bot.command_prefix}config set <key> <value>")
-        await ctx.send(embed=embed)
-
-    @config.command(name="set")
-    async def config_set(self, ctx: commands.Context, rawkey: str, *, rawvalue: str):
-        typekey, key = rawkey.split('.')
-        if typekey == "guild":
-            if not ctx.author.guild_permissions.manage_guild:
-                raise commands.errors.MissingPermissions([discord.Permissions(manage_guild=True)])
-            gd = await self.bot.db.get_guild_data(ctx.guild.id)
-            if isinstance(getattr(gd.config, key, list()), list):
-                raise commands.errors.BadArgument(f"cannot set that key {key}")
-            if (t := type(getattr(gd.config, key))) in typeMap:
-                value = typeMap[t](rawvalue)
-            else:
-                raise commands.errors.BadArgument(f"cannot set that key {key}")
-            setattr(gd.config, key, value)
-            await self.bot.db.save_guild_data(ctx.guild.id, gd)
-            await ctx.send(f"successfully set {typekey}.{key} to {value}")
-            return
-        elif typekey == "user":
-            ud = await self.bot.db.get_user_data(ctx.author.id)
-            if isinstance(getattr(ud.config, key, list()), list):
-                raise commands.errors.BadArgument(f"cannot set that key {key}")
-            if (t := type(getattr(ud.config, key))) in typeMap:
-                value = typeMap[t](rawvalue)
-            else:
-                raise commands.errors.BadArgument(f"cannot set that key {key}")
-            setattr(ud.config, key, value)
-            await self.bot.db.save_user_data(ctx.author.id, ud)
-            await ctx.send(f"successfully set {typekey}.{key} to {value}")
-            return
-        else:
-            raise commands.errors.BadArgument(
-                f"the typekey {typekey} does not exist. please check `{self.bot.command_prefix}config` for a list of keys."
+    @configUserCommandGroup.command(name="show", description="shows the current config")
+    async def user_showConfig(self, interaction: discord.Interaction):
+        async with async_session() as session:
+            config = await session.scalar(select(UserConfig).where(UserConfig.userId == interaction.user.id))
+            if not config:
+                config = UserConfig(userId=interaction.user.id)
+                session.add(config)
+                await session.commit()
+            embed = discord.Embed()
+            embed.title = f"User Config for {interaction.user.name}"
+            embed.set_author(
+                name=interaction.user.display_name,
+                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
             )
+            for key in config.__config_keys__:
+                embed.add_field(name=key, value=getattr(config, key))
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @config.command(name="reset")
-    async def config_reset(self, ctx: commands.Context, rawkey: str):
-        keys = rawkey.split('.')
-        try:
-            typekey, key = keys
-        except ValueError:
-            raise commands.errors.BadArgument("your key is not valid")
-        if typekey == "guild":
-            if not ctx.author.guild_permissions.manage_guild:
-                raise commands.errors.MissingPermissions([discord.Permissions(manage_guild=True)])
-            defaultGDC = GuildConfig()
-            default = getattr(defaultGDC, key, None)
-            if default is None:
-                raise commands.BadArgument(f"The key {key} is not a valid key on {typekey}")
-            currGD = await self.bot.db.get_guild_data(ctx.guild.id)
-            setattr(currGD.config, key, default)  # currGD.config.$KEY = default
-            await self.bot.db.save_guild_data(currGD)
-            await ctx.send(f"set {typekey}.{key} to {default}, the default value.")
+    @configUserCommandGroup.command(name="set", description="sets a config value")
+    @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in UserConfig.__config_keys__])
+    async def user_setConfig(self, interaction: discord.Interaction, key: str, value: str):
+        # it's a user! we don't need to confirm they can set the key.
+        await self.setConfig('user', interaction, key, value)
 
-        elif typekey == "user":
-            defaultUD = UserData()
-            default = getattr(defaultUD.config, key, None)  # default = defaultUD.config.$KEY or None
-            if default is None:
-                raise commands.BadArgument(f"The key {key} is not a valid key on {typekey}")
-            ud = await self.bot.db.get_user_data(ctx.author.id)
-            setattr(ud.config, key, default)  # ud.config.$KEY = defualt
-            await self.bot.db.save_user_data(ctx.author.id, ud)
-            await ctx.send(f"set {typekey}.{key} to {default}, the default value.")
+    async def setConfig(
+        self, config_type: Literal['guild', 'user'], interaction: discord.Interaction, key: str, value: str
+    ):
+        # set locals
+        model = None
+        lookUpID = None
+        if config_type == 'guild':
+            model = GuildConfig
+            lookUpID = interaction.guild.id
+        elif config_type == 'user':
+            model = UserConfig
+            lookUpID = interaction.user.id
         else:
-            raise commands.errors.BadArgument(
-                f"{typekey} is not a valid typekey. see `{self.bot.command_prefix}config` for a list of valid keys."
+            raise ValueError("config_type must be 'guild' or 'user'")
+        if key not in model.__config_keys__:
+            await interaction.response.send_message("That is not a valid config key!", ephemeral=True)
+            return
+        type = model.__dataclass_fields__[key].type
+        # attempt to cast input value to type
+        if type == bool:
+            val = convert_to_bool(value)
+        else:
+            val = value
+        # get the user config
+        async with async_session() as session:
+            uc = await session.scalar(select(model).where(model.__mapper__.primary_key[0] == lookUpID))
+            if not uc:
+                uc = model(lookUpID)
+            setattr(uc, key, val)
+            session.add(uc)
+            await session.commit()
+        await interaction.response.send_message(
+            f"Set {key} to {val}", ephemeral=True if config_type == 'guild' else False
+        )
+
+    @configGuildCommandGroup.command(name="show", description="shows the current config")
+    async def guild_showConfig(self, interaction: discord.Interaction):
+        async with async_session() as session:
+            config = await session.scalar(select(GuildConfig).where(GuildConfig.guildId == interaction.guild.id))
+            if not config:
+                config = GuildConfig(guildId=interaction.guild.id)
+                session.add(config)
+                await session.commit()
+            embed = discord.Embed()
+            embed.title = f"Guild Config for {interaction.guild.name}"
+            embed.set_author(
+                name=interaction.guild.name, icon_url=interaction.guild.icon.url if interaction.guild.icon else None
             )
+            for key in config.__config_keys__:
+                embed.add_field(name=key, value=getattr(config, key))
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+
+    @configGuildCommandGroup.command(name="set", description="sets a config value")
+    @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in GuildConfig.__config_keys__])
+    async def guild_setConfig(self, interaction: discord.Interaction, key: str, value: str):
+        if not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message(
+                "You don't have permission to do that! (need Manage Guild)", ephemeral=True
+            )
+            return
+        # from here it's identical to user_setConfig, so we call into set_config
+        await self.setConfig('guild', interaction, key, value)
 
 
 async def setup(bot):

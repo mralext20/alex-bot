@@ -44,7 +44,6 @@ class Sugery(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.sugery_update.start()
-        self.users = [x.user for x in bot.config.suggery]
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):

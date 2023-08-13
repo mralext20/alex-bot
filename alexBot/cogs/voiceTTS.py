@@ -16,7 +16,7 @@ from asyncgTTS import (
 )
 from discord import app_commands
 
-from alexBot.fixes import FFmpegPCMAudioBytes
+# from alexBot.fixes import FFmpegPCMAudioBytes
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
@@ -34,6 +34,7 @@ class VoiceTTS(Cog):
         )
         self.gtts = AsyncGTTSSession.from_service_account(
             ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
+            ServiceAccount.from_service_account_dict,
         )
         await self.gtts.__aenter__()
 

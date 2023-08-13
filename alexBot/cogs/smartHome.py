@@ -119,7 +119,6 @@ class PhoneMonitor(Cog):
     async def on_ha_vc_control(self, name: str, command: PayloadType):
         log.info(f"HA vc control: {name} -> {command}")
         await self.bot.wait_until_ready()
-        mqttCog: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
         if name in MEMBERS:
             user = self.bot.get_user(MEMBERS[name][0])
             if not user:

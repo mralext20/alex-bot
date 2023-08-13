@@ -5,6 +5,7 @@ import logging
 from typing import Optional
 
 import aiomqtt
+from urllib.parse import urlparse
 
 from ..tools import Cog
 
@@ -20,7 +21,10 @@ class HomeAssistantIntigreation(Cog):
     async def mqttLoop(self):
         while True:
             try:
-                async with aiomqtt.Client(**self.bot.config.mqttServer) as client:
+                url = urlparse(self.bot.config.mqttServer)
+                async with aiomqtt.Client(
+                    hostname=url.hostname, username=url.username, password=url.password
+                ) as client:
                     self.active_client = client
                     async with client.messages() as messages:
                         await client.subscribe("alex-bot/#")

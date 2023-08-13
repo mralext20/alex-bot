@@ -7,6 +7,7 @@ import pydub
 import speech_recognition
 
 from ..tools import Cog
+from alexBot import database as db
 
 log = logging.getLogger(__name__)
 
@@ -17,12 +18,18 @@ class VoiceMessageTranscriber(Cog):
         # message in a guild
         if not message.guild:
             return
-        if not (message.flags.value >> 13 and len(message.attachments) == 1):
+        if not message.flags.voice:
             return
         log.debug(f"Getting guild data for {message.guild}")
-        gd = await self.bot.db.get_guild_data(message.guild.id)
+        gc = None
+        async with db.async_session() as session:
+            gc = await session.get(db.GuildConfig, message.guild.id)
+            if not gc:
+                gc = db.GuildConfig(guildId=message.guild.id)
+                session.add(gc)
+                await session.commit()
 
-        if gd.config.transcribeVoiceMessages:
+        if gc.transcribeVoiceMessages:
             if message.attachments[0].content_type != "audio/ogg":
                 log.debug(f"Transcription failed! Attachment not a Voice Message. message.id={message.id}")
                 await message.reply("Transcription failed! (Attachment not a Voice Message)", mention_author=False)

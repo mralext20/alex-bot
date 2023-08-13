@@ -16,8 +16,10 @@ import httpx
 from discord.errors import DiscordException
 from discord.ext import commands
 from slugify import slugify
+from sqlalchemy import select
 from yt_dlp import DownloadError, YoutubeDL
 
+from alexBot import database as db
 from alexBot import tools
 
 from ..tools import Cog, grouper, is_in_guild, timing
@@ -205,7 +207,15 @@ class Video_DL(Cog):
         loop = asyncio.get_running_loop()
         if message.guild is None or (message.author == self.bot.user and not override):
             return
-        if not (await self.bot.db.get_guild_data(message.guild.id)).config.tikTok:
+        gc = None
+        async with db.async_session() as session:
+            gc = await session.scalar(select(db.GuildConfig).where(db.GuildConfig.guildId == message.guild.id))
+            if not gc:
+                # create one
+                gc = db.GuildConfig(guildId=message.guild.id)
+                session.add(gc)
+                await session.commit()
+        if not gc.tikTok:
             return
 
         await self.convert_reddit_app(message)  # convert reddit app links to full links
@@ -354,31 +364,6 @@ class Video_DL(Cog):
         finally:
             if os.path.exists('in.mp4'):
                 os.remove('in.mp4')
-
-    @commands.command()
-    @is_in_guild(791528974442299412)
-    async def mirror(self, ctx: commands.Context, url: str):
-        """Mirrors a youtube-dl compatible URL to a discord file upload.
-        also connects to your voice channel, requests the bot play the song, and leaves."""
-        async with self.mirror_upload_lock:
-            async with ctx.typing():
-                try:
-                    task = partial(self.download_audio, url, ctx.message.id)
-                    title = await self.bot.loop.run_in_executor(None, task)
-
-                    try:
-                        msg = await ctx.send(
-                            file=discord.File(f"{ctx.message.id}.m4a", filename=f'{slugify(title)}.m4a'),
-                            reference=ctx.message,
-                        )
-                    except discord.errors.HTTPException:
-                        return await ctx.send("file too large :(", reference=ctx.message)
-                    await ctx.send(
-                        f"!play {msg.attachments[0].url}",
-                    )
-                finally:
-                    if os.path.exists(f"{ctx.message.id}.m4a"):
-                        os.remove(f"{ctx.message.id}.m4a")
 
 
 async def setup(bot):

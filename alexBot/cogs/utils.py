@@ -107,6 +107,13 @@ class Utils(Cog):
         except discord.NotFound:
             pass
 
+    @Cog.listener()
+    async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
+        if before.channel.id in self.current_thatars:
+            if len(before.channel.members) == 0:
+                await before.channel.delete(reason="no one left")
+                self.current_thatars.remove(before.channel.id)
+
     @commands.command(aliases=['diff'])
     async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
         """Compares the creation time of two IDs. default to comparing to the current time."""
@@ -192,24 +199,6 @@ class Utils(Cog):
         for user in interaction.user.voice.channel.members:
             asyncio.get_event_loop().create_task(user.move_to(target, reason=f"as requested by {interaction.user}"))
         await interaction.followup.send(":ok_hand:", ephemeral=True)
-
-    @Cog.listener()
-    async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
-        if not (after is None or after.channel is None):
-            if after.channel.id == 889031486978785312:
-                # check for existing instance and close
-                if (not after.channel.guild.voice_client) or (not after.channel.guild.voice_client.is_connected()):
-                    vc = await after.channel.connect()
-                    vc.play(
-                        discord.PCMVolumeTransformer(
-                            discord.FFmpegPCMAudio("https://retail-music.com/walmart_radio.mp3")
-                        )
-                    )
-                    vc.source.volume = 0.25
-        if before.channel.id in self.current_thatars:
-            if len(before.channel.members) == 0:
-                await before.channel.delete(reason="no one left")
-                self.current_thatars.remove(before.channel.id)
 
 
 async def setup(bot):
