@@ -1,12 +1,11 @@
 import datetime
+import functools
 import math
 import posixpath
 import time
 from functools import wraps
 from typing import TYPE_CHECKING, Callable, Generator, Iterable, Sequence, Tuple, TypeVar, Union
 from urllib.parse import urlparse
-
-import functools
 
 import discord
 from jishaku.paginators import PaginatorInterface
