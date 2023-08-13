@@ -19,4 +19,6 @@ services:
       POSTGRES_PASSWORD: alexbot
       POSTGRES_DB: alexbot
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - alex-bot-db:/var/lib/postgresql/data
+volumes:
+  alex-bot-db:
