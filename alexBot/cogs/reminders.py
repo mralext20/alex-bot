@@ -194,7 +194,7 @@ class Reminders(Cog):
                     owner=interaction.user.id,
                     guildId=interaction.guild.id if interaction.guild else None,
                     message=message,
-                    next_remind=next_remind.replace(microsecond=0),
+                    next_remind=next_remind.replace(microsecond=0,second=0),
                     frequency=freq,
                     require_clearing=require_clearing,
                 )
