@@ -79,8 +79,7 @@ class Bot(commands.Bot):
 
     async def cogSetup(self):
         await self.load_extension('jishaku')
-        await self.load_extension('alexBot.data')
-        self.db = self.get_cog('Data')
+
         for cog in cogs:
             try:
                 await self.load_extension(f"alexBot.cogs.{cog}")
