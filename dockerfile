@@ -7,5 +7,5 @@ RUN pip install -U -r requirements.txt
 
 
 COPY . /alexbot
-RUN rm /alexbot/.env
+RUN rm /alexbot/.env; echo
 CMD ["bash", "entry_point.sh"]
