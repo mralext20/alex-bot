@@ -389,7 +389,6 @@ class Fun(Cog):
         if self.bot.location == "dev" or message.guild is None:
             return
 
-
         cfg = (await self.bot.db.get_guild_data(message.guild.id)).config
         if cfg.ayy:
             if AYYGEN.fullmatch(message.content):
