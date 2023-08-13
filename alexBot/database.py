@@ -111,14 +111,12 @@ class SugeryUser(Base):
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     baseURL: Mapped[str]
     namesId: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(SugeryZoneNames.id))
-    names: Mapped[SugeryZoneNames] = relationship(SugeryZoneNames, foreign_keys='namesId')
+    names: Mapped[SugeryZoneNames] = relationship(foreign_keys='namesId')
     constantAlerts: Mapped[Optional[int]] = mapped_column(BIGINT(), nullable=True)
     alertsTranslationsId: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey(SugeryZoneNames.id)
     )
-    alertsTranslations: Mapped[Optional[SugeryZoneNames]] = relationship(
-        SugeryZoneNames, foreign_keys=[alertsTranslationsId]
-    )
+    alertsTranslations: Mapped[Optional[SugeryZoneNames]] = relationship(foreign_keys=[alertsTranslationsId])
     lastGroup: Mapped[SugeryZone] = mapped_column(Integer(), default=SugeryZone.NORMAL.value)
 
     thresholds: Optional[Thresholds] = None
