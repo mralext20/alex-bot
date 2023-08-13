@@ -110,8 +110,8 @@ class SugeryUser(Base):
     guildId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     baseURL: Mapped[str]
-    names: Mapped[SugeryZoneNames] = relationship(SugeryZoneNames, foreign_keys='namesId')
     namesId: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(SugeryZoneNames.id))
+    names: Mapped[SugeryZoneNames] = relationship(SugeryZoneNames, foreign_keys='namesId')
     constantAlerts: Mapped[Optional[int]] = mapped_column(BIGINT(), nullable=True)
     alertsTranslationsId: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey(SugeryZoneNames.id)
