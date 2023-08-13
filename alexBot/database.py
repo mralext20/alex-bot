@@ -110,12 +110,14 @@ class SugeryUser(Base):
     guildId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     baseURL: Mapped[str]
-    namesId: Mapped[uuid.UUID] = mapped_column(ForeignKey('sugeryzonenames.id'))
-    names: Mapped[SugeryZoneNames] = relationship(foreign_keys='namesId')
-    constantAlerts: Mapped[Optional[int]] = mapped_column(BIGINT(), nullable=True)
-    alertsTranslationsId: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey(SugeryZoneNames.id))
-    alertsTranslations: Mapped[Optional[SugeryZoneNames]] = relationship(foreign_keys=[alertsTranslationsId])
-    lastGroup: Mapped[SugeryZone] = mapped_column(Integer(), default=SugeryZone.NORMAL.value)
+    names: Mapped[SugeryZoneNames] = relationship(foreign_keys='SugeryUser.namesId')
+    namesId: Mapped[uuid.UUID] = mapped_column(ForeignKey('sugeryzonenames.id'), init=False)
+    constantAlerts: Mapped[Optional[int]] = mapped_column(BIGINT(), nullable=True, init=False)
+    alertsTranslationsId: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey(SugeryZoneNames.id), init=False)
+    alertsTranslations: Mapped[Optional[SugeryZoneNames]] = relationship(
+        foreign_keys=[alertsTranslationsId], init=False
+    )
+    lastGroup: Mapped[SugeryZone] = mapped_column(Integer(), default=SugeryZone.NORMAL.value, init=False)
 
     thresholds: Optional[Thresholds] = None
 
