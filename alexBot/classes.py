@@ -6,8 +6,6 @@ from typing import Callable, Dict, List, Optional, Union
 import discord
 import feedparser
 
-from .tools import transform_neosdb
-
 
 @dataclass
 class RingRate:
