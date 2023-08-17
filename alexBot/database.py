@@ -32,7 +32,7 @@ class VoiceStat(Base):
     average_duration: Mapped[datetime.timedelta] = mapped_column(Interval(), default=datetime.timedelta(seconds=1))
     total_sessions: Mapped[int] = mapped_column(Integer(), default=0)
     recently_ended: Mapped[bool] = mapped_column(Boolean(), default=False)
-    last_started: Mapped[datetime.datetime] = mapped_column(DateTime(), default=datetime.datetime.now)
+    last_started: Mapped[datetime.datetime] = mapped_column(DateTime(), default_factory=datetime.datetime.now)
 
 
 class Reminder(Base):
