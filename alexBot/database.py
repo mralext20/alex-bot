@@ -10,7 +10,7 @@ from sqlalchemy.dialects.postgresql import BIGINT, UUID
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column, relationship
 
-from alexBot.classes import SugeryZone, Thresholds
+from alexBot.classes import SugeryZone
 from alexBot.tools import time_cache
 
 
@@ -113,6 +113,15 @@ class SugeryZoneNames(Base):
             raise TypeError(f"expected SugeryZone or str, got {type(item)}")
 
 
+class Thresholds(Base):
+    __tablename__ = "suthresholds"
+    veryHigh: Mapped[int] = mapped_column(Integer())
+    high: Mapped[int] = mapped_column(Integer())
+    low: Mapped[int] = mapped_column(Integer())
+    veryLow: Mapped[int] = mapped_column(Integer())
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default_factory=uuid.uuid4)
+
+
 class SugeryUser(Base):
     __tablename__ = "sugeryusers"
     guildId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
@@ -126,8 +135,10 @@ class SugeryUser(Base):
         foreign_keys=[alertsTranslationsId], init=False, lazy="selectin"
     )
     lastGroup: Mapped[SugeryZone] = mapped_column(Integer(), default=SugeryZone.NORMAL.value, init=False)
-
-    thresholds: Optional[Thresholds] = None
+    thresholdsId: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey(Thresholds.id), init=False)
+    thresholds: Mapped[Optional[Thresholds]] = relationship(
+        foreign_keys='SugeryUser.thresholdsId', init=False, lazy="selectin"
+    )
 
 
 user = os.environ.get("POSTGRES_USER")

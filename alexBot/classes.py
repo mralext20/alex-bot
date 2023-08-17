@@ -26,14 +26,6 @@ class MovieSuggestion:
     watchdate: str
 
 
-@dataclass
-class Thresholds:
-    veryHigh: int
-    high: int
-    low: int
-    veryLow: int
-
-
 class SugeryZone(enum.Enum):
     VERYLOW = enum.auto()
     LOW = enum.auto()
