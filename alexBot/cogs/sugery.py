@@ -8,6 +8,8 @@ from discord.ext import tasks
 
 from alexBot.classes import SugeryTranslations, SugeryZone, Thresholds
 
+from alexBot.database import async_session, select, SugeryUser
+
 from ..tools import Cog, get_json
 
 if TYPE_CHECKING:
@@ -47,16 +49,17 @@ class Sugery(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        if isinstance(message.channel, discord.DMChannel) and message.author.id in self.users:
+        if isinstance(message.channel, discord.DMChannel):
             # get the user
 
-            user = discord.utils.find(lambda x: x.user == message.author.id, self.bot.config.suggery)
-            if not user:
-                return
+            async with async_session() as session:
+                userData = await session.scalar(select(SugeryUser).where(SugeryUser.userId == message.author.id))
+                if not userData
+                    return
             async with aiohttp.ClientSession() as session:
-                data = await get_json(session, f"{user.baseURL}/api/v1/entries/current.json")
-                device = await get_json(session, f"{user.baseURL}/api/v1/deviceStatus.json")
-                log.debug(f"fetching {user.user}'s current data..")
+                data = await get_json(session, f"{userData.baseURL}/api/v1/entries/current.json")
+                device = await get_json(session, f"{userData.baseURL}/api/v1/deviceStatus.json")
+                log.debug(f"fetching {userData.userId}'s current data..")
                 try:
                     sgv = data[0]['sgv']
                     direction = data[0]['direction']
@@ -72,11 +75,13 @@ class Sugery(Cog):
 
     @tasks.loop(minutes=5)
     async def sugery_update(self):
-        for user in self.bot.config.suggery:
+        async with async_session() as session:
+            sgus = await session.scalars(select(SugeryUser))
+        for user in sgus:
             async with aiohttp.ClientSession() as session:
                 data = await get_json(session, f"{user.baseURL}/api/v1/entries/current.json")
                 device = await get_json(session, f"{user.baseURL}/api/v1/deviceStatus.json")
-                log.debug(f"fetching {user.user}'s current data..")
+                log.debug(f"fetching {user.userId}'s current data..")
                 try:
                     sgv = data[0]['sgv']
                     direction = data[0]['direction']
@@ -88,6 +93,9 @@ class Sugery(Cog):
                 log.debug(f"{sgv=}, {user.thresholds=}")
                 name = None
                 zone = None
+                if not user.thresholds:
+                    #uh oh
+                    raise ValueError("sgv has not loaded threshholds somehow")
                 if sgv <= user.thresholds.veryLow:
                     zone = SugeryZone.VERYLOW
                 elif user.thresholds.veryLow <= sgv <= user.thresholds.low:
@@ -100,11 +108,13 @@ class Sugery(Cog):
                     zone = SugeryZone.VERYHIGH
 
                 name = f"{user.names[zone]} {DIR2CHAR[direction]}"
+                if name is None or zone is None:
+                    raise ValueError("name or zone is None")
 
-                member = self.bot.get_guild(user.guild).get_member(user.user)
+                member = self.bot.get_guild(user.guildId).get_member(user.userId)
                 if zone != user.lastGroup:
                     await member.send(
-                        f"Hi! your sugery zone is now `{zone.name.lower()}`.\n"
+                        f"Hi! your sugery zone is now `{user.names[zone]}`.\n"
                         f"your SGV is currently {sgv}.\n"
                         f"additionally, your phone battery is {battery}. \n"
                         f"the direction is {direction} ({DIR2CHAR[direction]})"
@@ -129,18 +139,22 @@ class Sugery(Cog):
 
     @sugery_update.before_loop
     async def before_sugery(self):
-        for user in self.bot.config.suggery:
-            async with aiohttp.ClientSession() as session:
-                data = await get_json(session, f"{user.baseURL}/api/v1/status.json")
-                log.debug(f"fetching {user.user}..")
-                t = data['settings']['thresholds']
-                user.thresholds = Thresholds(
-                    veryHigh=t['bgHigh'],
-                    high=t['bgTargetTop'],
-                    low=t['bgTargetBottom'],
-                    veryLow=t['bgLow'],
-                )
-        await self.bot.wait_until_ready()
+        async with async_session() as session:
+            sgus = await session.scalars(select(SugeryUser))
+            for user in sgus:
+                async with aiohttp.ClientSession() as http_session:
+                    data = await get_json(http_session, f"{user.baseURL}/api/v1/status.json")
+                    log.debug(f"fetching {user.user}..")
+                    t = data['settings']['thresholds']
+                    user.thresholds = Thresholds(
+                        veryHigh=t['bgHigh'],
+                        high=t['bgTargetTop'],
+                        low=t['bgTargetBottom'],
+                        veryLow=t['bgLow'],
+                    )
+                    session.add(user)
+            await session.commit()
+            await self.bot.wait_until_ready()
 
     def cog_unload(self):
         self.sugery_update.cancel()

@@ -104,6 +104,14 @@ class SugeryZoneNames(Base):
     VERYHIGH: Mapped[str] = mapped_column(String())
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default_factory=uuid.uuid4)
 
+    def __getitem__(self, item):
+        if isinstance(item, SugeryZone):
+            return getattr(self, item.name)
+        elif isinstance(item, str):
+            return getattr(self, item)
+        else:
+            raise TypeError(f"expected SugeryZone or str, got {type(item)}")
+
 
 class SugeryUser(Base):
     __tablename__ = "sugeryusers"
