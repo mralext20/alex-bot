@@ -7,8 +7,7 @@ import discord
 from discord.ext import tasks
 
 from alexBot.classes import SugeryTranslations, SugeryZone, Thresholds
-
-from alexBot.database import async_session, select, SugeryUser
+from alexBot.database import SugeryUser, async_session, select
 
 from ..tools import Cog, get_json
 
