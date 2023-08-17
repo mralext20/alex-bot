@@ -63,6 +63,12 @@ class Video_DL(Cog):
     mirror_upload_lock = asyncio.Lock()
 
     @staticmethod
+    def ytdl_gather_data(url: str):
+        ytdl = YoutubeDL({'dump_single_json': True, 'skip_download': True})
+        data = ytdl.extract_info(url, download=False)
+        return data
+
+    @staticmethod
     def download_video(url, id):
         ytdl = YoutubeDL({'outtmpl': f'{id}.mp4'})
         try:
@@ -70,8 +76,6 @@ class Video_DL(Cog):
         except DownloadError:
             raise NotAVideo(False)
         try:
-            if data['requested_downloads'][0]['width'] == 0:
-                raise NotAVideo(False, 'SlideShow')
             if data['requested_downloads'][0]['ext'] not in ['mp4', 'gif', 'm4a', 'mov']:
                 raise NotAVideo(data['url'])
         except KeyError:
@@ -188,17 +192,21 @@ class Video_DL(Cog):
 
             #  create tasks for downloading all of the images
             tasks = [client.get(imageData['url']) for imageData in data['picker']]
+            ytdl_data = self.bot.loop.run_in_executor(None, partial(self.ytdl_gather_data, match))
+
             # asyncio gather those
-            results: List[aiohttp.ClientResponse] = await asyncio.gather(*tasks)
+            results: List[aiohttp.ClientResponse] = await asyncio.gather(ytdl_data, *tasks)  # type: ignore
+            info = results.pop(0)  # remove the ytdl data
             # collect the iamges into bytes? discord.File ?
             images: List[discord.File] = []
             for index, task in enumerate(results):
                 buffer = io.BytesIO(await task.read())
                 images.append(discord.File(buffer, filename=f"{index}.{task.url.path.split('.')[-1]}"))
             # grouper the images into groups of 10
-
+            msg = info['title']
             for group in grouper(images, 10):
-                await message.channel.send(files=group)
+                await message.channel.send(content=msg, files=group)
+                msg = None
 
             # post messages in order
 
@@ -249,6 +257,15 @@ class Video_DL(Cog):
         log.info(f'collecting {match} for {message.author}')
         uploaded = None
         async with message.channel.typing():
+            if ttm := TIKTOK_REGEX.match(content):
+                # process tiktok slideshow maybe
+                async with aiohttp.ClientSession() as client:
+                    data = await client.post(
+                        'https://co.wuk.sh/api/json', json={'url': ttm.group(0)}, headers={'accept': 'application/json'}
+                    )
+                    data = await data.json()
+                    if data.get('pickerType') == 'images':
+                        return await self.do_tiktok_slideshow(message, ttm.group(0))
             try:
                 if match:
                     await message.channel.typing()
@@ -268,12 +285,6 @@ class Video_DL(Cog):
                             await message.reply(e, mention_author=False)
                             try:
                                 await message.add_reaction('✅')
-                            except DiscordException:
-                                pass
-                        elif e.args[1] == 'SlideShow':
-                            try:
-                                # use cobalt to collect slideshow images
-                                await self.do_tiktok_slideshow(message, match)
                             except DiscordException:
                                 pass
 

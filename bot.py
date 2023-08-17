@@ -72,7 +72,7 @@ class Bot(commands.Bot):
         self.tree.add_command(self.voiceCommandsGroup)
 
     async def on_ready(self):
-        log.info(f'Logged on as {self.user} ({self.user.id})')
+        log.info(f'Logged on as {self.user} ({self.user.id}). prefix is {config.prefix}')
         self.owner = (await self.application_info()).owner
         log.info(f'owner is {self.owner} ({self.owner.id})')
         self.session = aiohttp.ClientSession()
