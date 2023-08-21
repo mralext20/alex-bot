@@ -23,7 +23,6 @@ cogs = [
     if x.stem
     not in [
         "__init__",
-        "voiceTTS",
     ]
 ]
 # cogs = ['reminders', 'errors']  # used to test single cog at a time

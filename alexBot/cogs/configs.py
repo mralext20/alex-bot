@@ -5,7 +5,8 @@ from discord import app_commands
 from sqlalchemy import select
 
 from alexBot.database import GuildConfig, UserConfig, async_session
-
+from bot import Bot
+from alexBot.classes import googleVoices
 from ..tools import Cog, convert_to_bool
 
 
@@ -44,6 +45,13 @@ class Configs(Cog):
     @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in UserConfig.__config_keys__])
     async def user_setConfig(self, interaction: discord.Interaction, key: str, value: str):
         # it's a user! we don't need to confirm they can set the key.
+        if key == 'voiceModel':
+            if value not in googleVoices:
+                await interaction.response.send_message(
+                    f"{value} is not a valid voice model. valid models are: {', '.join(googleVoices)}",
+                    ephemeral=True,
+                )
+                return
         await self.setConfig('user', interaction, key, value)
 
     async def setConfig(

@@ -82,10 +82,11 @@ class GuildConfig(Base):
 
 class UserConfig(Base):
     __tablename__ = "userconfigs"
-    __config_keys__ = ["ringable", "collectVoiceData"]
+    __config_keys__ = ["ringable", "collectVoiceData", "voiceModel"]
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     ringable: Mapped[bool] = mapped_column(Boolean(), default=True)
     collectVoiceData: Mapped[bool] = mapped_column(Boolean(), default=True)
+    voiceModel: Mapped[str] = mapped_column(String(), server_default="", default="")
 
 
 class VoiceName(Base):

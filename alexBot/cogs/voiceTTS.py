@@ -2,40 +2,40 @@ import asyncio
 import ctypes
 import logging
 import os
-from io import BytesIO
-from typing import Dict, Optional, Tuple
+import uuid
+from typing import Dict, List, Optional, Tuple
 
 import discord
-from asyncgTTS import (
-    AsyncGTTSSession,
-    AudioConfig,
-    AudioEncoding,
-    ServiceAccount,
-    SynthesisInput,
-    TextSynthesizeRequestBody,
-)
+from asyncgTTS import AsyncGTTSSession, ServiceAccount, SynthesisInput, TextSynthesizeRequestBody, VoiceSelectionParams
 from discord import app_commands
 
-# from alexBot.fixes import FFmpegPCMAudioBytes
+from alexBot.database import async_session, select, UserConfig
+from alexBot.classes import googleVoices as voices
+
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
 
 
+wavenetChoices = [discord.app_commands.Choice(name=f"WaveNet {v[0][-1]} ({v[1]})", value=v[0]) for v in voices]
+wavenetChoices.append(discord.app_commands.Choice(name="Saved Preference (in /config user)", value="SAVED"))
+
+
 class VoiceTTS(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
-        self.runningTTS: Dict[int, Tuple[discord.TextChannel, discord.VoiceClient]] = {}
+        self.runningTTS: Dict[int, Tuple[discord.TextChannel, discord.VoiceClient, VoiceSelectionParams]] = {}
         self.gtts: AsyncGTTSSession = None
 
     async def cog_load(self):
+        self.gtts = AsyncGTTSSession.from_service_account(
+            ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
+        )
+
         self.bot.voiceCommandsGroup.add_command(
             app_commands.Command(name="tts", description="Send text to speech", callback=self.vc_tts)
         )
-        self.gtts = AsyncGTTSSession.from_service_account(
-            ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
-            ServiceAccount.from_service_account_dict,
-        )
+
         await self.gtts.__aenter__()
 
     async def cog_unload(self) -> None:
@@ -57,14 +57,17 @@ class VoiceTTS(Cog):
             await self.runningTTS[member.id][1].disconnect()
             del self.runningTTS[member.id]
 
-    async def sendTTS(self, text: str, extra: Tuple[discord.TextChannel, discord.VoiceClient, int]):
-        channel, vc, mid = extra
+    async def sendTTS(self, text: str, extra: Tuple[discord.TextChannel, discord.VoiceClient, VoiceSelectionParams]):
+        channel, vc, voiceType = extra
+        mid = uuid.uuid4()
         if not vc.is_connected():
             del self.runningTTS[channel.guild.id]
             return
         log.debug(f"Sending TTS: {text=}")
         try:
-            synth_bytes = await self.gtts.synthesize(TextSynthesizeRequestBody(SynthesisInput(text)))
+            synth_bytes = await self.gtts.synthesize(
+                TextSynthesizeRequestBody(SynthesisInput(text), voice_input=voiceType)
+            )
         except Exception as e:
             log.exception(e)
             return
@@ -75,10 +78,11 @@ class VoiceTTS(Cog):
         sound = await discord.FFmpegOpusAudio.from_probe(f_name)
         vc.play(sound, after=self.after)
         while vc.is_playing():
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.5)
         os.remove(f_name)
 
-    async def vc_tts(self, interaction: discord.Interaction):
+    @app_commands.choices(model=wavenetChoices)
+    async def vc_tts(self, interaction: discord.Interaction, model: str):
         if interaction.guild is None:
             await interaction.response.send_message("This command can only be used in a guild", ephemeral=True)
             return
@@ -87,7 +91,31 @@ class VoiceTTS(Cog):
             await interaction.response.send_message("You are not in a voice channel", ephemeral=True)
             return
         vc = await interaction.user.voice.channel.connect()
-        self.runningTTS[interaction.user.id] = (interaction.channel, vc)
+
+        if model == "SAVED":
+            # we pull from database, and use that
+            async with async_session() as session:
+                userData = await session.scalar(select(UserConfig).where(UserConfig.userId == interaction.user.id))
+                if not userData:
+                    userData = UserConfig(interaction.user.id)
+                    session.add(userData)
+                    await session.commit()
+                    await interaction.response.send_message(
+                        "You have not set a voice preference. use `/config user` to set one", ephemeral=True
+                    )
+                    return
+                if not userData.voiceModel:
+                    await interaction.response.send_message(
+                        "You have not set a voice preference. use `/config user set` to set one", ephemeral=True
+                    )
+                    return
+                model = userData.voiceModel
+
+        self.runningTTS[interaction.user.id] = (
+            interaction.channel,
+            vc,
+            VoiceSelectionParams(language_code="en-US", name=model),
+        )
         await interaction.response.send_message(
             "TTS is now for you in this channel. leaving the voice channel will end the tts.", ephemeral=False
         )

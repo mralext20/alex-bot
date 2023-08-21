@@ -34,6 +34,20 @@ class SugeryZone(enum.Enum):
     VERYHIGH = enum.auto()
 
 
+googleVoices = [
+    ('en-US-Wavenet-A', 'Male'),
+    ('en-US-Wavenet-B', 'Male'),
+    ('en-US-Wavenet-C', 'Female'),
+    ('en-US-Wavenet-D', 'Male'),
+    ('en-US-Wavenet-E', 'Female'),
+    ('en-US-Wavenet-F', 'Female'),
+    ('en-US-Wavenet-G', 'Female'),
+    ('en-US-Wavenet-H', 'Female'),
+    ('en-US-Wavenet-I', 'Male'),
+    ('en-US-Wavenet-J', 'Male'),
+]
+
+
 SugeryTranslations = {
     SugeryZone.VERYLOW: "Sehr Niedrig",
     SugeryZone.LOW: "Niedrig",
