@@ -48,9 +48,9 @@ class Configs(Cog):
         if key == 'voiceModel':
             vcnames = [vc[0] for vc in googleVoices]
             if value not in vcnames:
-                formatted = ', '.join([f'`{vc[0]} ({vc[1]})`' for vc in googleVoices])
+                formatted = '\n'.join([f'`{vc[0]}` ({vc[1]})' for vc in googleVoices])
                 await interaction.response.send_message(
-                    f"{value} is not a valid voice model. valid models are: {', '.join(formatted)}",
+                    f"{value} is not a valid voice model. valid models are: \n\n{formatted}",
                     ephemeral=True,
                 )
                 return
