@@ -54,6 +54,7 @@ class Configs(Cog):
                     ephemeral=True,
                 )
                 return
+        await self.setConfig('user', interaction, key, value)
 
     async def setConfig(
         self, config_type: Literal['guild', 'user'], interaction: discord.Interaction, key: str, value: str
