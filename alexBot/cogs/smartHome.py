@@ -11,7 +11,7 @@ import discord
 from aiomqtt.types import PayloadType
 from discord.ext import tasks
 
-from ..tools import Cog, get_json
+from ..tools import Cog, get_json, render_voiceState
 
 if TYPE_CHECKING:
     from alexBot.cogs.mqttDispatcher import HomeAssistantIntigreation
@@ -151,28 +151,11 @@ class PhoneMonitor(Cog):
                             log.debug(f"Sent voice message to HA: {resp.status}")
                 return
 
-    @staticmethod
-    def render_voiceState(member: discord.Member) -> str:
-        s = ""
-        if not member.voice:
-            return "❌"
-        if member.voice.self_mute:
-            s += "🙊 "
-        if member.voice.mute:
-            s += "🖥️🙊 "
-        if member.voice.self_deaf:
-            s += "🙉 "
-        if member.voice.deaf:
-            s += "🖥️🙉 "
-        if member.voice.self_video:
-            s += "📹 "
-        if member.voice.self_stream:
-            s += "🔴 "
-        return s
+
 
     async def update_mqtt_state(self, member: discord.Member, after: discord.VoiceState):
         mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
-        jsonblob = {"state_str": self.render_voiceState(member)}
+        jsonblob = {"state_str": render_voiceState(member)}
 
         for key in ['self_deaf', 'self_mute', 'self_stream', 'self_video', 'mute', 'deaf']:
             jsonblob[key] = getattr(member.voice, key)
@@ -213,7 +196,7 @@ class PhoneMonitor(Cog):
                 if message == "":
                     return
 
-                message = self.render_voiceState(member) + message
+                message = render_voiceState(member) + message
                 await self.send_notification(member.id, message, channel.members)
                 return
 
@@ -279,7 +262,7 @@ class PhoneMonitor(Cog):
                 memberList = after.channel.members
 
             if message:
-                message = self.render_voiceState(targetMember) + message
+                message = render_voiceState(targetMember) + message
                 await self.send_notification(user, message, memberList)
 
             after.channel = oldAfter
@@ -303,7 +286,7 @@ class PhoneMonitor(Cog):
 
     async def send_notification(self, user: int, title: str, members: List[discord.Member]):
         log.debug(f"title: {title}")
-        content = f"Current members in your channel are:\n{NEWLINE.join([f'{m.display_name} {self.render_voiceState(m)}' for m in members])}"
+        content = f"Current members in your channel are:\n{NEWLINE.join([f'{m.display_name} {render_voiceState(m)}' for m in members])}"
 
         log.debug(f"message content: {content}")
         webhook_target = self.bot.config.ha_webhook_notifs

@@ -25,6 +25,24 @@ log = getLogger(__name__)
 _T = TypeVar("_T")
 
 
+def render_voiceState(member: discord.Member) -> str:
+    s = ""
+    if not member.voice:
+        return "❌"
+    if member.voice.self_mute:
+        s += "🙊 "
+    if member.voice.mute:
+        s += "🖥️🙊 "
+    if member.voice.self_deaf:
+        s += "🙉 "
+    if member.voice.deaf:
+        s += "🖥️🙉 "
+    if member.voice.self_video:
+        s += "📹 "
+    if member.voice.self_stream:
+        s += "🔴 "
+    return s
+
 def convert_to_bool(argument: str) -> bool:
     lowered = argument.lower()
     if lowered in ('yes', 'y', 'true', 't', '1', 'enable', 'on'):
