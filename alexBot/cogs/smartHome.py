@@ -151,8 +151,6 @@ class PhoneMonitor(Cog):
                             log.debug(f"Sent voice message to HA: {resp.status}")
                 return
 
-
-
     async def update_mqtt_state(self, member: discord.Member, after: discord.VoiceState):
         mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
         jsonblob = {"state_str": render_voiceState(member)}

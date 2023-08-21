@@ -43,6 +43,7 @@ def render_voiceState(member: discord.Member) -> str:
         s += "🔴 "
     return s
 
+
 def convert_to_bool(argument: str) -> bool:
     lowered = argument.lower()
     if lowered in ('yes', 'y', 'true', 't', '1', 'enable', 'on'):

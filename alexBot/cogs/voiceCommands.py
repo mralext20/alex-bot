@@ -1,8 +1,10 @@
 import asyncio
 from typing import List, Optional
-from discord import VoiceState, app_commands
-from alexBot.tools import Cog, render_voiceState
+
 import discord
+from discord import VoiceState, app_commands
+
+from alexBot.tools import Cog, render_voiceState
 
 
 class VoiceCommands(Cog):
@@ -63,11 +65,13 @@ class VoiceCommands(Cog):
         self.bot.voiceCommandsGroup.remove_command("theatre")
         self.bot.voiceCommandsGroup.remove_command("act")
 
-    async def user_in_same_vc(self, interaction:discord.Interaction, guess:str):
+    async def user_in_same_vc(self, interaction: discord.Interaction, guess: str):
         if interaction.user.voice is None:
             return [app_commands.Choice(name="err: not in a voice channel", value="0")]
-        
-        return [app_commands.Choice(name=m.display_name, value=str(m.id)) for m in interaction.user.voice.channel.members]
+
+        return [
+            app_commands.Choice(name=m.display_name, value=str(m.id)) for m in interaction.user.voice.channel.members
+        ]
 
     async def voice_action_autocomplete(self, interaction: discord.Interaction, guess: str):
         if interaction.namespace.target:
@@ -81,12 +85,16 @@ class VoiceCommands(Cog):
             opts.append(app_commands.Choice(name="unmute" if member.voice.mute else "mute", value="mute"))
             opts.append(app_commands.Choice(name="undeafen" if member.voice.deaf else "deafen", value="deafen"))
             return opts
-        return [app_commands.Choice(name="disconnect", value="disconnect"), app_commands.Choice(name="mute", value="mute"), app_commands.Choice(name="deafen", value="deafen")]
+        return [
+            app_commands.Choice(name="disconnect", value="disconnect"),
+            app_commands.Choice(name="mute", value="mute"),
+            app_commands.Choice(name="deafen", value="deafen"),
+        ]
 
     @app_commands.checks.bot_has_permissions(move_members=True, mute_members=True, deafen_members=True)
     @app_commands.checks.has_permissions(move_members=True, mute_members=True, deafen_members=True)
     @app_commands.autocomplete(target=user_in_same_vc)
-    async def slash_command_proxy(self, interaction:discord.Interaction, target: str, action:str):
+    async def slash_command_proxy(self, interaction: discord.Interaction, target: str, action: str):
         member = interaction.guild.get_member(int(target))
         if not member:
             await interaction.response.send_message("invalid target", ephemeral=True)
@@ -94,7 +102,7 @@ class VoiceCommands(Cog):
         if member.voice is None:
             await interaction.response.send_message("target is not in a voice channel", ephemeral=True)
             return
-        
+
         if action == 'mute':
             await member.edit(mute=not member.voice.mute)
         elif action == 'deafen':
@@ -102,7 +110,9 @@ class VoiceCommands(Cog):
         elif action == 'disconnect':
             await member.edit(deafen=False, mute=False)
             await member.move_to(None)
-        return interaction.response.send_message(f"ok, {action}ed {member.display_name} {render_voiceState(member)}", ephemeral=True)
+        return interaction.response.send_message(
+            f"ok, {action}ed {member.display_name} {render_voiceState(member)}", ephemeral=True
+        )
 
     @app_commands.checks.bot_has_permissions(move_members=True)
     @app_commands.checks.has_permissions(move_members=True)
@@ -147,6 +157,7 @@ class VoiceCommands(Cog):
             if len(before.channel.members) == 0:
                 await before.channel.delete(reason="no one left")
                 self.current_thatars.remove(before.channel.id)
+
     @app_commands.guild_only()
     @app_commands.checks.bot_has_permissions(move_members=True)
     async def vc_disconnect(self, interaction: discord.Interaction):
@@ -169,6 +180,7 @@ class VoiceCommands(Cog):
             await interaction.response.send_message("i can't disconnect you from voice", ephemeral=True)
             return
         await interaction.response.send_message("ok, bye", ephemeral=True)
+
     @app_commands.guild_only()
     async def vc_move(self, interaction: discord.Interaction, channel: discord.VoiceChannel):
         """Moves you to another voice channel"""
@@ -191,7 +203,6 @@ class VoiceCommands(Cog):
             return
         await interaction.user.move_to(channel)
         await interaction.response.send_message(f"ok, moved you to {channel}", ephemeral=True)
-
 
     async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         if interaction.user.voice is None:
