@@ -9,9 +9,8 @@ import discord
 from asyncgTTS import AsyncGTTSSession, ServiceAccount, SynthesisInput, TextSynthesizeRequestBody, VoiceSelectionParams
 from discord import app_commands
 
-from alexBot.database import async_session, select, UserConfig
 from alexBot.classes import googleVoices as voices
-
+from alexBot.database import UserConfig, async_session, select
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)

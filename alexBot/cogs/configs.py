@@ -4,9 +4,10 @@ import discord
 from discord import app_commands
 from sqlalchemy import select
 
+from alexBot.classes import googleVoices
 from alexBot.database import GuildConfig, UserConfig, async_session
 from bot import Bot
-from alexBot.classes import googleVoices
+
 from ..tools import Cog, convert_to_bool
 
 
