@@ -5,6 +5,7 @@ import discord
 from discord import VoiceState, app_commands
 
 from alexBot.tools import Cog, render_voiceState
+from alexBot.database import async_session, select, UserConfig
 
 
 class VoiceCommands(Cog):
@@ -56,6 +57,13 @@ class VoiceCommands(Cog):
                 callback=self.slash_command_proxy,
             )
         )
+        self.bot.voiceCommandsGroup.add_command(
+            app_commands.Command(
+                name="sleep",
+                description="deafen everyone in the channel, and mute people who req to be muted via userconfig",
+                callback=self.sleep,
+            )
+        )
 
     async def cog_unload(self):
         self.bot.voiceCommandsGroup.remove_command("shake")
@@ -64,6 +72,7 @@ class VoiceCommands(Cog):
         self.bot.voiceCommandsGroup.remove_command("move")
         self.bot.voiceCommandsGroup.remove_command("theatre")
         self.bot.voiceCommandsGroup.remove_command("act")
+        self.bot.voiceCommandsGroup.remove_command("sleep")
 
     async def user_in_same_vc(self, interaction: discord.Interaction, guess: str):
         if interaction.user.voice is None:
@@ -93,7 +102,7 @@ class VoiceCommands(Cog):
 
     @app_commands.checks.bot_has_permissions(move_members=True, mute_members=True, deafen_members=True)
     @app_commands.checks.has_permissions(move_members=True, mute_members=True, deafen_members=True)
-    @app_commands.autocomplete(target=user_in_same_vc)
+    @app_commands.autocomplete(target=user_in_same_vc, action=voice_action_autocomplete)
     async def slash_command_proxy(self, interaction: discord.Interaction, target: str, action: str):
         member = interaction.guild.get_member(int(target))
         if not member:
@@ -110,8 +119,8 @@ class VoiceCommands(Cog):
         elif action == 'disconnect':
             await member.edit(deafen=False, mute=False)
             await member.move_to(None)
-        return interaction.response.send_message(
-            f"ok, {action}ed {member.display_name} {render_voiceState(member)}", ephemeral=True
+        return await interaction.response.send_message(
+            f"ok, {member.display_name} is now {render_voiceState(member)}", ephemeral=False
         )
 
     @app_commands.checks.bot_has_permissions(move_members=True)
@@ -324,6 +333,31 @@ class VoiceCommands(Cog):
         if voiceLog:
             del voiceLog.beingShaken[user.id]
 
+    @app_commands.checks.bot_has_permissions(mute_members=True, deafen_members=True)
+    @app_commands.checks.has_permissions(mute_members=True, deafen_members=True)
+    async def sleep(self, interaction: discord.Interaction):
+        # deafen everyone in the channel, and mute people who req to be muted via userconfig
+        if interaction.user.voice is None:
+            return await interaction.followup.send("you're not in a voice channel", ephemeral=True)
+        await interaction.response.defer(thinking=True)
+        vc = interaction.user.voice.channel
+        if vc is None:
+            # this should never happen tbh
+            return await interaction.followup.send("you're not in a voice channel", ephemeral=True)
+        async with async_session() as session:
+            uds = await session.scalars(select(UserConfig).where(UserConfig.userId.in_([z.id for z in vc.members])))
+            for user in vc.members:
+                await user.edit(deafen=True)
+                # get the user config for this user
+                ud = next((x for x in uds if x.userId == user.id), None)
+                if not ud:
+                    ud = UserConfig(user.id)
+                if ud.voiceSleepMute:
+                    await user.edit(deafen=True, mute=True)
+                else:
+                    await user.edit(deafen=True, mute=False)
+        await interaction.followup.send("ok, sleep well :zzz:", ephemeral=True)
 
-def setup(bot):
-    bot.add_cog(VoiceCommands(bot))
+
+async def setup(bot):
+    await bot.add_cog(VoiceCommands(bot))
