@@ -4,8 +4,8 @@ from typing import List, Optional
 import discord
 from discord import VoiceState, app_commands
 
+from alexBot.database import UserConfig, async_session, select
 from alexBot.tools import Cog, render_voiceState
-from alexBot.database import async_session, select, UserConfig
 
 
 class VoiceCommands(Cog):
