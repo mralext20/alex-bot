@@ -49,35 +49,11 @@ class Fun(Cog):
                 discord.Object(1083141160198996038),
             ],
         )
-        self.bot.tree.add_command(self.videoLengthMenu, guild=discord.Object(791528974442299412))
-        self.bot.voiceCommandsGroup.add_command(
-            app_commands.Command(
-                name="shake",
-                description="'shake' a user in voice as a fruitless attempt to get their attention.",
-                callback=self.vcShake,
-            )
-        )
-        self.bot.voiceCommandsGroup.add_command(
-            app_commands.Command(
-                name="disconnect",
-                description="Disconnect yourself from the voice channel you're in.",
-                callback=self.vc_disconnect,
-            )
-        )
-        self.bot.voiceCommandsGroup.add_command(
-            app_commands.Command(
-                name="move_me",
-                description="Move you to another channel",
-                callback=self.vc_move,
-            )
-        )
+        self.bot.tree.add_command(self.videoLengthMenu)
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
         self.bot.tree.remove_command(self.videoLengthMenu.name, type=self.videoLengthMenu.type)
-        self.bot.voiceCommandsGroup.remove_command("shake")
-        self.bot.voiceCommandsGroup.remove_command("disconnect")
-        self.bot.voiceCommandsGroup.remove_command("move_me")
 
     async def videoLength(self, interaction: discord.Interaction, message: discord.Message):
         matches = YOUTUBE_REGEX.findall(message.content)
@@ -192,49 +168,6 @@ class Fun(Cog):
         newstick = discord.GuildSticker(state=stick._state, data=rawstick)
         await interaction.channel.send("This is mine now", stickers=[newstick])
 
-    async def vc_disconnect(self, interaction: discord.Interaction):
-        """Disconnects you from voice"""
-        if interaction.guild is None:
-            await interaction.response.send_message("this command can only be used in a server", ephemeral=True)
-            return
-        if interaction.user.voice is None:
-            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
-            return
-        if interaction.user.voice.channel is None:
-            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
-            return
-        if interaction.user.voice.channel.guild != interaction.guild:
-            await interaction.response.send_message("you're not in this server's voice channel", ephemeral=True)
-            return
-        try:
-            await interaction.user.move_to(None)
-        except:
-            await interaction.response.send_message("i can't disconnect you from voice", ephemeral=True)
-            return
-        await interaction.response.send_message("ok, bye", ephemeral=True)
-
-    async def vc_move(self, interaction: discord.Interaction, channel: discord.VoiceChannel):
-        """Moves you to another voice channel"""
-        if interaction.guild is None:
-            await interaction.response.send_message("this command can only be used in a server", ephemeral=True)
-            return
-        if not interaction.user.voice:
-            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
-            return
-        if interaction.user.voice.channel is None:
-            await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
-            return
-        if interaction.user.voice.channel.guild != interaction.guild:
-            await interaction.response.send_message("you're not in this server's voice channel", ephemeral=True)
-            return
-        if channel.permissions_for(interaction.user).connect is False:
-            await interaction.response.send_message(
-                "you don't have permission to connect to that channel", ephemeral=True
-            )
-            return
-        await interaction.user.move_to(channel)
-        await interaction.response.send_message("ok, bye", ephemeral=True)
-
     @app_commands.command(name="cat")
     async def slash_cat(self, interaction: discord.Interaction):
         """Posts a pretty photo of a cat"""
@@ -263,126 +196,6 @@ class Fun(Cog):
             ret = discord.Embed()
             ret.set_image(url=dog["url"])
             await interaction.followup.send(embed=ret)
-
-    async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
-        if interaction.user.voice is None:
-            return [app_commands.Choice(name="err: not in a voice channel", value="0")]
-        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
-        if channel is None:
-            if interaction.user.voice.channel.category is not None:
-                for chan in interaction.user.voice.channel.category.channels:
-                    if (
-                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
-                        and len(chan.members) == 0
-                        and chan.permissions_for(interaction.user).view_channel
-                    ):
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.voice_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.stage_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
-                return
-        if channel is None or interaction.user.voice.channel == channel:
-            return [app_commands.Choice(name="err: no suitable shake channel found", value="0")]
-
-        valid_targets = [
-            m
-            for m in interaction.user.voice.channel.members
-            if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
-        ]
-        if len(valid_targets) == 0:
-            return [app_commands.Choice(name="err: no valid targets", value="0")]
-        return [
-            app_commands.Choice(name=m.display_name, value=str(m.id))
-            for m in valid_targets
-            if guess in m.display_name.lower() or guess in m.name.lower()
-        ]
-
-    @app_commands.guild_only()
-    @app_commands.autocomplete(target=target_autocomplete)
-    async def vcShake(self, interaction: discord.Interaction, target: str):
-        """'shake' a user in voice as a fruitless attempt to get their attention."""
-        target: int = int(target)
-        if not interaction.guild.me.guild_permissions.move_members:
-            await interaction.response.send_message("I don't have the permissions to do that.")
-            return
-
-        if target == 0:
-            await interaction.response.send_message("invalid target", ephemeral=True)
-            return
-
-        if interaction.user.voice is None:
-            await interaction.response.send_message("you are not in a voice channel", ephemeral=True)
-            return
-        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
-        if channel is None:
-            if interaction.user.voice.channel.category is not None:
-                for chan in interaction.user.voice.channel.category.channels:
-                    if (
-                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
-                        and len(chan.members) == 0
-                        and chan.permissions_for(interaction.user).view_channel
-                    ):
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.voice_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.stage_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
-                return
-
-        if interaction.user.voice.channel == channel:
-            await interaction.response.send_message("you are in the shaking channel, somehow", ephemeral=True)
-            return
-
-        valid_targets = [
-            m
-            for m in interaction.user.voice.channel.members
-            if not m.bot and not m.id == interaction.user.id and not m.voice.self_stream
-        ]
-
-        user = interaction.guild.get_member(int(target))
-        if user is None or user not in valid_targets:
-            await interaction.response.send_message("invalid target", ephemeral=True)
-            return
-
-        currentChannel = interaction.user.voice.channel
-        AFKChannel = channel
-
-        await interaction.response.send_message(
-            f"shaking {user.mention}...",
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
-        voiceLog = self.bot.get_cog("VoiceLog")
-        if voiceLog:
-            voiceLog.beingShaken[user.id] = False
-        if interaction.guild.id == 791528974442299412:
-            await interaction.guild.get_channel(974472799093661826).send(
-                f"shaking {user.display_name} for {interaction.user.display_name}"
-            )
-
-        for _ in range(4):
-            await user.move_to(AFKChannel, reason=f"shake requested by {interaction.user.display_name}")
-            await user.move_to(currentChannel, reason=f"shake requested by {interaction.user.display_name}")
-        if voiceLog:
-            del voiceLog.beingShaken[user.id]
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -447,7 +260,7 @@ class Fun(Cog):
             else:
                 try:
                     await message.author.send(
-                        f"Your message was deleted. please end it with a `?`\n\nYour original content is here:"
+                        "Your message was deleted. please end it with a `?`\n\nYour original content is here:"
                     )
                     await message.author.send(message.content)
                 except discord.DiscordException:

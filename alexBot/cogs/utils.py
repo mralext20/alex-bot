@@ -27,30 +27,6 @@ class Roll:
 
 
 class Utils(Cog):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.current_thatars = []
-
-    async def cog_load(self):
-        self.bot.voiceCommandsGroup.add_command(
-            app_commands.Command(
-                name="move",
-                description="Moves the current group to another voice channel.",
-                callback=self.voice_move,
-            )
-        )
-        self.bot.voiceCommandsGroup.add_command(
-            app_commands.Command(
-                name="theatre",
-                description="create a temporary channel for watching videos with friends",
-                callback=self.voice_theatre,
-            )
-        )
-
-    async def cog_unload(self):
-        self.bot.voiceCommandsGroup.remove_command("move")
-        self.bot.voiceCommandsGroup.remove_command("theatre")
-
     @app_commands.command()
     @app_commands.describe(dice="dice format in XdY. can be multiple sets, seperated by spaces")
     async def roll(self, interaction: discord.Interaction, dice: str):
@@ -80,39 +56,6 @@ class Utils(Cog):
             await interaction.response.send_message(result, ephemeral=False)
         except discord.HTTPException:
             await interaction.response.send_message("Result too long!", ephemeral=True)
-
-    @app_commands.checks.bot_has_permissions(manage_channels=True)
-    @app_commands.checks.has_permissions(manage_channels=True)
-    async def voice_theatre(self, interaction: discord.Interaction, name: Optional[str]):
-        if name is None:
-            name = "Theatre"
-        target_catagory = None
-        if interaction.user.voice:
-            # we have a voice channel, is it in a category?
-            if interaction.user.voice.channel.category:
-                target_catagory = interaction.user.voice.channel.category
-        if target_catagory is None:
-            # if the current channel is in a catagory, put it there
-            target_catagory = interaction.channel.category
-
-        chan = await interaction.guild.create_voice_channel(name=name, category=target_catagory)
-        self.current_thatars.append(chan.id)
-        await interaction.response.send_message(f"Created a new theatre channel, {chan.mention}", ephemeral=False)
-        await asyncio.sleep(5 * 60)
-        try:
-            chan: discord.VoiceChannel = await self.bot.fetch_channel(chan.id)
-            if chan is not None:
-                if len(chan.members) == 0:
-                    await chan.delete()
-        except discord.NotFound:
-            pass
-
-    @Cog.listener()
-    async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
-        if before.channel.id in self.current_thatars:
-            if len(before.channel.members) == 0:
-                await before.channel.delete(reason="no one left")
-                self.current_thatars.remove(before.channel.id)
 
     @commands.command(aliases=['diff'])
     async def difference(self, ctx: commands.Context, one: discord.Object, two: Optional[discord.Object] = None):
@@ -188,17 +131,6 @@ class Utils(Cog):
         await ctx.send(
             f"<https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot%20applications.commands>"
         )
-
-    @app_commands.checks.bot_has_permissions(move_members=True)
-    @app_commands.checks.has_permissions(move_members=True)
-    @app_commands.describe(target="the voice channel to move everyone to")
-    async def voice_move(self, interaction: discord.Interaction, target: discord.VoiceChannel):
-        if not interaction.user.voice:
-            return await interaction.response.send_message("you must be in a voice call!", ephemeral=True)
-        await interaction.response.defer()
-        for user in interaction.user.voice.channel.members:
-            asyncio.get_event_loop().create_task(user.move_to(target, reason=f"as requested by {interaction.user}"))
-        await interaction.followup.send(":ok_hand:", ephemeral=True)
 
 
 async def setup(bot):
