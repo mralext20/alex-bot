@@ -7,7 +7,6 @@ from sqlalchemy import select
 from alexBot.classes import googleVoices
 from alexBot.database import GuildConfig, UserConfig, async_session
 
-from alexBot.classes import googleVoices
 from ..tools import Cog, convert_to_bool
 
 
