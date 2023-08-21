@@ -74,12 +74,12 @@ class Sugery(Cog):
 
     @tasks.loop(minutes=5)
     async def sugery_update(self):
-        async with async_session() as session:
-            sgus = await session.scalars(select(SugeryUser))
+        async with async_session() as db_session:
+            sgus = await db_session.scalars(select(SugeryUser))
         for user in sgus:
-            async with aiohttp.ClientSession() as session:
-                data = await get_json(session, f"{user.baseURL}/api/v1/entries/current.json")
-                device = await get_json(session, f"{user.baseURL}/api/v1/deviceStatus.json")
+            async with aiohttp.ClientSession() as http_session:
+                data = await get_json(http_session, f"{user.baseURL}/api/v1/entries/current.json")
+                device = await get_json(http_session, f"{user.baseURL}/api/v1/deviceStatus.json")
                 log.debug(f"fetching {user.userId}'s current data..")
                 try:
                     sgv = data[0]['sgv']
@@ -145,6 +145,8 @@ class Sugery(Cog):
                 if battery < 30 and not zone == user.lastGroup:
                     await member.send(f"ur battery dyin friendo: {battery}%")
                 user.lastGroup = zone
+                db_session.add(user)
+                await db_session.commit()
                 if g:
                     try:
                         assert isinstance(member, discord.Member)
