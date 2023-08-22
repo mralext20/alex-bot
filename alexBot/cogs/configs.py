@@ -61,20 +61,20 @@ class Configs(Cog):
         self, config_type: Literal['guild', 'user'], interaction: discord.Interaction, key: str, value: str
     ):
         # set locals
-        model = None
+        Model = None
         lookUpID = None
         if config_type == 'guild':
-            model = GuildConfig
+            Model = GuildConfig
             lookUpID = interaction.guild.id
         elif config_type == 'user':
-            model = UserConfig
+            Model = UserConfig
             lookUpID = interaction.user.id
         else:
             raise ValueError("config_type must be 'guild' or 'user'")
-        if key not in model.__config_keys__:
+        if key not in Model.__config_keys__:
             await interaction.response.send_message("That is not a valid config key!", ephemeral=True)
             return
-        type = model.__dataclass_fields__[key].type
+        type = Model.__dataclass_fields__[key].type
         # attempt to cast input value to type
         if type == bool:
             try:
@@ -86,9 +86,9 @@ class Configs(Cog):
             val = value
         # get the user config
         async with async_session() as session:
-            uc = await session.scalar(select(model).where(model.__mapper__.primary_key[0] == lookUpID))
+            uc = await session.scalar(select(Model).where(Model.__mapper__.primary_key[0] == lookUpID))
             if not uc:
-                uc = model(lookUpID)
+                uc = Model(lookUpID)
             setattr(uc, key, val)
             session.add(uc)
             await session.commit()
