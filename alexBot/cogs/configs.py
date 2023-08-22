@@ -2,6 +2,7 @@ from typing import Literal
 
 import discord
 from discord import app_commands
+from discord.ext.commands.errors import BadBoolArgument
 from sqlalchemy import select
 
 from alexBot.classes import googleVoices
@@ -76,7 +77,11 @@ class Configs(Cog):
         type = model.__dataclass_fields__[key].type
         # attempt to cast input value to type
         if type == bool:
-            val = convert_to_bool(value)
+            try:
+                val = convert_to_bool(value)
+            except BadBoolArgument:
+                await interaction.response.send_message("That is not a valid bool value!", ephemeral=True)
+                return
         else:
             val = value
         # get the user config
