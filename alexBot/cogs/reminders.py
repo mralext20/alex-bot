@@ -31,6 +31,8 @@ class ClearReminderView(discord.ui.View):
     async def clear(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.waiting = False
         await interaction.response.send_message("Reminder cleared", ephemeral=True)
+        button.disabled = True
+        await interaction.edit_original_response(view=self)
         self.stop()
 
 
