@@ -69,6 +69,7 @@ class Reminders(Cog):
             log.warning(f"reminder {reminder} is overdue")
         else:
             await asyncio.sleep((reminder.next_remind - now).total_seconds())
+        allowedMentions = discord.AllowedMentions.none()
         log.debug(f"reminding {reminder}")
         target = await self.bot.fetch_channel(reminder.target)
         if not target:
@@ -87,9 +88,26 @@ class Reminders(Cog):
             messages = message.split(';')
             message = random.choice(messages)
 
+        if reminder.guildId and not reminder.frequency:
+            # message is to a guild, and not recurring. we should probably ping the owner
+            owner = self.bot.get_guild(reminder.guildId).get_member(reminder.owner)
+
+            if not owner:
+                # the owner is not in the guild anymore. target should be updated to DM.
+                target = owner
+            else:
+                message = f"Reminder for {owner.mention}: {message}"
+                allowedMentions.users = [owner]
+
+        if reminder.guildId:
+            # get the owner, and see if they can ping everyone. if they can, we can changed our allowed_mentions to ping everyone aswell.
+            owner = self.bot.get_guild(reminder.guildId).get_member(reminder.owner)
+            if owner and target.permissions_for(owner).mention_everyone:
+                allowedMentions.everyone = True
+
         if reminder.require_clearing:
             v = ClearReminderView()
-            dis_message = await target.send(message, view=v)
+            dis_message = await target.send(message, view=v, allowed_mentions=allowedMentions)
 
             while v.waiting and v.times < 8:  # 8 * 5 minutes = 40 minutes
                 msg = None
@@ -107,7 +125,7 @@ class Reminders(Cog):
                     v.times += 1
                     await dis_message.reply("reminder!")
         else:
-            await target.send(message)
+            await target.send(message, allowed_mentions=allowedMentions)
 
         if reminder.frequency:
             # reschedule the reminder for later
