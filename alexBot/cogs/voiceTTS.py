@@ -84,13 +84,20 @@ class VoiceTTS(Cog):
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
+        ttsInstance = self.runningTTS.get(member.guild.id)
+        if not ttsInstance:
+            return
         if after.channel is not None:
             return
         # someone left a voice channel. do we care?
-        if member.guild and member.guild.id in self.runningTTS and member.id in self.runningTTS[member.guild.id].users:
-            del self.runningTTS[member.guild.id].users[member.id]
+        if member.guild and member.guild.id in self.runningTTS and member.id in ttsInstance.users:
+            del ttsInstance.users[member.id]
 
         if self.bot.user.id == member.id and after.channel is None and member.guild.id in self.runningTTS:
+            del self.runningTTS[member.guild.id]
+
+        if len(ttsInstance.users) == 0:
+            await ttsInstance.voiceClient.disconnect()
             del self.runningTTS[member.guild.id]
 
     async def sendTTS(self, text: str, ttsInstance: TTSInstance, ttsUser: TTSUserInstance):
