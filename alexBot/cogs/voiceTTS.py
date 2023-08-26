@@ -174,7 +174,18 @@ class VoiceTTS(Cog):
         if interaction.guild.id not in self.runningTTS:
             vc = await interaction.user.voice.channel.connect()
             self.runningTTS[interaction.guild.id] = TTSInstance(vc)
-
+        else:
+            # theres already a vc running, we need to make sure someone doesn't want us in two places at once
+            if interaction.user.id in self.runningTTS[interaction.guild.id].users:
+                await interaction.response.send_message(
+                    "You already have tts enabled. leaving the voice channel will end your tts.", ephemeral=True
+                )
+                return
+            if interaction.user.voice.channel.id != self.runningTTS[interaction.guild.id].voiceClient.channel.id:
+                await interaction.response.send_message(
+                    "You are not in the same voice channel as the existing session. can not start.", ephemeral=True
+                )
+                return
         self.runningTTS[interaction.guild.id].users[interaction.user.id] = TTSUserInstance(
             VoiceSelectionParams(language_code="en-US", name=model),
             interaction.channel,
