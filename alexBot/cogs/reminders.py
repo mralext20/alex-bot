@@ -118,12 +118,15 @@ class Reminders(Cog):
                         timeout=300,
                     )
                     v.waiting = False
+                    v.children[0].disabled = True
                     await msg.reply("reminder cleared")
+                    await dis_message.edit(view=v)
                 except asyncio.TimeoutError:
                     pass
                 if v.waiting:
                     v.times += 1
                     await dis_message.reply("reminder!")
+
         else:
             await target.send(message, allowed_mentions=allowedMentions)
 
