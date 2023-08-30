@@ -161,8 +161,11 @@ class VoiceStats(Cog):
             vs.longest_session = current_session_length
 
         vs.average_duration = datetime.timedelta(
-            seconds=(vs.total_sessions * vs.average_duration.total_seconds()) + current_session_length.total_seconds()
-        ) / (vs.total_sessions + 1)
+            seconds=(
+                (vs.total_sessions * vs.average_duration.total_seconds())
+                + current_session_length.total_seconds() / (vs.total_sessions + 1)
+            )
+        )
         vs.total_sessions += 1
         # check if user is active in another server we know about
         for guild in member.mutual_guilds:
@@ -206,8 +209,11 @@ class VoiceStats(Cog):
             vs.longest_session = current_session_length
 
         vs.average_duration = datetime.timedelta(
-            (vs.total_sessions * vs.average_duration.total_seconds()) + current_session_length.total_seconds()
-        ) / (vs.total_sessions + 1)
+            seconds=(
+                (vs.total_sessions * vs.average_duration.total_seconds())
+                + current_session_length.total_seconds() / (vs.total_sessions + 1)
+            )
+        )
         vs.total_sessions += 1
         vs.currently_running = False
         session.add(vs)
