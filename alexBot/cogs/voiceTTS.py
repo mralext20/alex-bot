@@ -23,13 +23,10 @@ wavenetChoices = [discord.app_commands.Choice(name=f"WaveNet {v[0][-1]} ({v[1]})
 
 # TODO:
 # - line limit?
-# queue?
 # link parsing
-# emoji parsing
-# any mentions parsing
 # spoiler hiding
-# multi-user per vc / guild at same time
-# better voice model selection , name of the config, from db, uh that other thing
+
+
 @dataclasses.dataclass
 class TTSUserInstance:
     vsParams: VoiceSelectionParams
@@ -75,7 +72,7 @@ class VoiceTTS(Cog):
             and self.runningTTS[message.guild.id].users[message.author.id].channel.id == message.channel.id
         ):
             await self.sendTTS(
-                message.content,
+                message.clean_content,
                 self.runningTTS[message.guild.id],
                 self.runningTTS[message.guild.id].users[message.author.id],
             )
