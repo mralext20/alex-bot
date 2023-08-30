@@ -202,7 +202,6 @@ class VoiceTTS(Cog):
         )
 
     def after(self, error: Optional[Exception]):
-        log.debug(f"after: {error=}")
         if error:
             log.exception(error)
 
