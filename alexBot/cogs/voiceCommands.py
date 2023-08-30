@@ -354,6 +354,10 @@ class VoiceCommands(Cog):
                     ud = UserConfig(user.id)
                 if ud.voiceSleepMute:
                     await user.edit(deafen=True, mute=True)
+                if ud.dontVoiceSleep:
+                    if ud.voiceSleepMute:
+                        await user.edit(deafen=False, mute=True)
+
                 else:
                     await user.edit(deafen=True, mute=False)
         await interaction.followup.send("ok, sleep well :zzz:", ephemeral=True)
