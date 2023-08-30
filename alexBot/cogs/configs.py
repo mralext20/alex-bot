@@ -116,6 +116,9 @@ class Configs(Cog):
     @configGuildCommandGroup.command(name="set", description="sets a config value")
     @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in GuildConfig.__config_keys__])
     async def guild_setConfig(self, interaction: discord.Interaction, key: str, value: str):
+        if not interaction.guild:
+            await interaction.response.send_message("You can't do that in a DM!", ephemeral=True)
+            return
         if not interaction.user.guild_permissions.manage_guild:
             await interaction.response.send_message(
                 "You don't have permission to do that! (need Manage Guild)", ephemeral=True
