@@ -3,10 +3,8 @@ import ctypes
 import dataclasses
 import io
 import logging
-import os
 import re
-import uuid
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import discord
 from asyncgTTS import AsyncGTTSSession, ServiceAccount, SynthesisInput, TextSynthesizeRequestBody, VoiceSelectionParams
