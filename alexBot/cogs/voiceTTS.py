@@ -4,6 +4,7 @@ import dataclasses
 import io
 import logging
 import os
+import re
 import uuid
 from typing import Dict, List, Optional, Tuple
 
@@ -24,7 +25,10 @@ wavenetChoices = [discord.app_commands.Choice(name=f"WaveNet {v[0][-1]} ({v[1]})
 # TODO:
 # - line limit?
 # link parsing
-# spoiler hiding
+
+
+# regex to remove spoilers
+SPOILERREGEX = re.compile(r"\|\|(.*?)\|\|")
 
 
 @dataclasses.dataclass
@@ -72,6 +76,10 @@ class VoiceTTS(Cog):
             and self.runningTTS[message.guild.id].users[message.author.id].channel.id == message.channel.id
         ):
             if message.content.startswith("//"):
+                return
+            content = message.clean_content
+            content = SPOILERREGEX.sub("", content)
+            if content == "":
                 return
             await self.sendTTS(
                 message.clean_content,
