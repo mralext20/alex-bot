@@ -101,8 +101,7 @@ class VoiceTTS(Cog):
             del self.runningTTS[member.guild.id]
 
     async def sendTTS(self, text: str, ttsInstance: TTSInstance, ttsUser: TTSUserInstance):
-        vc = ttsInstance.voiceClient
-        if not vc.is_connected():
+        if not ttsInstance.voiceClient.is_connected():
             self.runningTTS
             return
         log.debug(f"Sending TTS: {text=}")
