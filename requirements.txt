@@ -1,6 +1,5 @@
 git+https://github.com/rapptz/discord.py#egg=discord.py[voice]
 aiohttp >= 3.8.5
-aiosqlite~=0.15.0
 chardet~=3.0.4
 idna~=2.10
 multidict~=4.7.6
