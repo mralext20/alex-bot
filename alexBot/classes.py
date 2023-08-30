@@ -1,6 +1,6 @@
 import enum
 from dataclasses import asdict, dataclass, field
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import discord
 import feedparser
@@ -34,7 +34,7 @@ class SugeryZone(enum.Enum):
     VERYHIGH = enum.auto()
 
 
-googleVoices = [
+googleVoices: List[Tuple[str, str]] = [
     ('en-US-Wavenet-A', 'Male'),
     ('en-US-Wavenet-B', 'Male'),
     ('en-US-Wavenet-C', 'Female'),

@@ -1,4 +1,5 @@
-from typing import Literal
+import logging
+from typing import List, Literal
 
 import discord
 from discord import app_commands
@@ -9,6 +10,8 @@ from alexBot.classes import googleVoices
 from alexBot.database import GuildConfig, UserConfig, async_session
 
 from ..tools import Cog, convert_to_bool
+
+log = logging.getLogger(__name__)
 
 
 class Configs(Cog):
@@ -42,8 +45,23 @@ class Configs(Cog):
                 embed.add_field(name=key, value=getattr(config, key))
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
+    async def value_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
+        if interaction.command == self.user_setConfig and interaction.namespace.key == 'voiceModel':
+            chc = [app_commands.Choice(name=f"{vc[0]} ({vc[1]})", value=vc[0]) for vc in googleVoices]
+            return chc
+        boolCommands = []
+        if interaction.command == self.user_setConfig:
+            boolCommands = UserConfig.__config_keys__
+        elif interaction.command == self.guild_setConfig:
+            boolCommands = GuildConfig.__config_keys__
+        if interaction.namespace.key in boolCommands:
+            return [app_commands.Choice(name="True", value="True"), app_commands.Choice(name="False", value="False")]
+        else:
+            return []
+
     @configUserCommandGroup.command(name="set", description="sets a config value")
     @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in UserConfig.__config_keys__])
+    @app_commands.autocomplete(value=value_autocomplete)
     async def user_setConfig(self, interaction: discord.Interaction, key: str, value: str):
         # it's a user! we don't need to confirm they can set the key.
         if key == 'voiceModel':
@@ -115,6 +133,7 @@ class Configs(Cog):
 
     @configGuildCommandGroup.command(name="set", description="sets a config value")
     @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in GuildConfig.__config_keys__])
+    @app_commands.autocomplete(value=value_autocomplete)
     async def guild_setConfig(self, interaction: discord.Interaction, key: str, value: str):
         if not interaction.guild:
             await interaction.response.send_message("You can't do that in a DM!", ephemeral=True)
