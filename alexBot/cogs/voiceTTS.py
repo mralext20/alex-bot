@@ -71,6 +71,8 @@ class VoiceTTS(Cog):
             and message.author.id in self.runningTTS[message.guild.id].users
             and self.runningTTS[message.guild.id].users[message.author.id].channel.id == message.channel.id
         ):
+            if message.content.startswith("//"):
+                return
             await self.sendTTS(
                 message.clean_content,
                 self.runningTTS[message.guild.id],
@@ -195,7 +197,8 @@ class VoiceTTS(Cog):
         )
 
         await interaction.response.send_message(
-            "TTS is now enabled for you. leaving the voice channel will end your tts.", ephemeral=False
+            "TTS is now enabled for you. leaving the voice channel will end your tts.\n\nIf you start a message with //, it will be ignored.",
+            ephemeral=False,
         )
 
     def after(self, error: Optional[Exception]):
