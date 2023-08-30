@@ -10,14 +10,14 @@ import discord
 from asyncgTTS import AsyncGTTSSession, ServiceAccount, SynthesisInput, TextSynthesizeRequestBody, VoiceSelectionParams
 from discord import app_commands
 
-from alexBot.classes import googleVoices as voices
+from alexBot.classes import googleVoices
 from alexBot.database import UserConfig, async_session, select
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
 
 
-wavenetChoices = [discord.app_commands.Choice(name=f"WaveNet {v[0][-1]} ({v[1]})", value=v[0]) for v in voices]
+wavenetChoices = [discord.app_commands.Choice(name=f"WaveNet {v[0][-1]} ({v[1]})", value=v[0]) for v in googleVoices]
 
 
 # TODO:
