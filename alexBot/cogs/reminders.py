@@ -63,95 +63,102 @@ class Reminders(Cog):
             await asyncio.sleep(60)
 
     async def remind(self, reminder: Reminder):
-        # wait for the reminder time
-        now = datetime.datetime.utcnow()
-        if now > reminder.next_remind:
-            log.warning(f"reminder {reminder} is overdue")
-        else:
-            await asyncio.sleep((reminder.next_remind - now).total_seconds())
-        allowedMentions = discord.AllowedMentions.none()
-        log.debug(f"reminding {reminder}")
-        target = await self.bot.fetch_channel(reminder.target)
-        if not target:
-            log.error(f"Could not find target {reminder.target} for reminder {reminder}")
-            # try to message the owner about it:
-            owner = self.bot.get_user(reminder.owner)
-            if not owner:
-                log.error(f"Could not find owner {reminder.owner} for reminder {reminder}")
-                return
-            await owner.send(f"Could not find target channel {reminder.target} for reminder {reminder.message}")
-            return
-        message = reminder.message
-        if message.startswith("["):
-            # random messages;
-            message = reminder.message.lstrip('[')
-            messages = message.split(';')
-            message = random.choice(messages)
-
-        if reminder.guildId and not reminder.frequency:
-            # message is to a guild, and not recurring. we should probably ping the owner
-            owner = self.bot.get_guild(reminder.guildId).get_member(reminder.owner)
-
-            if not owner:
-                # the owner is not in the guild anymore. target should be updated to DM.
-                target = owner
+        try:
+            # wait for the reminder time
+            now = datetime.datetime.utcnow()
+            if now > reminder.next_remind:
+                log.warning(f"reminder {reminder} is overdue")
             else:
-                message = f"Reminder for {owner.mention}: {message}"
-                allowedMentions.users = [owner]
+                await asyncio.sleep((reminder.next_remind - now).total_seconds())
+            allowedMentions = discord.AllowedMentions.none()
+            log.debug(f"reminding {reminder}")
+            target = await self.bot.fetch_channel(reminder.target)
+            if not target:
+                log.error(f"Could not find target {reminder.target} for reminder {reminder}")
+                # try to message the owner about it:
+                owner = self.bot.get_user(reminder.owner)
+                if not owner:
+                    log.error(f"Could not find owner {reminder.owner} for reminder {reminder}")
+                    return
+                await owner.send(f"Could not find target channel {reminder.target} for reminder {reminder.message}")
+                return
+            message = reminder.message
+            if message.startswith("["):
+                # random messages;
+                message = reminder.message.lstrip('[')
+                messages = message.split(';')
+                message = random.choice(messages)
 
-        if reminder.guildId:
-            # get the owner, and see if they can ping everyone. if they can, we can changed our allowed_mentions to ping everyone aswell.
-            owner = self.bot.get_guild(reminder.guildId).get_member(reminder.owner)
-            if owner and target.permissions_for(owner).mention_everyone:
-                allowedMentions.everyone = True
+            if reminder.guildId and not reminder.frequency:
+                # message is to a guild, and not recurring. we should probably ping the owner
+                g = self.bot.get_guild(reminder.guildId)
+                if not g:
+                    # we dont have that guild? uhhhh ok
+                    return
+                owner = self.bot.get_guild(reminder.guildId).get_member(reminder.owner)
 
-        if reminder.require_clearing:
-            v = ClearReminderView()
-            dis_message = await target.send(message, view=v, allowed_mentions=allowedMentions)
+                if not owner:
+                    # the owner is not in the guild anymore. target should be updated to DM.
+                    target = owner
+                else:
+                    message = f"Reminder for {owner.mention}: {message}"
+                    allowedMentions.users = [owner]
 
-            while v.waiting and v.times < 8:  # 8 * 5 minutes = 40 minutes
-                msg = None
-                try:
-                    msg = await self.bot.wait_for(
-                        "message",
-                        check=lambda m: m.channel.id == target.id and m.content.lower().startswith('ack'),
-                        timeout=300,
-                    )
-                    v.waiting = False
-                    v.children[0].disabled = True
-                    await msg.reply("reminder cleared")
-                    await dis_message.edit(view=v)
-                except asyncio.TimeoutError:
-                    pass
-                if v.waiting:
-                    v.times += 1
-                    await dis_message.reply("reminder!")
+            if reminder.guildId:
+                # get the owner, and see if they can ping everyone. if they can, we can changed our allowed_mentions to ping everyone aswell.
+                owner = self.bot.get_guild(reminder.guildId).get_member(reminder.owner)
+                if owner and target.permissions_for(owner).mention_everyone:
+                    allowedMentions.everyone = True
 
-        else:
-            await target.send(message, allowed_mentions=allowedMentions)
+            if reminder.require_clearing:
+                v = ClearReminderView()
+                dis_message = await target.send(message, view=v, allowed_mentions=allowedMentions)
 
-        if reminder.frequency:
-            # reschedule the reminder for later
-            async with db.async_session() as session:
-                async with session.begin():
-                    edited = await session.scalar(select(Reminder).where(Reminder.id == reminder.id))
-                    if not edited:
-                        log.error(f"reminder {reminder} not found in database")
-                        return
-                    edited.next_remind = (
-                        edited.next_remind + reminder.frequency
-                    )  # prevent drift by adding the frequency
-                    session.add(edited)
-                    await session.commit()
-        else:
-            # delete the reminder
-            async with db.async_session() as session:
-                async with session.begin():
-                    delete = await session.scalar(select(Reminder).where(Reminder.id == reminder.id))
-                    await session.delete(delete)
-                    await session.commit()
-        # remove task from tasks dict
-        del self.tasks[reminder.id]
+                while v.waiting and v.times < 8:  # 8 * 5 minutes = 40 minutes
+                    msg = None
+                    try:
+                        msg = await self.bot.wait_for(
+                            "message",
+                            check=lambda m: m.channel.id == target.id and m.content.lower().startswith('ack'),
+                            timeout=300,
+                        )
+                        v.waiting = False
+                        v.children[0].disabled = True
+                        await msg.reply("reminder cleared")
+                        await dis_message.edit(view=v)
+                    except asyncio.TimeoutError:
+                        pass
+                    if v.waiting:
+                        v.times += 1
+                        await dis_message.reply("reminder!")
+
+            else:
+                await target.send(message, allowed_mentions=allowedMentions)
+
+            if reminder.frequency:
+                # reschedule the reminder for later
+                async with db.async_session() as session:
+                    async with session.begin():
+                        edited = await session.scalar(select(Reminder).where(Reminder.id == reminder.id))
+                        if not edited:
+                            log.error(f"reminder {reminder} not found in database")
+                            return
+                        edited.next_remind = (
+                            edited.next_remind + reminder.frequency
+                        )  # prevent drift by adding the frequency
+                        session.add(edited)
+                        await session.commit()
+            else:
+                # delete the reminder
+                async with db.async_session() as session:
+                    async with session.begin():
+                        delete = await session.scalar(select(Reminder).where(Reminder.id == reminder.id))
+                        await session.delete(delete)
+                        await session.commit()
+            # remove task from tasks dict
+        finally:
+            del self.tasks[reminder.id]
+            return
 
     remindersGroup = app_commands.Group(
         name="reminders",
