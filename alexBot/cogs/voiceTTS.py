@@ -124,7 +124,7 @@ class VoiceTTS(Cog):
 
         sound = discord.FFmpegOpusAudio(buff_sound, pipe=True)
         ttsInstance.queue.append(sound)
-        if not self.running_queue_handlers[ttsInstance.voiceClient.guild.id]:
+        if not self.running_queue_handlers.get(ttsInstance.voiceClient.guild.id):
             await self.queue_handler(ttsInstance)
 
     async def queue_handler(self, instance: TTSInstance):
