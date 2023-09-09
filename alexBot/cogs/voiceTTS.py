@@ -23,6 +23,9 @@ wavenetChoices = [discord.app_commands.Choice(name=f"WaveNet {v[0][-1]} ({v[1]})
 # TODO:
 # - line limit?
 # link parsing
+# test queue handler
+# trademark emoji special case
+# custom emojis
 
 
 # regex to remove spoilers
@@ -47,6 +50,7 @@ class VoiceTTS(Cog):
         super().__init__(bot)
         self.runningTTS: Dict[int, TTSInstance] = {}
         self.gtts: AsyncGTTSSession = None
+        self.running_queue_handlers: Dict[int, bool] = {}
 
     async def cog_load(self):
         self.gtts = AsyncGTTSSession.from_service_account(
@@ -107,7 +111,6 @@ class VoiceTTS(Cog):
 
     async def sendTTS(self, text: str, ttsInstance: TTSInstance, ttsUser: TTSUserInstance):
         if not ttsInstance.voiceClient.is_connected():
-            self.runningTTS
             return
         log.debug(f"Sending TTS: {text=}")
         try:
@@ -121,19 +124,23 @@ class VoiceTTS(Cog):
 
         sound = discord.FFmpegOpusAudio(buff_sound, pipe=True)
         ttsInstance.queue.append(sound)
-        if len(ttsInstance.queue) == 1:
+        if not self.running_queue_handlers[ttsInstance.voiceClient.guild.id]:
             await self.queue_handler(ttsInstance)
 
     async def queue_handler(self, instance: TTSInstance):
-        if instance.voiceClient.is_playing():
-            return
-        while len(instance.queue) > 0:
+        self.running_queue_handlers[instance.voiceClient.guild.id] = True
+        try:
             if instance.voiceClient.is_playing():
+                return
+            while len(instance.queue) > 0:
+                if instance.voiceClient.is_playing():
+                    await asyncio.sleep(0.25)
+                    continue
+                next = instance.queue.pop(0)
+                instance.voiceClient.play(next, after=self.after)
                 await asyncio.sleep(0.25)
-                continue
-            next = instance.queue.pop(0)
-            instance.voiceClient.play(next, after=self.after)
-            await asyncio.sleep(0.25)
+        finally:
+            self.running_queue_handlers[instance.voiceClient.guild.id] = False
 
     async def model_autocomplete(
         self, interaction: discord.Interaction, guess: str
@@ -201,6 +208,7 @@ class VoiceTTS(Cog):
                     "You are not in the same voice channel as the existing session. can not start.", ephemeral=True
                 )
                 return
+            if 
         self.runningTTS[interaction.guild.id].users[interaction.user.id] = TTSUserInstance(
             VoiceSelectionParams(language_code="en-US", name=model),
             interaction.channel,
