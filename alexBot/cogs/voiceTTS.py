@@ -182,6 +182,10 @@ class VoiceTTS(Cog):
                     return
                 model = userData.voiceModel
 
+        if model not in [z[0] for z in googleVoices]:
+            await interaction.response.send_message("Invalid voice model", ephemeral=True)
+            return
+
         if interaction.guild.id not in self.runningTTS:
             vc = await interaction.user.voice.channel.connect()
             self.runningTTS[interaction.guild.id] = TTSInstance(vc)
