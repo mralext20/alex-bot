@@ -162,8 +162,8 @@ class VoiceStats(Cog):
 
         vs.average_duration = datetime.timedelta(
             seconds=(
-                (vs.total_sessions * vs.average_duration.total_seconds())
-                + current_session_length.total_seconds() / (vs.total_sessions + 1)
+                ((vs.total_sessions * vs.average_duration.total_seconds()) + current_session_length.total_seconds())
+                / (vs.total_sessions + 1)
             )
         )
         vs.total_sessions += 1
@@ -210,8 +210,8 @@ class VoiceStats(Cog):
 
         vs.average_duration = datetime.timedelta(
             seconds=(
-                (vs.total_sessions * vs.average_duration.total_seconds())
-                + current_session_length.total_seconds() / (vs.total_sessions + 1)
+                ((vs.total_sessions * vs.average_duration.total_seconds()) + current_session_length.total_seconds())
+                / (vs.total_sessions + 1)
             )
         )
         vs.total_sessions += 1
