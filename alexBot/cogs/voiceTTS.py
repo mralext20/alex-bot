@@ -208,7 +208,6 @@ class VoiceTTS(Cog):
                     "You are not in the same voice channel as the existing session. can not start.", ephemeral=True
                 )
                 return
-            if 
         self.runningTTS[interaction.guild.id].users[interaction.user.id] = TTSUserInstance(
             VoiceSelectionParams(language_code="en-US", name=model),
             interaction.channel,
