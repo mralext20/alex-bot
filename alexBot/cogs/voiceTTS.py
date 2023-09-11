@@ -90,7 +90,7 @@ class VoiceTTS(Cog):
             if content == "":
                 return
             await self.sendTTS(
-                message.clean_content,
+                content,
                 self.runningTTS[message.guild.id],
                 self.runningTTS[message.guild.id].users[message.author.id],
             )
