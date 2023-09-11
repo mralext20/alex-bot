@@ -11,7 +11,7 @@ from asyncgTTS import AsyncGTTSSession, ServiceAccount, SynthesisInput, TextSynt
 from discord import app_commands
 
 from alexBot.classes import googleVoices
-from alexBot.database import UserConfig, async_session, select
+from alexBot.database import UserConfig, async_session, select, ServerTTSOverride
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
@@ -30,6 +30,8 @@ wavenetChoices = [discord.app_commands.Choice(name=f"WaveNet {v[0][-1]} ({v[1]})
 
 # regex to remove spoilers
 SPOILERREGEX = re.compile(r"\|\|(.*?)\|\|")
+# regex to capture custom emojis (<a?:name:id>)
+EMOJIREGEX = re.compile(r"<a?:([a-zA-Z0-9_]+):(\d+)>")
 
 
 @dataclasses.dataclass
@@ -81,6 +83,7 @@ class VoiceTTS(Cog):
                 return
             content = message.clean_content
             content = SPOILERREGEX.sub("", content)
+            content = EMOJIREGEX.sub(r"\1", content)
             if content == "":
                 return
             await self.sendTTS(
