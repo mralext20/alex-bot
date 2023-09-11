@@ -33,6 +33,8 @@ SPOILERREGEX = re.compile(r"\|\|(.*?)\|\|")
 # regex to capture custom emojis (<a?:name:id>)
 EMOJIREGEX = re.compile(r"<a?:([a-zA-Z0-9_]+):(\d+)>")
 
+LINKREGEX = re.compile(r"https?://(.+\.[a-z]+)/?[a-zA-Z/#\?]*")
+
 
 @dataclasses.dataclass
 class TTSUserInstance:
@@ -84,6 +86,7 @@ class VoiceTTS(Cog):
             content = message.clean_content
             content = SPOILERREGEX.sub("", content)
             content = EMOJIREGEX.sub(r"\1", content)
+            content = LINKREGEX.sub("Link to \1", content)
             if content == "":
                 return
             await self.sendTTS(
