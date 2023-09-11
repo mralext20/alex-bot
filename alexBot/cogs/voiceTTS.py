@@ -11,7 +11,7 @@ from asyncgTTS import AsyncGTTSSession, ServiceAccount, SynthesisInput, TextSynt
 from discord import app_commands
 
 from alexBot.classes import googleVoices
-from alexBot.database import UserConfig, async_session, select, ServerTTSOverride
+from alexBot.database import UserConfig, async_session, select
 from alexBot.tools import Cog
 
 log = logging.getLogger(__name__)
