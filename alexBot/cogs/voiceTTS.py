@@ -135,6 +135,9 @@ class VoiceTTS(Cog):
 
     async def queue_handler(self, instance: TTSInstance):
         self.running_queue_handlers[instance.voiceClient.guild.id] = True
+        # make sure we still have a good voice client
+        if not instance.voiceClient.is_connected():
+            instance.voiceClient = await instance.voiceClient.channel.connect()
         try:
             if instance.voiceClient.is_playing():
                 return
