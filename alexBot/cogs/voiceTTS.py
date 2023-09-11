@@ -156,7 +156,20 @@ class VoiceTTS(Cog):
     async def model_autocomplete(
         self, interaction: discord.Interaction, guess: str
     ) -> List[discord.app_commands.Choice]:
+        # control mode for connected tts users:
+        if interaction.guild_id in self.runningTTS:
+            if interaction.user.id in self.runningTTS[interaction.guild_id].users:
+                return [
+                    discord.app_commands.Choice(name="End your Voice TTS", value="QUIT"),
+                ]
         chc = []
+        async with async_session() as db_session:
+            userData = await db_session.scalar(select(UserConfig).where(UserConfig.userId == interaction.user.id))
+            if userData and userData.voiceModel and interaction.guild_id:
+                if self.runningTTS.get(interaction.guild_id) and userData.voiceModel not in [
+                    z[1].vsParams.name for z in self.runningTTS[interaction.guild_id].users.items()
+                ]:
+                    chc.append(discord.app_commands.Choice(name=f"SAVED ({userData.voiceModel})", value="SAVED"))
         if interaction.guild_id and interaction.guild_id in self.runningTTS:
             instance = self.runningTTS[interaction.guild_id]
             existing = [z.vsParams.name for z in instance.users.values()]
@@ -165,10 +178,7 @@ class VoiceTTS(Cog):
                     chc.append(discord.app_commands.Choice(name=choice.name, value=choice.value))
         else:
             chc = [z for z in wavenetChoices]
-        async with async_session() as db_session:
-            userData = await db_session.scalar(select(UserConfig).where(UserConfig.userId == interaction.user.id))
-            if userData and userData.voiceModel:
-                chc.append(discord.app_commands.Choice(name=f"SAVED ({userData.voiceModel})", value="SAVED"))
+
         return chc
 
     @app_commands.autocomplete(model=model_autocomplete)
@@ -180,6 +190,17 @@ class VoiceTTS(Cog):
         if interaction.user.voice is None:
             await interaction.response.send_message("You are not in a voice channel", ephemeral=True)
             return
+
+        if interaction.guild_id in self.runningTTS:
+            if interaction.user.id in self.runningTTS[interaction.guild_id].users and model == "QUIT":
+                del self.runningTTS[interaction.guild_id].users[interaction.user.id]
+                await interaction.response.send_message("ended your voice tts session.", ephemeral=True)
+                return
+            if interaction.user.voice.channel.id != self.runningTTS[interaction.guild_id].voiceClient.channel.id:
+                await interaction.response.send_message(
+                    "You are not in the same voice channel as the existing session. can not start.", ephemeral=True
+                )
+                return
 
         if model == "SAVED":
             # we pull from database, and use that
