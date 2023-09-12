@@ -67,12 +67,17 @@ class Configs(Cog):
         if key == 'voiceModel':
             vcnames = [vc[0] for vc in googleVoices]
             if value not in vcnames:
-                formatted = '\n'.join([f'`{vc[0]}` ({vc[1]})' for vc in googleVoices])
-                await interaction.response.send_message(
-                    f"{value} is not a valid voice model. valid models are: \n\n{formatted}",
-                    ephemeral=True,
-                )
-                return
+                # check in extended names
+                cog = self.bot.get_cog('VoiceTTS')
+                if not cog and not cog.gtts:
+                    await interaction.response.send_message("Invalid voice model", ephemeral=True)
+                    return
+
+                voice_raw = await cog.gtts.get_voices()
+                names = [z['name'] for z in voice_raw]
+                if value not in names:
+                    await interaction.response.send_message("Invalid voice model", ephemeral=True)
+                    return
         await self.setConfig('user', interaction, key, value)
 
     async def setConfig(

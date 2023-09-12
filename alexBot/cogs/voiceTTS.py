@@ -243,7 +243,7 @@ class VoiceTTS(Cog):
                 )
                 return
         self.runningTTS[interaction.guild.id].users[interaction.user.id] = TTSUserInstance(
-            VoiceSelectionParams(language_code="en-US", name=model),
+            VoiceSelectionParams(language_code=model[:5], name=model),
             interaction.channel,
         )
 
