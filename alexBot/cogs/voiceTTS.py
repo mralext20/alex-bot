@@ -149,8 +149,6 @@ class VoiceTTS(Cog):
                 instance.voiceClient.play(next, after=self.after)
                 await asyncio.sleep(0.25)
         finally:
-            if instance.queue:
-                await self.queue_handler(instance)
             self.running_queue_handlers[instance.voiceClient.guild.id] = False
 
     async def model_autocomplete(
