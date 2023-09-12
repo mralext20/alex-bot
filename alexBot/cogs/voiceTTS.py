@@ -33,7 +33,7 @@ SPOILERREGEX = re.compile(r"\|\|(.*?)\|\|")
 # regex to capture custom emojis (<a?:name:id>)
 EMOJIREGEX = re.compile(r"<a?:([a-zA-Z0-9_]+):(\d+)>")
 
-LINKREGEX = re.compile(r"https?://(.+\.[a-z]+)/?[a-zA-Z/#\?]*")
+LINKREGEX = re.compile(r"https?://(.+\.[a-z]+)/?[a-zA-Z0-9/\-#\?]*")
 
 
 @dataclasses.dataclass
