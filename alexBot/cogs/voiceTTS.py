@@ -220,7 +220,11 @@ class VoiceTTS(Cog):
                 model = userData.voiceModel
 
         if model not in [z[0] for z in googleVoices]:
-            await interaction.response.send_message("Invalid voice model", ephemeral=True)
+            # check if it's a valid voice overall
+            voice_raw = await self.gtts.get_voices()
+            names = [z['name'] for z in voice_raw]
+            if model not in names:
+                await interaction.response.send_message("Invalid voice model", ephemeral=True)
             return
 
         if interaction.guild.id not in self.runningTTS:
