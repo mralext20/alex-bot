@@ -60,7 +60,12 @@ class Configs(Cog):
             return []
 
     @configUserCommandGroup.command(name="set", description="sets a config value")
-    @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in UserConfig.__config_keys__])
+    @app_commands.choices(
+        key=[
+            app_commands.Choice(name=f"{key} - {UserConfig.__config_docs__[key]}", value=key)
+            for key in UserConfig.__config_keys__
+        ]
+    )
     @app_commands.autocomplete(value=value_autocomplete)
     async def user_setConfig(self, interaction: discord.Interaction, key: str, value: str):
         # it's a user! we don't need to confirm they can set the key.
@@ -137,7 +142,12 @@ class Configs(Cog):
             await interaction.response.send_message(embed=embed, ephemeral=False)
 
     @configGuildCommandGroup.command(name="set", description="sets a config value")
-    @app_commands.choices(key=[app_commands.Choice(name=key, value=key) for key in GuildConfig.__config_keys__])
+    @app_commands.choices(
+        key=[
+            app_commands.Choice(name=f"{key} - {GuildConfig.__config_docs__[key]}", value=key)
+            for key in GuildConfig.__config_keys__
+        ]
+    )
     @app_commands.autocomplete(value=value_autocomplete)
     async def guild_setConfig(self, interaction: discord.Interaction, key: str, value: str):
         if not interaction.guild:

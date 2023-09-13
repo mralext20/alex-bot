@@ -68,27 +68,56 @@ class GuildConfig(Base):
         "privateOnePersonVCs",
         "transcribeVoiceMessages",
         "minecraft",
+        "allowUnMuteAndDeafenOnJoin",
     ]
+    __config_docs__ = {
+        "ayy": "whether or not sending `ayy` responds with  `lmao` is enabled",
+        "veryCool": "whether or not starting a message with `thank you ` responds with `very cool`",
+        "tikTok": "whether or not the video reposter is enabled",
+        "collectVoiceData": "whether or not voice data is collected",
+        "firstAmendment": "whether or not saying `free speech` or `first amendment` responds with the XKCD comic # 1357",
+        "privateOnePersonVCs": "whether or not joining a voice channel with a user cap of 1 gives you permissions to move people into it",
+        "transcribeVoiceMessages": "whether or not voice messages are transcribed in chat",
+        "minecraft": "the minecraft server ip for the default to /minecraft",
+        "allowUnMuteAndDeafenOnJoin": "whether or not users are able to be un-server-muted and un-server-deafened when they join a voice channel",
+    }
     guildId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     ayy: Mapped[bool] = mapped_column(Boolean(), default=False)
-    tikTok: Mapped[bool] = mapped_column(Boolean(), default=False)
     veryCool: Mapped[bool] = mapped_column(Boolean(), default=False)
+    tikTok: Mapped[bool] = mapped_column(Boolean(), default=False)
     collectVoiceData: Mapped[bool] = mapped_column(Boolean(), default=True)
     firstAmendment: Mapped[bool] = mapped_column(Boolean(), default=False)
     privateOnePersonVCs: Mapped[bool] = mapped_column(Boolean(), default=False)
     transcribeVoiceMessages: Mapped[bool] = mapped_column(Boolean(), default=False)
     minecraft: Mapped[str] = mapped_column(String(), default="")
+    allowUnMuteAndDeafenOnJoin: Mapped[bool] = mapped_column(Boolean(), server_default="false", default=False)
 
 
 class UserConfig(Base):
     __tablename__ = "userconfigs"
-    __config_keys__ = ["ringable", "collectVoiceData", "voiceModel", "voiceSleepMute", "dontVoiceSleep"]
+    __config_keys__ = [
+        "ringable",
+        "collectVoiceData",
+        "voiceModel",
+        "voiceSleepMute",
+        "dontVoiceSleep",
+        "unMuteAndDeafenOnJoin",
+    ]
+    __config_docs__ = {
+        "ringable": "whether or not you can be rung using /ring",
+        "collectVoiceData": "whether or not your voice data is collected",
+        "voiceModel": "the model used to transcribe your voice using /voice tts",
+        "voiceSleepMute": "whether or not you are muted when /voice sleep is used",
+        "dontVoiceSleep": "whether or not you are deafened when /voice sleep is used",
+        "unMuteAndDeafenOnJoin": "if you are un-server-muted and un-server-deafened when you join a voice channel",
+    }
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     ringable: Mapped[bool] = mapped_column(Boolean(), default=True)
     collectVoiceData: Mapped[bool] = mapped_column(Boolean(), default=True)
     voiceModel: Mapped[str] = mapped_column(String(), server_default="", default="")
     voiceSleepMute: Mapped[bool] = mapped_column(Boolean(), default=False)
     dontVoiceSleep: Mapped[bool] = mapped_column(Boolean(), default=False)
+    unMuteAndDeafenOnJoin: Mapped[bool] = mapped_column(Boolean(), server_default="false", default=False)
 
 
 class VoiceName(Base):

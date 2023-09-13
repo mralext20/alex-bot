@@ -4,7 +4,7 @@ from typing import List, Optional
 import discord
 from discord import VoiceState, app_commands
 
-from alexBot.database import UserConfig, async_session, select
+from alexBot.database import GuildConfig, UserConfig, async_session, select
 from alexBot.tools import Cog, render_voiceState
 
 
@@ -166,6 +166,23 @@ class VoiceCommands(Cog):
             if len(before.channel.members) == 0:
                 await before.channel.delete(reason="no one left")
                 self.current_thatars.remove(before.channel.id)
+        guild = member.guild
+        async with async_session() as session:
+            gc = await session.scalar(select(GuildConfig).where(GuildConfig.userId == guild.id))
+            if not gc:
+                gc = GuildConfig(guild.id)
+                session.add(gc)
+                await session.commit()
+            if gc.allowUnMuteAndDeafenOnJoin:  # server allows it
+                uc = await session.scalar(select(UserConfig).where(UserConfig.userId == member.id))
+                if not uc:
+                    uc = UserConfig(member.id)
+                    session.add(uc)
+                    await session.commit()
+                if uc.unMuteAndDeafenOnJoin:  # user wants it
+                    if before.channel is None and after.channel is not None:
+                        # initial join, we can just blindly unmute and undeafen
+                        await member.edit(mute=False, deafen=False)
 
     @app_commands.guild_only()
     @app_commands.checks.bot_has_permissions(move_members=True)
