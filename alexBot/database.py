@@ -71,15 +71,15 @@ class GuildConfig(Base):
         "allowUnMuteAndDeafenOnJoin",
     ]
     __config_docs__ = {
-        "ayy": "whether or not sending `ayy` responds with  `lmao` is enabled",
-        "veryCool": "whether or not starting a message with `thank you ` responds with `very cool`",
-        "tikTok": "whether or not the video reposter is enabled",
-        "collectVoiceData": "whether or not voice data is collected",
-        "firstAmendment": "whether or not saying `free speech` or `first amendment` responds with the XKCD comic # 1357",
-        "privateOnePersonVCs": "whether or not joining a voice channel with a user cap of 1 gives you permissions to move people into it",
-        "transcribeVoiceMessages": "whether or not voice messages are transcribed in chat",
+        "ayy": "sending `ayy` responds with  `lmao` is enabled",
+        "veryCool": "starting a message with `thank you ` responds with `very cool`",
+        "tikTok": "the video reposter is enabled",
+        "collectVoiceData": "voice data is collected",
+        "firstAmendment": "saying `free speech` or `first amendment` responds with the XKCD comic # 1357",
+        "privateOnePersonVCs": "joining a VC with a usercap=1 gives you perms to move people into it",
+        "transcribeVoiceMessages": "voice messages are transcribed in chat",
         "minecraft": "the minecraft server ip for the default to /minecraft",
-        "allowUnMuteAndDeafenOnJoin": "whether or not users are able to be un-server-muted and un-server-deafened when they join a voice channel",
+        "allowUnMuteAndDeafenOnJoin": "users can be un-server-muted and deafened when joining a VC",
     }
     guildId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     ayy: Mapped[bool] = mapped_column(Boolean(), default=False)
@@ -104,12 +104,12 @@ class UserConfig(Base):
         "unMuteAndDeafenOnJoin",
     ]
     __config_docs__ = {
-        "ringable": "whether or not you can be rung using /ring",
-        "collectVoiceData": "whether or not your voice data is collected",
+        "ringable": "you can be rung using /ring",
+        "collectVoiceData": "your voice data is collected",
         "voiceModel": "the model used to transcribe your voice using /voice tts",
-        "voiceSleepMute": "whether or not you are muted when /voice sleep is used",
-        "dontVoiceSleep": "whether or not you are deafened when /voice sleep is used",
-        "unMuteAndDeafenOnJoin": "if you are un-server-muted and un-server-deafened when you join a voice channel",
+        "voiceSleepMute": "you are muted when /voice sleep is used",
+        "dontVoiceSleep": "you are deafened when /voice sleep is used",
+        "unMuteAndDeafenOnJoin": "if you are un-server-muted and deafened when you join a voice channel",
     }
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     ringable: Mapped[bool] = mapped_column(Boolean(), default=True)
