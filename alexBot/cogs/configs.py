@@ -42,7 +42,7 @@ class Configs(Cog):
                 icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
             )
             for key in config.__config_keys__:
-                embed.add_field(name=key, value=getattr(config, key))
+                embed.add_field(name=key, value=f"{getattr(config, key)} - {UserConfig.__config_docs__[key]}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     async def value_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
@@ -53,7 +53,7 @@ class Configs(Cog):
         if interaction.command == self.user_setConfig:
             boolCommands = UserConfig.__config_keys__
         elif interaction.command == self.guild_setConfig:
-            boolCommands = GuildConfig.__config_keys__
+            boolCommands = [k for k in GuildConfig.__config_keys__ if GuildConfig.__dataclass_fields__[k].type == bool]
         if interaction.namespace.key in boolCommands:
             return [app_commands.Choice(name="True", value="True"), app_commands.Choice(name="False", value="False")]
         else:
@@ -121,7 +121,7 @@ class Configs(Cog):
             session.add(uc)
             await session.commit()
         await interaction.response.send_message(
-            f"Set {key} to {val}", ephemeral=True if config_type == 'guild' else False
+            f"Set {key} to {val}", ephemeral=False if config_type == 'guild' else True
         )
 
     @configGuildCommandGroup.command(name="show", description="shows the current config")
@@ -138,7 +138,7 @@ class Configs(Cog):
                 name=interaction.guild.name, icon_url=interaction.guild.icon.url if interaction.guild.icon else None
             )
             for key in config.__config_keys__:
-                embed.add_field(name=key, value=getattr(config, key))
+                embed.add_field(name=key, value=f"{getattr(config, key)}\n{GuildConfig.__config_docs__[key]}")
             await interaction.response.send_message(embed=embed, ephemeral=False)
 
     @configGuildCommandGroup.command(name="set", description="sets a config value")
