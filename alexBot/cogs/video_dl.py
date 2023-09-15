@@ -28,19 +28,12 @@ log = logging.getLogger(__name__)
 
 FIREFOX_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0'
 
-REDDIT_REGEX = re.compile(r'https?://(?:\w{2,32}\.)?reddit\.com/(?:r\/\w+\/)?(?:comments|gallery)\/[\w]+\/?\w*')
-REDDIT_APP_REGEX = re.compile(r'https?:\/\/reddit\.app\.link\/[a-zA-Z0-9]{0,20}')
 TIKTOK_SHORT_REGEX = re.compile(r'https?:\/\/(vm|www)\.tiktok\.com\/?t?\/[a-zA-Z0-9]{6,}/')
 TIKTOK_REGEX = re.compile(r'https?:\/\/(?:\w{0,32}\.)?tiktok\.com\/@.+\b\/video\/[\d]+\b')
-TWITTER_REGEX = re.compile(
-    r'https?:\/\/twitter\.com\/([a-zA-Z0-9#-_!*\(\),]{0,20})\/status\/(\d{0,25})\??[a-zA-Z0-9#-_!*\(\),]*'
-)
+
 
 REGEXES = [
     TIKTOK_REGEX,
-    # re.compile(r'https?:\/\/(?:.{3,42}\.)?tiktokcdn-\w{1,8}.com\/\w+/\w+/video/tos/\w+/[^/]+/[^/]+/\?.+vr='),
-    re.compile(r'https?://(?:v\.)?redd\.it/[a-zA-Z0-9#-_!*\(\),]{6,}'),
-    re.compile(r'https?://video.twimg.com/ext_tw_video/\S*'),
     re.compile(r'https?://t\.co\/[a-zA-Z0-9#-_!*\(\),]{0,10}'),
     re.compile(r'https?://(?:www\.)instagram\.com/(?:p|reel)/[a-zA-Z0-9-_]{11}/'),
     re.compile(r'https?:\/\/clips.twitch.tv\/[a-zA-Z0-9-]{0,64}'),
@@ -107,70 +100,6 @@ class Video_DL(Cog):
         except KeyError:
             return "audio"
 
-    async def convert_twitter(self, message: discord.Message) -> Optional[Tuple[str, str]]:
-        matches = TWITTER_REGEX.match(message.content)
-        if matches:
-            async with aiohttp.ClientSession() as client:
-                resp = await client.get(f'https://api.fxtwitter.com/{matches.group(1)}/status/{matches.group(2)}')
-                data = await resp.json()
-                if data.get('tweet') and data['tweet'].get('media') and data['tweet']['media'].get('video'):
-                    # we have a video! let's download it
-                    return (
-                        data['tweet']['media']['video']['url'],
-                        f"{data['tweet']['author']['name']} - {data['tweet']['text']}",
-                    )
-                elif data.get('tweet') and data['tweet'].get('quote'):
-                    await self.on_message(
-                        await message.channel.send(data['tweet']['quote']['url']),
-                        override=True,
-                        new_deleter=message.author.id,
-                    )
-
-    async def convert_reddit_app(self, message: discord.Message) -> Optional[Tuple[str, str]]:
-        matches = REDDIT_APP_REGEX.match(message.content)
-        if matches:
-            # get the forwarded url
-            async with httpx.AsyncClient() as session:
-                resp = await session.get(url=matches.group(0), headers={'User-Agent': FIREFOX_UA})
-                message.content = str(resp.next_request.url)
-
-    async def convert_reddit(self, message: discord.Message) -> Optional[Tuple[str, str]]:
-        matches = REDDIT_REGEX.match(message.content)
-        if matches:
-            async with httpx.AsyncClient() as session:
-                resp = await session.get(url=matches.group(0) + '.json', headers={'User-Agent': 'AlexBot:v1.0.0'})
-                data = resp.json()[0]['data']['children'][0]['data']
-                # handle gallery
-                if 'gallery_data' in data:
-                    images = [item for item in data['gallery_data']['items']]
-                    counter = 0
-                    resp_text = ''
-                    for image in images:
-                        image_type = data['media_metadata'][image['media_id']]['m'].split('/')[1]
-                        if counter == 5:
-                            counter = 0
-                            await message.reply(resp_text)
-                            resp_text = ''
-                        resp_text += f'https://i.redd.it/{image["media_id"]}.{image_type}'
-                        if caption := image.get('caption'):
-                            resp_text += f' ; {caption}'
-                        if link := image.get('outbound_url'):
-                            resp_text += f' ; <{link}>'
-
-                        resp_text += '\n'
-                        counter += 1
-                    await message.reply(resp_text)
-                # handle videos
-                elif data['domain'] == 'v.redd.it':
-                    return (
-                        data['url_overridden_by_dest'],
-                        f"{data['title']} \N{BULLET} {data['subreddit_name_prefixed']}",
-                    )
-                # everything else
-                else:
-                    await message.reply(data['url_overridden_by_dest'])
-        return None
-
     async def convert_tiktok(self, message: discord.Message) -> Optional[Tuple[str, Optional[str]]]:
         # convert short links to full links
         matches = TIKTOK_SHORT_REGEX.match(message.content)
@@ -226,13 +155,7 @@ class Video_DL(Cog):
         if not gc.tikTok:
             return
 
-        await self.convert_reddit_app(message)  # convert reddit app links to full links
-
-        pack = (
-            await self.convert_tiktok(message)
-            or await self.convert_reddit(message)
-            or await self.convert_twitter(message)
-        )
+        pack = await self.convert_tiktok(message)
         override_title = None
         ttt = None
         if pack:
