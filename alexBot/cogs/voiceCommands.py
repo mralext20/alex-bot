@@ -12,6 +12,7 @@ class VoiceCommands(Cog):
     def __init__(self, bot):
         super().__init__(bot)
         self.current_thatars = []
+        self.unmute_noops = {}
 
     async def cog_load(self):
         self.bot.voiceCommandsGroup.add_command(
@@ -161,32 +162,36 @@ class VoiceCommands(Cog):
             pass
 
     @Cog.listener()
-    async def on_voice_state_update(
-        self, member: discord.Member, before: Optional[VoiceState], after: Optional[VoiceState]
-    ):
+    async def on_voice_state_update(self, member: discord.Member, before: VoiceState, after: VoiceState):
         if before.channel.id in self.current_thatars:
             if len(before.channel.members) == 0:
                 await before.channel.delete(reason="no one left")
                 self.current_thatars.remove(before.channel.id)
         guild = member.guild
-        async with async_session() as session:
-            gc = await session.scalar(select(GuildConfig).where(GuildConfig.userId == guild.id))
-            if not gc:
-                gc = GuildConfig(guild.id)
-                session.add(gc)
-                await session.commit()
-            if gc.allowUnMuteAndDeafenOnJoin:  # server allows it
-                uc = await session.scalar(select(UserConfig).where(UserConfig.userId == member.id))
-                if not uc:
-                    uc = UserConfig(member.id)
-                    session.add(uc)
+        if (before.channel and after.channel is None) or (before.channel is None and after.channel is not None):
+            # person joined / left
+            async with async_session() as session:
+                gc = await session.scalar(select(GuildConfig).where(GuildConfig.guildId == guild.id))
+                if not gc:
+                    gc = GuildConfig(guild.id)
+                    session.add(gc)
                     await session.commit()
-                if uc.unMuteAndDeafenOnJoin:  # user wants it
-                    if before.channel is None and after.channel is not None:
-                        # initial join, we can just blindly unmute and undeafen
-                        # but first we need to wait a moment for the user to be actually connected and accept the mute/deafen
-                        await asyncio.sleep(2)
-                        await (await guild.fetch_member(member.id)).edit(mute=False, deafen=False)
+                if gc.allowUnMuteAndDeafenOnJoin:  # server allows it
+                    uc = await session.scalar(select(UserConfig).where(UserConfig.userId == member.id))
+                    if not uc:
+                        uc = UserConfig(member.id)
+                        session.add(uc)
+                        await session.commit()
+                    if uc.unMuteAndDeafenOnJoin:  # user wants it
+                        if before.channel is None and after.channel is not None and member.id not in self.unmute_noops:
+                            # initial join, we can just blindly unmute and undeafen
+                            # but first we need to wait a moment for the user to be actually connected and accept the mute/deafen
+                            await (await guild.fetch_member(member.id)).edit(mute=False, deafen=False)
+                        elif before.channel is not None and after.channel is None:
+                            # they left, we need to add them to our list of no-ops for 5 minutes
+                            self.unmute_noops[member.id] = True
+                            await asyncio.sleep(5 * 60)
+                            del self.unmute_noops[member.id]
 
     @app_commands.guild_only()
     @app_commands.checks.bot_has_permissions(move_members=True)
