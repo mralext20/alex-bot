@@ -161,7 +161,9 @@ class VoiceCommands(Cog):
             pass
 
     @Cog.listener()
-    async def on_voice_state_update(self, member, before: Optional[VoiceState], after: Optional[VoiceState]):
+    async def on_voice_state_update(
+        self, member: discord.Member, before: Optional[VoiceState], after: Optional[VoiceState]
+    ):
         if before.channel.id in self.current_thatars:
             if len(before.channel.members) == 0:
                 await before.channel.delete(reason="no one left")
@@ -182,7 +184,9 @@ class VoiceCommands(Cog):
                 if uc.unMuteAndDeafenOnJoin:  # user wants it
                     if before.channel is None and after.channel is not None:
                         # initial join, we can just blindly unmute and undeafen
-                        await member.edit(mute=False, deafen=False)
+                        # but first we need to wait a moment for the user to be actually connected and accept the mute/deafen
+                        await asyncio.sleep(2)
+                        await (await guild.fetch_member(member.id)).edit(mute=False, deafen=False)
 
     @app_commands.guild_only()
     @app_commands.checks.bot_has_permissions(move_members=True)
