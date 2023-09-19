@@ -121,7 +121,9 @@ class VoiceCommands(Cog):
             await member.edit(deafen=False, mute=False)
             await member.move_to(None)
         return await interaction.response.send_message(
-            f"ok, {member.display_name} is now {render_voiceState(member)}", ephemeral=member == interaction.user
+            f"ok, {member.mention} is now {render_voiceState(member)}",
+            ephemeral=member == interaction.user,
+            allowed_mentions=discord.AllowedMentions.all(),
         )
 
     @app_commands.checks.bot_has_permissions(move_members=True)
