@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 from functools import partial
+import traceback
 from typing import List, Optional, Tuple
 
 import aiohttp
@@ -233,7 +234,8 @@ class Video_DL(Cog):
 
             except Exception as e:
                 log.warn(f'Exception occurred processing video {e} -- {os.path.getsize(f"{message.id}.mp4")}')
-
+                if message.guild.id == 384843279042084865:
+                    await message.reply(f"```py\n{traceback.format_exc()}```")
                 try:
                     await message.add_reaction('❌')
                 except discord.Forbidden:
@@ -293,7 +295,7 @@ class Video_DL(Cog):
             subprocess.check_call(command_formatted.split(' '))
 
         except Exception as e:
-            log.warn(f'Exception occurred transcoding video {e}')
+            log.error(f'Exception occurred transcoding video {e}')
 
         finally:
             if os.path.exists('in.mp4'):
