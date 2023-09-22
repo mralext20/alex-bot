@@ -7,8 +7,8 @@ import os
 import re
 import shutil
 import subprocess
-from functools import partial
 import traceback
+from functools import partial
 from typing import List, Optional, Tuple
 
 import aiohttp
