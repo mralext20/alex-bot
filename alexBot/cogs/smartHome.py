@@ -41,7 +41,7 @@ NEWLINE = '\n'
 USER_TO_HA_DEVICE = {
     108429628560924672: 'mobile_app_pixel_7_pro',
     326410251546918913: 'mobile_app_knyte_s_phone',
-    253233185800847361: 'mobile_app_egg_2',
+    253233185800847361: 'mobile_app_entry_plug',
 }
 
 
