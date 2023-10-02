@@ -28,6 +28,14 @@ class VoiceStats(Cog):
         self.bot.voiceCommandsGroup.remove_command("stats")
 
     @Cog.listener()
+    async def on_guild_leave(self, guild: discord.Guild):
+        async with async_session() as session:
+            vs = await session.scalar(select(VoiceStat).where(VoiceStat.id == guild.id))
+            if vs:
+                vs.currently_running = False
+                await session.commit()
+
+    @Cog.listener()
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
