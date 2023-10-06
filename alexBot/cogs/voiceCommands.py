@@ -366,29 +366,30 @@ class VoiceCommands(Cog):
     async def sleep(self, interaction: discord.Interaction):
         # deafen everyone in the channel, and mute people who req to be muted via userconfig
         if interaction.user.voice is None:
-            return await interaction.followup.send("you're not in a voice channel", ephemeral=True)
-        await interaction.response.defer(thinking=True)
+            return await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
         vc = interaction.user.voice.channel
         if vc is None:
             # this should never happen tbh
-            return await interaction.followup.send("you're not in a voice channel", ephemeral=True)
+            return await interaction.response.send_message("you're not in a voice channel", ephemeral=True)
+        await interaction.response.defer(thinking=True)
         async with async_session() as session:
             uds = await session.scalars(select(UserConfig).where(UserConfig.userId.in_([z.id for z in vc.members])))
             for user in vc.members:
-                await user.edit(deafen=True)
                 # get the user config for this user
                 ud = next((x for x in uds if x.userId == user.id), None)
                 if not ud:
                     ud = UserConfig(user.id)
-                if ud.voiceSleepMute:
-                    await user.edit(deafen=True, mute=True)
-                if ud.dontVoiceSleep:
-                    if ud.voiceSleepMute:
-                        await user.edit(deafen=False, mute=True)
 
-                else:
-                    await user.edit(deafen=True, mute=False)
-        await interaction.followup.send("ok, sleep well :zzz:", ephemeral=True)
+                if ud.voiceSleepMute and ud.dontVoiceSleep:
+                    await user.edit(reason=f"sleep requested by {interaction.user}", mute=True)
+                elif ud.voiceSleepMute and not ud.dontVoiceSleep:
+                    await user.edit(reason=f"sleep requested by {interaction.user}", mute=True, deafen=True)
+                elif not ud.voiceSleepMute and ud.dontVoiceSleep:
+                    await user.edit(reason=f"sleep requested by {interaction.user}", deafen=True)
+                elif not ud.voiceSleepMute and not ud.dontVoiceSleep:
+                    pass  # do nothing
+
+        await interaction.followup.send("ok, sleep well :zzz:", ephemeral=False)
 
 
 async def setup(bot):
