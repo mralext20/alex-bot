@@ -58,7 +58,6 @@ class Reminders(Cog):
                 reminders = await session.scalars(stmt)
                 for reminder in reminders:
                     if reminder.id not in self.tasks:
-                        if 
                         self.tasks[reminder.id] = self.bot.loop.create_task(self.remind(reminder))
             await asyncio.sleep(60)
 
@@ -69,10 +68,10 @@ class Reminders(Cog):
             if now > reminder.next_remind:
                 log.warning(f"reminder {reminder} is overdue")
                 if reminder.frequency:
-                    #ok, we should skip the missed recurres, and just do the next one
+                    # ok, we should skip the missed recurres, and just do the next one
                     while now > reminder.next_remind:
                         reminder.next_remind = reminder.next_remind + reminder.frequency
-                    
+
                     async with db.async_session() as session:
                         async with session.begin():
                             edited = await session.scalar(select(Reminder).where(Reminder.id == reminder.id))
