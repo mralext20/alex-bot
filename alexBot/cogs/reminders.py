@@ -7,7 +7,6 @@ from functools import lru_cache
 from typing import Coroutine, Dict, List, Optional
 
 import discord
-import pytz
 from discord import app_commands
 from discord.ext.commands import Paginator
 from sqlalchemy import and_, or_, select
@@ -59,6 +58,7 @@ class Reminders(Cog):
                 reminders = await session.scalars(stmt)
                 for reminder in reminders:
                     if reminder.id not in self.tasks:
+                        if 
                         self.tasks[reminder.id] = self.bot.loop.create_task(self.remind(reminder))
             await asyncio.sleep(60)
 
@@ -68,6 +68,21 @@ class Reminders(Cog):
             now = datetime.datetime.utcnow()
             if now > reminder.next_remind:
                 log.warning(f"reminder {reminder} is overdue")
+                if reminder.frequency:
+                    #ok, we should skip the missed recurres, and just do the next one
+                    while now > reminder.next_remind:
+                        reminder.next_remind = reminder.next_remind + reminder.frequency
+                    
+                    async with db.async_session() as session:
+                        async with session.begin():
+                            edited = await session.scalar(select(Reminder).where(Reminder.id == reminder.id))
+                            if not edited:
+                                log.error(f"reminder {reminder} not found in database")
+                                return
+                            edited.next_remind = reminder.next_remind
+                            session.add(edited)
+                            await session.commit()
+                            return
             else:
                 await asyncio.sleep((reminder.next_remind - now).total_seconds())
             allowedMentions = discord.AllowedMentions.none()
