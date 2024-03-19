@@ -18,6 +18,14 @@ def mk_callback(task: asyncio.Task):
     return callback
 
 
+RING_RATES = {
+    discord.Status.online: RingRate(4, 0.5),
+    discord.Status.idle: RingRate(10, 1),
+    discord.Status.dnd: RingRate(1, 1),
+    discord.Status.offline: RingRate(15, 5),
+}
+
+
 class Ringing(Cog):
     class CancelableTaskView(discord.ui.View):
         def __init__(self, task: asyncio.Task):
@@ -50,7 +58,7 @@ class Ringing(Cog):
             await interaction.response.send_message("cannot ring: they do not want to be rung", ephemeral=True)
             return
 
-        ringRate = self.bot.config.ringRates[target.status]
+        ringRate = RING_RATES[target.status]
         task = asyncio.create_task(self.doRing(interaction.user, target, interaction.channel, ringRate))
         await interaction.response.send_message("ringing...", view=self.CancelableTaskView(task))
         try:
