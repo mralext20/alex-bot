@@ -53,12 +53,15 @@ class VoiceTTS(Cog):
     def __init__(self, bot):
         super().__init__(bot)
         self.runningTTS: Dict[int, TTSInstance] = {}
-        self.gtts: AsyncGTTSSession = None
+        self.gtts: AsyncGTTSSession = None  # type: ignore
         self.running_queue_handlers: Dict[int, bool] = {}
 
     async def cog_load(self):
+        if not self.bot.config.google_service_account:
+            log.error("No google service account found. voiceTTS will not be loaded")
+
         self.gtts = AsyncGTTSSession.from_service_account(
-            ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),
+            ServiceAccount.from_service_account_dict(self.bot.config.google_service_account),  # type: ignore ; can not be None, checked above
         )
 
         self.bot.voiceCommandsGroup.add_command(
@@ -268,4 +271,10 @@ async def setup(bot):
         log.error("Could not load opus library")
         log.error('not loading voiceTTS module')
         return
-    await bot.add_cog(VoiceTTS(bot))
+    try:
+        cog = VoiceTTS(bot)
+        await bot.add_cog(cog)
+    except Exception as e:
+        log.exception(e)
+        log.error('not loading voiceTTS module')
+        return
