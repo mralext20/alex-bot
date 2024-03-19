@@ -33,10 +33,6 @@ class Fun(Cog):
             name='Steal Emojis',
             callback=self.stealEmoji,
         )
-        self.videoLengthMenu = app_commands.ContextMenu(
-            name='How Long is this Video?',
-            callback=self.videoLength,
-        )
 
         self.recentlyReminded: List[int] = []
 
@@ -49,53 +45,9 @@ class Fun(Cog):
                 discord.Object(1083141160198996038),
             ],
         )
-        self.bot.tree.add_command(self.videoLengthMenu)
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.stealEmojiMenu.name, type=self.stealEmojiMenu.type)
-        self.bot.tree.remove_command(self.videoLengthMenu.name, type=self.videoLengthMenu.type)
-
-    async def videoLength(self, interaction: discord.Interaction, message: discord.Message):
-        matches = YOUTUBE_REGEX.findall(message.content)
-        if len(matches) == 0:
-            await interaction.response.send_message("there's no youtube link in this message :(", ephemeral=True)
-            return
-        lengths = {}
-        for match in matches:
-            async with aiohttp.ClientSession() as session:
-                data = await get_json(
-                    session,
-                    f"https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id={matches[0]}&key={self.bot.config.youtube_token}",
-                )
-                if len(data["items"]) == 0:
-                    await interaction.response.send_message("that's not a valid youtube link :(", ephemeral=True)
-                    return
-                duration = data["items"][0]["contentDetails"]["duration"]
-                duration = duration[2:]  # remove the "PT" prefix
-                days = 0
-                hours = 0
-                minutes = 0
-                seconds = 0
-                if "D" in duration:
-                    parts = duration.split("D")
-                    days = int(parts[0])
-                    duration = parts[1]
-                if "H" in duration:
-                    parts = duration.split("H")
-                    hours = int(parts[0])
-                    duration = parts[1]
-                if "M" in duration:
-                    parts = duration.split("M")
-                    minutes = int(parts[0])
-                    duration = parts[1]
-                if "S" in duration:
-                    parts = duration.split("S")
-                    seconds = int(parts[0])
-                duration_string = f"{days}{' days, ' if days > 0 else ''}{hours:02d}:{minutes:02d}:{seconds:02d}"
-                lengths[match] = duration_string
-        await interaction.response.send_message(
-            f"{' and '.join([f'{link} is {length}' for link, length in lengths.items()])}", ephemeral=True
-        )
 
     async def stealEmoji(self, interaction: discord.Interaction, message: discord.Message):
         raw_emojis = self.EMOJI_REGEX.findall(message.content)
