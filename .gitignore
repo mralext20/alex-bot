@@ -1,9 +1,9 @@
 venv
 *.pyc
 .idea
-config.py
 .vscode/settings.json
 env.env
 configs.db
 db/
 .env
+SERVICE_ACCOUNT.JSON
