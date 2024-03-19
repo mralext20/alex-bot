@@ -11,6 +11,17 @@ from ..tools import Cog
 
 log = logging.getLogger(__name__)
 
+MONITORED_BOTS = {
+    288369203046645761: {  # Mousey
+        'messagable_id': 69198249432449024,  # the bot channel in mousey's server
+        'shards': 2,
+    },
+    701277606758318090: {  # parakarry
+        'messagable_id': 125233822760566784,  # mattBSG
+        'shared_guild': 314857672585248768,  # a shared guild. will be used instead of scanning any guilds.
+    },
+}
+
 
 class Bots(Cog):
     """Bot downtime notifications."""
@@ -21,14 +32,14 @@ class Bots(Cog):
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         if not self.bot.is_ready():
             return
-        if before.id not in self.bot.config.monitored_bots or before.status == after.status:
+        if before.id not in MONITORED_BOTS or before.status == after.status:
             return
 
         # we only notify when a bot goes offline or comes back online
         if not any(x.status is discord.Status.offline for x in (before, after)):
             return
 
-        config = self.bot.config.monitored_bots[before.id]
+        config = MONITORED_BOTS[before.id]
         # we only care about in the notification guild
         key = None
         if config.get('shared_guild'):
