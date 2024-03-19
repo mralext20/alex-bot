@@ -59,7 +59,6 @@ class Bot(commands.Bot):
         super().__init__(command_prefix=config.prefix, intents=intents, allowed_mentions=allowed_mentions, **kwargs)
         self.session = None
         self.config = config
-        self.location = config.location
 
         self.owner = None
         self.setup_hook = self.cogSetup
@@ -139,4 +138,4 @@ if sys.platform.startswith('win'):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
-bot.run(config.token, log_handler=None)
+bot.run(config.discord_token, log_handler=None)
