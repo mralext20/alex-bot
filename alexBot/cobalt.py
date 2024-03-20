@@ -1,7 +1,7 @@
+from dataclasses import asdict, dataclass
 from typing import List, Literal, Optional
-import aiohttp
-from dataclasses import dataclass, asdict
 
+import aiohttp
 
 ENDPOINT = "https://co.wuk.sh"
 
