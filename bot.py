@@ -141,4 +141,4 @@ if sys.platform.startswith('win'):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
-bot.run(config.token, log_handler=None)
+bot.run(config.discord_token, log_handler=None)

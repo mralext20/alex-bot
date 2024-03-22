@@ -12,6 +12,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_co
 
 from alexBot.classes import SugeryZone
 from alexBot.tools import time_cache
+import config
 
 
 class Base(
@@ -166,22 +167,22 @@ class SugeryUser(Base):
     alertsTranslations: Mapped[Optional[SugeryZoneNames]] = relationship(
         foreign_keys=[alertsTranslationsId], init=False, lazy="selectin"
     )
-    lastGroup: Mapped[SugeryZone] = mapped_column(Integer(), default=SugeryZone.NORMAL.value, init=False)
+    lastGroup: Mapped[SugeryZone] = mapped_column(default=SugeryZone.NORMAL, init=False)
     thresholdsId: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey(Thresholds.id), init=False)
     thresholds: Mapped[Optional[Thresholds]] = relationship(
         foreign_keys='SugeryUser.thresholdsId', init=False, lazy="selectin"
     )
 
 
-user = os.environ.get("POSTGRES_USER")
-pw = os.environ.get("POSTGRES_PASSWORD")
-db = os.environ.get("POSTGRES_DB")
-db_host = os.environ.get("POSTGRES_HOST")
-db_port = os.environ.get("POSTGRES_PORT")
-database_url = os.environ.get("DATABASE_URL") or f"postgresql+asyncpg://{user}:{pw}@{db_host}:{db_port}/{db}"
+user = config.db_user
+pw = config.db_pw
+db = config.db_name
+db_host = config.db_host
+db_port = config.db_port
+database_url = config.db_full_url or f"postgresql+asyncpg://{user}:{pw}@{db_host}:{db_port}/{db}"
 if database_url and database_url.startswith("postgresql://"):
     database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-elif os.environ.get("DATABASE_URL") is None:
+elif config.db_full_url is None:
     if None in (user, pw, db, db_host, db_port):
         raise ValueError("Missing database environment variable")
 
