@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 import asyncio
 import logging
 import re
@@ -11,11 +16,9 @@ import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
-from dotenv import load_dotenv
 
 import config
 
-load_dotenv()
 
 cogs = [
     x.stem
@@ -138,4 +141,4 @@ if sys.platform.startswith('win'):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
-bot.run(config.discord_token, log_handler=None)
+bot.run(config.token, log_handler=None)
