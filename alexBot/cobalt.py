@@ -6,7 +6,7 @@ import aiohttp
 ENDPOINT = "https://co.wuk.sh"
 
 
-HEADERS = {"Accept": "application/json", "Content-Type": "application/json", "User-Agent": "alexBot/1.0"}
+DEFAULT_HEADERS = {"Accept": "application/json", "Content-Type": "application/json", "User-Agent": "alexBot/1.0"}
 
 # comments are from https://github.com/wukko/cobalt/blob/current/docs/api.md
 
@@ -82,7 +82,7 @@ class Picker:
 @dataclass
 class ResponceBody:
     status: Literal["error", "redirect", "stream", "success", "rate-limit", "picker"]
-    url: str
+    url: Optional[str] = None
     text: Optional[str] = None
     pickerType: Optional[Literal["various", "images"]] = None
     picker: Optional[List[Picker]] = None
@@ -117,12 +117,17 @@ class ServerInfo:
 
 
 class Cobalt:
+    HEADERS = DEFAULT_HEADERS
+
     async def get_server_info(self):
-        async with aiohttp.ClientSession(headers=HEADERS) as session:
+        async with aiohttp.ClientSession(headers=self.HEADERS) as session:
             async with session.get(ENDPOINT + "/api/serverInfo") as resp:
                 return ServerInfo(**await resp.json())
 
     async def process(self, request_body: RequestBody):
-        async with aiohttp.ClientSession(headers=HEADERS) as session:
+        async with aiohttp.ClientSession(headers=self.HEADERS) as session:
             async with session.post(ENDPOINT + "/api/json", json=asdict(request_body)) as resp:
-                return ResponceBody(**await resp.json())
+                rb = ResponceBody(**await resp.json())
+                if rb.picker:
+                    rb.picker = [Picker(**picker) for picker in rb.picker]
+                return rb
