@@ -21,7 +21,7 @@ class HomeAssistantIntigreation(Cog):
     async def mqttLoop(self):
         while True:
             try:
-                url = urlparse(self.bot.config.mqttServer)
+                url = urlparse(self.bot.config.mqtt_url)
                 async with aiomqtt.Client(
                     hostname=url.hostname, username=url.username, password=url.password
                 ) as client:
@@ -51,6 +51,7 @@ class HomeAssistantIntigreation(Cog):
             raise aiomqtt.MqttError("No active MQTT client")
 
     async def cog_load(self):
+
         self.task = self.bot.loop.create_task(self.mqttLoop())
 
     async def cog_unload(self):
@@ -58,4 +59,7 @@ class HomeAssistantIntigreation(Cog):
 
 
 async def setup(bot):
+    if not bot.config.mqtt_url:
+        log.warning("No MQTT URL provided, MQTT integration will not be enabled")
+        return
     await bot.add_cog(HomeAssistantIntigreation(bot))
