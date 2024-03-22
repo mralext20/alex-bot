@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timezone
 
 import avwx
+from discord import app_commands
 import discord
 import geomag
 import humanize
@@ -23,12 +24,12 @@ class Flight(Cog):
         "LIFR": discord.Color.magenta(),
     }
 
-    @commands.command()
-    async def metar(self, ctx: commands.Context, station: str):
+    @app_commands.command(name="metar")
+    async def metar(self, interaction: discord.Interaction, station: str):
         """
         returns the METAR for a given station.
         """
-        await ctx.typing()
+        await interaction.response.defer(thinking=True)
         station = station.upper()
         try:
             location = avwx.Station.from_icao(station)
@@ -37,11 +38,12 @@ class Flight(Cog):
                 location = avwx.Station.from_iata(station)
             except BadStation as e:
                 raise commands.BadArgument(*e.args)
-
+        if not location.icao:
+            return await interaction.followup.send("could not find that station")
         metar = avwx.Metar(location.icao)
 
         if not await metar.async_update():
-            return await ctx.send(f"can not retrive metar data for {location.name}")
+            return await interaction.followup.send(f"can not retrive metar data for {location.name}")
 
         embed = discord.Embed(color=self.flightrule_color.get(metar.data.flight_rules, discord.Color.default()))
 
@@ -107,16 +109,16 @@ class Flight(Cog):
 
         embed.timestamp = metar.data.time.dt
         if metar.data.flight_rules in ["LIFR", "IFR"]:
-            await ctx.send('you might want to reconsider flying.', embed=embed)
+            await interaction.followup.send('you might want to reconsider flying.', embed=embed)
         else:
-            await ctx.send(embed=embed)
+            await interaction.followup.send(embed=embed)
 
-    @commands.command()
-    async def taf(self, ctx: commands.Context, station: str):
+    @app_commands.command(name="taf")
+    async def taf(self, interaction: discord.Interaction, station: str):
         """
         returns the METAR for a given station.
         """
-        await ctx.typing()
+        await interaction.response.defer(thinking=True)
         station = station.upper()
         try:
             location = avwx.Station.from_icao(station)
@@ -128,7 +130,7 @@ class Flight(Cog):
 
         taf = avwx.Taf(location.icao)
         if not await taf.async_update():
-            return await ctx.send(f"cannot get TAF for {location.name}")
+            return await interaction.followup.send(f"cannot get TAF for {location.name}")
 
         embed = discord.Embed()
 
@@ -144,7 +146,7 @@ class Flight(Cog):
 
         embed.add_field(name="Raw", value=taf.data.sanitized)
         embed.add_field(name="Spoken", value=taf.speech)
-        await ctx.send(embed=embed)
+        await interaction.followup.send(embed=embed)
 
 
 async def setup(bot):
