@@ -52,9 +52,9 @@ class FeedReader(Cog):
                                 await forumChannel.create_thread(
                                     name=f"{feed.feed.title}  -  {self.bot.clean_clean(feed.entries[0].title)}"[:100],
                                     content=f"{entry.link}\n\n{self.bot.clean_clean(feed.entries[0].summary[:500])}",
-                                    applied_tags=[forumChannel.get_tag(feedData.tagId)]
-                                    if feedData.tagId is not None
-                                    else [],
+                                    applied_tags=(
+                                        [forumChannel.get_tag(feedData.tagId)] if feedData.tagId is not None else []
+                                    ),
                                 )
                                 await self.bot.db.save_feed_data(
                                     feedData.feedUrl, int(mktime(feed.entries[0].published_parsed))
@@ -69,9 +69,9 @@ class FeedReader(Cog):
                             await forumChannel.create_thread(
                                 name=f"{feed.feed.title}  -  {self.bot.clean_clean(entry.title)}"[:100],
                                 content=f"{entry.link}\n\n{self.bot.clean_clean(feed.entries[0].summary[:500])}",
-                                applied_tags=([forumChannel.get_tag(feedData.tagId)])
-                                if feedData.tagId is not None
-                                else [],
+                                applied_tags=(
+                                    ([forumChannel.get_tag(feedData.tagId)]) if feedData.tagId is not None else []
+                                ),
                             )
 
                     await self.bot.db.save_feed_data(feedData.feedUrl, int(mktime(feed.entries[0].published_parsed)))
