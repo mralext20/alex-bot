@@ -19,7 +19,6 @@ from discord.ext import commands
 
 import config
 
-
 cogs = [
     x.stem
     for x in Path('alexBot/cogs').glob('*.py')

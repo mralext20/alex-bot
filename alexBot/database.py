@@ -10,9 +10,9 @@ from sqlalchemy.dialects.postgresql import BIGINT, UUID
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column, relationship
 
+import config
 from alexBot.classes import SugeryZone
 from alexBot.tools import time_cache
-import config
 
 
 class Base(

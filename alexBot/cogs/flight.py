@@ -2,11 +2,11 @@ import logging
 from datetime import datetime, timezone
 
 import avwx
-from discord import app_commands
 import discord
 import geomag
 import humanize
 from avwx.exceptions import BadStation
+from discord import app_commands
 from discord.ext import commands
 
 from alexBot.tools import Cog
