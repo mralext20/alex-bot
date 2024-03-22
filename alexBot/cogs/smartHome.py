@@ -108,11 +108,7 @@ class PhoneMonitor(Cog):
                 return
             targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
             if not targets:
-                hook = self.bot.config.ha_webhook_notifs.get(user.id)
-                if hook:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(hook, json={"content": "Err: i can't see what VC you are in"}) as resp:
-                            log.debug(f"Sent voice message to HA: {resp.status}")
+
                 return
             member = targets[0].get_member(user.id)
             channel = member.voice.channel
@@ -125,13 +121,6 @@ class PhoneMonitor(Cog):
                     await member.edit(deafen=False, mute=False)
                     await member.move_to(None)
             except discord.errors.Forbidden as e:
-                hook = self.bot.config.ha_webhook_notifs.get(user.id)
-                if hook:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(
-                            hook, json={"content": f"Err: i don't have permissions in {channel.guild}"}
-                        ) as resp:
-                            log.debug(f"Sent voice message to HA: {resp.status}")
                 return
 
     async def update_mqtt_state(self, member: discord.Member, after: discord.VoiceState):
