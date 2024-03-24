@@ -1,4 +1,17 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import json
 import os
+import base64
+
+
+if os.environ.get("GOOGLE_SERVICE_ACCOUNT"):
+    # get data, it's b64 encoded
+    google_service_account = json.loads(base64.b64decode(os.environ.get("GOOGLE_SERVICE_ACCOUNT").encode("ascii")))
+else:
+    google_service_account = None
 
 mqtt_url = os.environ.get('MQTT_URL')
 
