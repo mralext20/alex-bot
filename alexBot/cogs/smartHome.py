@@ -25,22 +25,27 @@ TABLE = defaultdict(lambda: "💨")
 TABLE['not_home'] = TABLE['not_home']  # add entry for .items of the default value
 TABLE['home'] = "🏠"
 TABLE['Walmart'] = "🏪"
-TABLE["Garrett's Home"] = "🏠"
-TABLE["New Home"] = "🏡"
+TABLE["Tiny Home"] = "🛖"
+TABLE["Terry Residence"] = "🧓"
+TABLE["Weed Shop"] = "🌿"
+TABLE["The UPS Store"] = "📦"
+TABLE["Mat-Su Regional"] = "🏥"
 
 GUILD = 384843279042084865
 MEMBERS = {  # ha-name: (discord-id, [guild-ids])
-    'alex': (108429628560924672, [384843279042084865]),
+    'alex': (108429628560924672, [384843279042084865, 1220224297235251331]),
     'garrett': (326410251546918913, [384843279042084865]),
     'abby': (
         253233185800847361,
         [384843279042084865],
     ),
+    'tierra': (270066588638511105, [384843279042084865]),
 }
+
 NEWLINE = '\n'
 USER_TO_HA_DEVICE = {
     108429628560924672: 'mobile_app_pixel_7_pro',
-    326410251546918913: 'mobile_app_knyte_s_phone',
+    326410251546918913: 'mobile_app_game_s_phone',
     253233185800847361: 'mobile_app_entry_plug',
 }
 
