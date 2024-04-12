@@ -2,10 +2,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import base64
 import json
 import os
-import base64
-
 
 if os.environ.get("GOOGLE_SERVICE_ACCOUNT"):
     # get data, it's b64 encoded
