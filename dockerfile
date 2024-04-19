@@ -3,7 +3,7 @@ FROM gorialis/discord.py:pypi-minimal
 WORKDIR /alexbot
 
 COPY requirements.txt /alexbot/requirements.txt
-RUN pip install -U -r requirements.txt
+RUN pip install -U -r /alexbot/requirements.txt
 
 
 COPY . /alexbot

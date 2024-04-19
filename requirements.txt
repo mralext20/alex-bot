@@ -9,9 +9,8 @@ jishaku~=2.5
 python-slugify[unidecode]~=4.0.1
 mcstatus~=5.1.4
 
-SpeechRecognition==3.10.0
-numba==0.57.0rc1
-openai-whisper==20230314
+SpeechRecognition~=3.10.3
+openai-whisper>=20231117
 pydub==0.25.1
 soundfile==0.12.1
 
