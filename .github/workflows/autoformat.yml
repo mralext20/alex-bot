@@ -28,4 +28,4 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "auto: format python code"
-          git push
+          git push HEAD:main
