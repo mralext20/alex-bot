@@ -1,14 +1,13 @@
 SpeechRecognition~=3.10.3
 openai-whisper>=20231117
-pydub==0.25.1
-soundfile==0.12.1
+pydub~=0.25.1
+soundfile~=0.12.1
 
 #SMALLER
 
 discord.py[voice] @ git+https://github.com/rapptz/discord.py
-aiohttp >= 3.8.5
+aiohttp ~= 3.9.0
 chardet~=3.0.4
-idna~=2.10
 multidict~=4.7.6
 urllib3~=1.26.5
 humanize~=3.9.0
@@ -17,18 +16,19 @@ python-slugify[unidecode]~=4.0.1
 mcstatus~=5.1.4
 
 
-avwx-engine
-xmltodict
+avwx-engine~=1.8.3
+xmltodict~=0.13.0
 geomag @ git+https://github.com/mralext20/geomag
-pytz
-yt-dlp
-emoji-data
-httpx
-feedparser
-aiomqtt~=2.0.0
-async-gTTS
-SQLAlchemy~=2.0.0
-alembic
-psycopg2
-asyncpg
-python-dotenv
+pytz~=2024.1
+emoji-data~=0.2.post2
+httpx~=0.27.0
+feedparser~=6.0.11
+aiomqtt~=2.0.1
+async-gTTS~=0.3.0
+SQLAlchemy~=2.0.29
+alembic~=1.13.1
+psycopg2~=2.9.9
+asyncpg~=0.29.0
+python-dotenv~=1.0.1
+
+
