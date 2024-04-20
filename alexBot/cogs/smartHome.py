@@ -104,29 +104,27 @@ class PhoneMonitor(Cog):
                 log.info(f"Adding {member.display_name} to notifiable for being at walmart")
 
     @Cog.listener()
-    async def on_ha_vc_control(self, userId: str, command: str):
+    async def on_ha_vc_control(self, userId: int, command: str):
         log.info(f"HA vc control: {userId} -> {command}")
         await self.bot.wait_until_ready()
-        if userId in MEMBERS:
-            user = self.bot.get_user(userId)
-            if not user:
-                return
-            targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
-            if not targets:
+        user = self.bot.get_user(userId)
+        if not user:
+            return
+        targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
+        if not targets:
+            return
 
-                return
-            member = targets[0].get_member(user.id)
-            channel = member.voice.channel
-            try:
-                if command == 'mute':
-                    await member.edit(mute=not member.voice.mute)
-                elif command == 'deafen':
-                    await member.edit(deafen=not member.voice.deaf, mute=not member.voice.deaf)
-                elif command == 'disconnect':
-                    await member.edit(deafen=False, mute=False)
-                    await member.move_to(None)
-            except discord.errors.Forbidden as e:
-                return
+        member = targets[0].get_member(user.id)
+        try:
+            if command == 'mute':
+                await member.edit(mute=not member.voice.mute)
+            elif command == 'deafen':
+                await member.edit(deafen=not member.voice.deaf, mute=not member.voice.deaf)
+            elif command == 'disconnect':
+                await member.edit(deafen=False, mute=False)
+                await member.move_to(None)
+        except discord.errors.Forbidden as e:
+            return
 
     async def update_mqtt_state(self, member: discord.Member, after: discord.VoiceState):
         mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
