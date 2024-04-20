@@ -1,4 +1,4 @@
-FROM gorialis/discord.py:pypi-minimal
+FROM gorialis/discord.py:3.11-pypi-minimal
 
 WORKDIR /alexbot
 
