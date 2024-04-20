@@ -26,17 +26,16 @@ class HomeAssistantIntigreation(Cog):
                     hostname=url.hostname, username=url.username, password=url.password, port=url.port
                 ) as client:
                     self.active_client = client
-                    async with client.messages() as messages:
-                        await client.subscribe("alex-bot/#")
-                        async for message in messages:
-                            if message.topic.matches("alex-bot/location/#"):
-                                self.bot.dispatch(
-                                    "ha_update_location", message.topic.value.split('/')[2], message.payload.decode()
-                                )
-                            if message.topic.matches("alex-bot/vcControl/#"):
-                                self.bot.dispatch(
-                                    "ha_vc_control", message.topic.value.split('/')[2], message.payload.decode()
-                                )
+                    await client.subscribe("alex-bot/#")
+                    async for message in client.messages:
+                        if message.topic.matches("alex-bot/location/#"):
+                            self.bot.dispatch(
+                                "ha_update_location", message.topic.value.split('/')[2], message.payload.decode()
+                            )
+                        if message.topic.matches("alex-bot/vcControl/#"):
+                            self.bot.dispatch(
+                                "ha_vc_control", message.topic.value.split('/')[2], message.payload.decode()
+                            )
 
             except aiomqtt.MqttError as error:
                 log.error(f"MQTT error: {error}, retrying in 5 minutes")

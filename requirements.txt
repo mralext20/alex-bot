@@ -25,7 +25,7 @@ yt-dlp
 emoji-data
 httpx
 feedparser
-aiomqtt
+aiomqtt~=2.0.0
 async-gTTS
 SQLAlchemy~=2.0.0
 alembic
