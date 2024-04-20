@@ -24,6 +24,15 @@ class Base(
 
 from typing import Optional, Union
 
+# HOWTO: make database changes
+
+#  make sure you have the database up (docker-compose up -d db)
+# 1. make changes inside this file to match the new schema
+# 2. Add a new table or column to the database, using alembic:
+#  `alembic revision --autogenerate --head head -m "MESSAGE"`
+#  edit the generated file in alembic/versions
+#  `alembic upgrade head`
+
 
 class VoiceStat(Base):
     __tablename__ = "voiceStats"
@@ -114,6 +123,7 @@ class UserConfig(Base):
     }
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     ringable: Mapped[bool] = mapped_column(Boolean(), default=True)
+    hasBeenRung: Mapped[bool] = mapped_column(Boolean(), default=False)
     collectVoiceData: Mapped[bool] = mapped_column(Boolean(), default=True)
     voiceModel: Mapped[str] = mapped_column(String(), server_default="", default="")
     voiceSleepMute: Mapped[bool] = mapped_column(Boolean(), default=False)
