@@ -23,7 +23,7 @@ class HomeAssistantIntigreation(Cog):
             try:
                 url = urlparse(self.bot.config.mqtt_url)
                 async with aiomqtt.Client(
-                    hostname=url.hostname, username=url.username, password=url.password
+                    hostname=url.hostname, username=url.username, password=url.password, port=url.port
                 ) as client:
                     self.active_client = client
                     async with client.messages() as messages:
