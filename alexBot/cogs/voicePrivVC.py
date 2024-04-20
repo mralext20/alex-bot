@@ -3,11 +3,9 @@
 import asyncio
 import datetime
 from asyncio import Task
-from typing import Dict, List, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Dict, List
 
 from alexBot import database as db
-
 
 if TYPE_CHECKING:
     from bot import Bot
