@@ -1,3 +1,10 @@
+SpeechRecognition~=3.10.3
+openai-whisper>=20231117
+pydub==0.25.1
+soundfile==0.12.1
+
+#SMALLER
+
 discord.py[voice] @ git+https://github.com/rapptz/discord.py
 aiohttp >= 3.8.5
 chardet~=3.0.4
@@ -9,10 +16,6 @@ jishaku~=2.5
 python-slugify[unidecode]~=4.0.1
 mcstatus~=5.1.4
 
-SpeechRecognition~=3.10.3
-openai-whisper>=20231117
-pydub==0.25.1
-soundfile==0.12.1
 
 avwx-engine
 xmltodict
