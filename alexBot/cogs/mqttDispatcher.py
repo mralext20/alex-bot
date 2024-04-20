@@ -34,7 +34,7 @@ class HomeAssistantIntigreation(Cog):
                             )
                         if message.topic.matches("alex-bot/vcControl/#"):
                             self.bot.dispatch(
-                                "ha_vc_control", message.topic.value.split('/')[2], message.payload.decode()
+                                "ha_vc_control", int(message.topic.value.split('/')[2]), message.payload.decode()
                             )
 
             except aiomqtt.MqttError as error:

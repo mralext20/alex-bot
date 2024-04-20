@@ -104,11 +104,11 @@ class PhoneMonitor(Cog):
                 log.info(f"Adding {member.display_name} to notifiable for being at walmart")
 
     @Cog.listener()
-    async def on_ha_vc_control(self, name: str, command: PayloadType):
-        log.info(f"HA vc control: {name} -> {command}")
+    async def on_ha_vc_control(self, userId: str, command: str):
+        log.info(f"HA vc control: {userId} -> {command}")
         await self.bot.wait_until_ready()
-        if name in MEMBERS:
-            user = self.bot.get_user(MEMBERS[name][0])
+        if userId in MEMBERS:
+            user = self.bot.get_user(userId)
             if not user:
                 return
             targets = [g for g in user.mutual_guilds if g.get_member(user.id).voice]
