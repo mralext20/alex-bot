@@ -3,7 +3,14 @@
 import asyncio
 import datetime
 from asyncio import Task
-from typing import Dict, List
+from typing import Dict, List, TYPE_CHECKING
+
+
+from alexBot import database as db
+
+
+if TYPE_CHECKING:
+    from bot import Bot
 
 import discord
 from discord.member import VoiceState
@@ -23,8 +30,13 @@ class VoicePrivVC(Cog):
         only for actions in nerdiowo
         hide events that do with ther admin category in any way
         """
-        gd = await self.bot.db.get_guild_data(member.guild.id)
-        if gd.config.privateOnePersonVCs:
+        async with db.async_session() as session:
+            gd = await session.get(db.GuildConfig, member.guild.id)
+            if not gd:
+                gd = db.GuildConfig(guildId=member.guild.id)
+                session.add(gd)
+                await session.commit()
+        if gd.privateOnePersonVCs:
             if after.channel and after.channel.user_limit == 1 and len(after.channel.members) == 1:
                 # give the user channel override for manage menbers
                 await after.channel.set_permissions(member, overwrite=discord.PermissionOverwrite(move_members=True))
