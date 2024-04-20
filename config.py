@@ -2,15 +2,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import base64
 import json
 import os
 
-if os.environ.get("GOOGLE_SERVICE_ACCOUNT"):
-    # get data, it's b64 encoded
-    google_service_account = json.loads(base64.b64decode(os.environ.get("GOOGLE_SERVICE_ACCOUNT").encode("ascii")))
-else:
-    google_service_account = None
+google_service_account = None
+# check if file exists;
+if os.path.exists('GOOGLE_SERVICE_ACCOUNT.json'):
+    google_service_account = json.load(open('GOOGLE_SERVICE_ACCOUNT.json'))
+
 
 mqtt_url = os.environ.get('MQTT_URL')
 
