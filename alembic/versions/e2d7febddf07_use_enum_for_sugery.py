@@ -26,7 +26,10 @@ def upgrade() -> None:
     op.add_column(
         'sugeryusers',
         sa.Column(
-            'lastGroup', sa.Enum('VERYLOW', 'LOW', 'NORMAL', 'HIGH', 'VERYHIGH', name='sugeryzone'), nullable=False
+            'lastGroup',
+            sa.Enum('VERYLOW', 'LOW', 'NORMAL', 'HIGH', 'VERYHIGH', name='sugeryzone'),
+            nullable=False,
+            server_default='NORMAL',
         ),
     )
 
