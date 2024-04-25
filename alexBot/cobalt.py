@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Dict
 
 import aiohttp
 
@@ -65,9 +65,9 @@ class RequestBody:
 
 @dataclass
 class Picker:
-    type: Optional[Literal["video"]]
     url: str
-    thumb: Optional[str]
+    type: Optional[Literal["video"]] = None
+    thumb: Optional[str] = None
 
 
 # ### response body variables
@@ -87,6 +87,7 @@ class ResponceBody:
     pickerType: Optional[Literal["various", "images"]] = None
     picker: Optional[List[Picker]] = None
     audio: Optional[str] = None
+    raw_picker: Optional[List[dict]] = None
 
 
 # ## GET: `/api/serverInfo`
@@ -129,5 +130,8 @@ class Cobalt:
             async with session.post(ENDPOINT + "/api/json", json=asdict(request_body)) as resp:
                 rb = ResponceBody(**await resp.json())
                 if rb.picker:
-                    rb.picker = [Picker(**picker) for picker in rb.picker]
+                    rb.raw_picker: List[Dict] = rb.picker  # type: ignore
+                    rb.picker = [
+                        Picker(picker['url'], picker.get("type"), picker.get("thumb")) for picker in rb.raw_picker
+                    ]
                 return rb

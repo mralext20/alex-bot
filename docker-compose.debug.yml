@@ -7,7 +7,7 @@ services:
       - ./:/alexbot
     build: .
     env_file:
-      - env.env
+      - .env
     environment:
       DATABASE_URL: postgresql://alexbot:alexbot@db/alexbot
     command:
