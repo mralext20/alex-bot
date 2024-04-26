@@ -78,11 +78,13 @@ class Video_DL(Cog):
         for domain in DOMAINS:
             log.debug(f"Searching for domain: {domain} in message content")
             if match := re.search(rf'(https?://[^ ]*{domain}/[^ ]*)', message.content):
-                if domain in ["youtube.com", "youtu.be"] and 'shorts' in match.group(1):
-                    log.debug("Match found for youtube SHORTS domain. Breaking loop.")
-                    break
-                log.debug(f"Match found for domain: {domain}. Breaking loop.")
-                break
+                if domain in ["youtube.com", "youtu.be"]:
+                    if 'shorts' in match.group(1) or 'clip' in match.group(1):
+                        log.debug("Match found for youtube SHORTS / CLIPS domain. Breaking loop.")
+                        break
+                    else:
+                        log.debug(f"Match found for domain: {domain}. Breaking loop.")
+                        break
 
         if not match:
             log.debug("No matching domain found in message content. Returning without processing.")
