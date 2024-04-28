@@ -54,18 +54,24 @@ class Ringing(Cog):
                 session.add(uc)
                 await session.commit()
 
-        if not uc.ringable:
-            await interaction.response.send_message("cannot ring: they do not want to be rung", ephemeral=True)
-            return
+            if not uc.ringable:
+                await interaction.response.send_message("cannot ring: they do not want to be rung", ephemeral=True)
+                return
 
-        ringRate = RING_RATES[target.status]
-        task = asyncio.create_task(self.doRing(interaction.user, target, interaction.channel, ringRate))
-        await interaction.response.send_message("ringing...", view=self.CancelableTaskView(task))
-        try:
-            await task
-        except asyncio.CancelledError:
-            pass
-        await (await interaction.original_response()).edit(view=None)
+            ringRate = RING_RATES[target.status]
+            await 
+            task = asyncio.create_task(self.doRing(interaction.user, target, interaction.channel, ringRate))
+            msg = "ringing..." if uc.hasBeenRung else "ringing... use `/config user set ringable false` to disallow this feature"
+            await interaction.response.send_message(msg, view=self.CancelableTaskView(task))
+            if not uc.hasBeenRung:
+                uc.hasBeenRung = True
+                session.add(uc)
+                await session.commit()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+            await (await interaction.original_response()).edit(view=None)
 
     async def doRing(
         self,
