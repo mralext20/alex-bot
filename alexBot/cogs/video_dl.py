@@ -82,9 +82,9 @@ class Video_DL(Cog):
                     if 'shorts' in match.group(1) or 'clip' in match.group(1):
                         log.debug("Match found for youtube SHORTS / CLIPS domain. Breaking loop.")
                         break
-                    else:
-                        log.debug(f"Match found for domain: {domain}. Breaking loop.")
-                        break
+                else:
+                    log.debug(f"Match found for domain: {domain}. Breaking loop.")
+                    break
 
         if not match:
             log.debug("No matching domain found in message content. Returning without processing.")
