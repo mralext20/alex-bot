@@ -9,6 +9,8 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql://alexbot:alexbot@db/alexbot
+    env_file:
+      - .env
   db:
     image: postgres
     restart: unless-stopped
