@@ -161,9 +161,9 @@ class PhoneMonitor(Cog):
                 if before.deaf != after.deaf:
                     message += f"you were {'' if after.deaf else 'un'}server deafened\n"
                 # if before.self_video != after.self_video:
-                #     message += f"you {'' if after.self_video else 'un'}started video\n"
+                #     message += f"you {'started' if after.self_video else 'ended'} video\n"
                 # if before.self_stream != after.self_stream:
-                #     message += f"you {'' if after.self_stream else 'un'}started streaming\n"
+                #     message += f"you {'started' if after.self_stream else 'ended'} streaming\n"
                 log.debug(f"message: {message}")
 
                 if message == "":
@@ -188,7 +188,7 @@ class PhoneMonitor(Cog):
             message = None
             memberList: List[discord.Member] = []
             if not (targetMember := channel.guild.get_member(user)):
-                return  #  user not in server
+                return  # user not in server
             if after.channel and not after.channel.permissions_for(targetMember).view_channel:
                 after.channel = None
             log.debug(f"checking {member.display_name} in {channel.guild.name} ({channel.guild.id})")
@@ -240,7 +240,7 @@ class PhoneMonitor(Cog):
 
             after.channel = oldAfter
 
-    async def send_notification(self, user: int, title: str, members: List[discord.Member]):
+    async def send_notification(self, user_id: int, title: str, members: List[discord.Member]):
         log.debug(f"title: {title}")
         content = f"Current members in your channel are:\n{NEWLINE.join([f'{m.display_name} {render_voiceState(m)}' for m in members])}"
 
@@ -253,7 +253,8 @@ class PhoneMonitor(Cog):
                     json={
                         "content": content,
                         "title": title,
-                        "target_device": USER_TO_HA_DEVICE[user],
+                        "target_device": USER_TO_HA_DEVICE[user_id],  # legacy, remove soon
+                        "discord_id": user_id,
                         "channel": "vcNotifs",
                         "group": "vcNotifs",
                     },
