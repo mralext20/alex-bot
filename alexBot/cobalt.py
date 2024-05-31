@@ -3,7 +3,7 @@ from typing import List, Literal, Optional, Dict
 
 import aiohttp
 
-ENDPOINT = "https://co.wuk.sh"
+ENDPOINT = "https://api.cobalt.tools"
 
 
 DEFAULT_HEADERS = {"Accept": "application/json", "Content-Type": "application/json", "User-Agent": "alexBot/1.0"}

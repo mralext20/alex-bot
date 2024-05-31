@@ -253,7 +253,6 @@ class PhoneMonitor(Cog):
                     json={
                         "content": content,
                         "title": title,
-                        "target_device": USER_TO_HA_DEVICE[user_id],  # legacy, remove soon
                         "discord_id": user_id,
                         "channel": "vcNotifs",
                         "group": "vcNotifs",

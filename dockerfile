@@ -3,10 +3,11 @@ FROM python:3.12
 WORKDIR /alexbot
 
 
+RUN apt update && apt install -y libopus0 git && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt /alexbot/requirements.txt
 
 RUN pip install -U -r /alexbot/requirements.txt  --no-cache-dir
-
 
 
 COPY . /alexbot
