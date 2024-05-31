@@ -171,7 +171,7 @@ class Video_DL(Cog):
         try:
             with open("in.mp4", "wb") as f:
                 f.write(content.getvalue())
-            fprobe = subprocess.Popen(FFPROB E_CMD.split(' '), stdout=subprocess.PIPE)
+            fprobe = subprocess.Popen(FFPROBE_CMD.split(' '), stdout=subprocess.PIPE)
             fprobe.wait()
             video_length = math.ceil(float(fprobe.communicate()[0].decode("utf-8")))
             content.seek(0)  # reset data
