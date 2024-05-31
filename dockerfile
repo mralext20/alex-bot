@@ -3,7 +3,7 @@ FROM python:3.12
 WORKDIR /alexbot
 
 
-RUN apt update && apt install -y libopus0 git && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y libopus0 ffmpeg && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /alexbot/requirements.txt
 
