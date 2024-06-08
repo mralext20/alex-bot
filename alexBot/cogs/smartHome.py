@@ -265,8 +265,8 @@ class PhoneMonitor(Cog):
                     log.debug(f"webhook response: {r.status}")
 
     @Cog.listener()
-    async def on_member_update(self, before: discord.Member, after: discord.Member):
-        if after.id in USER_TO_HA_DEVICE:
+    async def on_presence_update(self, before: discord.Member, after: discord.Member):
+        if after.id in [x[0] for x in MEMBERS.values()]:
             if before.status != after.status:
                 mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")  # type: ignore
                 blob = {"status": after.status.value, "mobile": after.is_on_mobile()}
