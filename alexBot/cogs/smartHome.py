@@ -11,9 +11,11 @@ import discord
 from aiomqtt.types import PayloadType
 from discord.ext import tasks
 
+
 from ..tools import Cog, get_json, render_voiceState
 
 if TYPE_CHECKING:
+    from alexBot.cogs.voicePrivVC import VoicePrivVC
     from alexBot.cogs.mqttDispatcher import HomeAssistantIntigreation
     from bot import Bot
 
@@ -115,6 +117,8 @@ class PhoneMonitor(Cog):
             return
 
         member = targets[0].get_member(user.id)
+        assert member
+        assert member.voice
         try:
             if command == 'mute':
                 await member.edit(mute=not member.voice.mute)
@@ -127,7 +131,7 @@ class PhoneMonitor(Cog):
             return
 
     async def update_mqtt_state(self, member: discord.Member, after: discord.VoiceState):
-        mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
+        mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")  # type: ignore
         jsonblob = {"state_str": render_voiceState(member)}
 
         for key in ['self_deaf', 'self_mute', 'self_stream', 'self_video', 'mute', 'deaf']:
@@ -138,7 +142,7 @@ class PhoneMonitor(Cog):
     async def on_voice_state_update(
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
-        channel: discord.VoiceChannel = before.channel or after.channel
+        channel: discord.VoiceChannel = before.channel or after.channel  # type: ignore
         if before.channel and after.channel and before.channel == after.channel:
             log.debug(f"no one moved in {channel.name}")
             # no one moved, check if user acted on is notifiable
@@ -176,7 +180,7 @@ class PhoneMonitor(Cog):
             else:
                 return
 
-        voiceLog = self.bot.get_cog('VoiceLog')
+        voiceLog: VoicePrivVC = self.bot.get_cog('VoiceLog')
         if voiceLog:
             if voiceLog.beingShaken.get(member.id) is not None:
                 return  # ignore person being shaken
@@ -259,6 +263,14 @@ class PhoneMonitor(Cog):
                     },
                 ) as r:
                     log.debug(f"webhook response: {r.status}")
+
+    @Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if after.id in USER_TO_HA_DEVICE:
+            if before.status != after.status:
+                mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")  # type: ignore
+                blob = {"status": after.status.value, "mobile": after.is_on_mobile()}
+                await mqtt.mqttPublish(f"discord/{after.id}/status", json.dumps(blob))
 
 
 async def setup(bot: "Bot"):
