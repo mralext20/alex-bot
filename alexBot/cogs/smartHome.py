@@ -56,6 +56,7 @@ class PhoneMonitor(Cog):
     def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.notifiable: List[int] = list(USER_TO_HA_DEVICE.keys())
+        self.status_cache = {}
 
     @discord.app_commands.command(name="ha-vc-notifs", description="Toggle voice channel notifications for your phone")
     @discord.app_commands.guilds(GUILD)
@@ -270,7 +271,9 @@ class PhoneMonitor(Cog):
             if before.status != after.status:
                 mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")  # type: ignore
                 blob = {"status": after.status.value, "mobile": after.is_on_mobile()}
-                await mqtt.mqttPublish(f"discord/{after.id}/status", json.dumps(blob))
+                self.status_cache[after.id] = blob
+                if self.status_cache[before.id] != blob:
+                    await mqtt.mqttPublish(f"discord/{after.id}/status", json.dumps(blob))
 
 
 async def setup(bot: "Bot"):
