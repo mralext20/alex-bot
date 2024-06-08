@@ -271,8 +271,9 @@ class PhoneMonitor(Cog):
             if before.status != after.status:
                 mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")  # type: ignore
                 blob = {"status": after.status.value, "mobile": after.is_on_mobile()}
-                self.status_cache[after.id] = blob
-                if self.status_cache[before.id] != blob:
+
+                if self.status_cache.get(after.id) != blob:
+                    self.status_cache[after.id] = blob
                     await mqtt.mqttPublish(f"discord/{after.id}/status", json.dumps(blob))
 
 
