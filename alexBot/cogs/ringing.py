@@ -59,9 +59,12 @@ class Ringing(Cog):
                 return
 
             ringRate = RING_RATES[target.status]
-            await 
             task = asyncio.create_task(self.doRing(interaction.user, target, interaction.channel, ringRate))
-            msg = "ringing..." if uc.hasBeenRung else "ringing... use `/config user set ringable false` to disallow this feature"
+            msg = (
+                "ringing..."
+                if uc.hasBeenRung
+                else "ringing... use `/config user set ringable false` to disallow this feature"
+            )
             await interaction.response.send_message(msg, view=self.CancelableTaskView(task))
             if not uc.hasBeenRung:
                 uc.hasBeenRung = True
