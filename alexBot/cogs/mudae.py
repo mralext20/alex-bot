@@ -25,7 +25,7 @@ class Mudae(Cog):
     async def on_message(self, message: discord.Message):
         if message.channel.id != 1077272164887183450:
             return
-        if message.content.startswith("$m"):
+        if message.content in ["$m", "$mg", "$ma"]:
             if self.lastMessage is None:
                 self.lastMessage = datetime.now()
             elif datetime.now() - self.lastMessage < timedelta(seconds=60):
