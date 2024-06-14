@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class Mudae(Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: "Bot"):
         super().__init__(bot)
         self.lastPinged: Optional[datetime] = None
         self.lastMessage: Optional[datetime] = None
