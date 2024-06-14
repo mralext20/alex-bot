@@ -37,7 +37,7 @@ class Mudae(Cog):
             elif datetime.now() - self.lastPinged < timedelta(minutes=5):
                 return
             self.lastPinged = datetime.now()
-            await message.channel.send("<@&1251159714532691979>", allowed_mentions=discord.AllowedMentions(roles=True)
+            await message.channel.send("<@&1251159714532691979>", allowed_mentions=discord.AllowedMentions(roles=True))
 
 
 async def setup(bot: "Bot"):
