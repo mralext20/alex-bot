@@ -133,7 +133,7 @@ class Mudae(Cog):
                     check=lambda payload: payload.message_id == message.id,
                     timeout=60,
                 )
-                serieses.extend(SERIES_REGEX.findall(payload['embeds'][0]['description']))
+                serieses.extend(SERIES_REGEX.findall(payload.data['embeds'][0]['description']))
                 # captures pages 2 thru n
                 current_page += 1
                 if current_page == total_pages:
