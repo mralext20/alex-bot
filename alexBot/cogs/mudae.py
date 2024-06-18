@@ -87,10 +87,6 @@ class Mudae(Cog):
                         f"Series Liked by {', '.join(mentions)}", allowed_mentions=discord.AllowedMentions(users=True)
                     )
 
-    @staticmethod
-    def get_series_name_from_description(series: str) -> List[str]:
-        return [match.groups()[0] for match in SERIES_REGEX.findall(series)]
-
     async def extract_series(self, interaction: discord.Interaction, message: discord.Message):
         # user will be from the interaction
         # series can be extracted from the message clicked on
@@ -125,7 +121,7 @@ class Mudae(Cog):
             if current_page != 1:
                 await interaction.response.send_message("Please start from the first page.", ephemeral=True)
                 return
-            serieses.extend(self.get_series_name_from_description(message.embeds[0].description))  # type: ignore
+            serieses.extend(SERIES_REGEX.findall(message.embeds[0].description))  # type: ignore
             # ^ captures first page
             while current_page < total_pages:
 
@@ -139,13 +135,13 @@ class Mudae(Cog):
                     and after.embeds[0].footer.text == f"Page {current_page + 1} / {total_pages}",
                     timeout=60,
                 )
-                serieses.extend(self.get_series_name_from_description(after.embeds[0].description))
+                serieses.extend(SERIES_REGEX.findall(after.embeds[0].description))
                 # captures pages 2 thru n
                 current_page += 1
                 if current_page == total_pages:
                     break
         else:
-            serieses.extend(self.get_series_name_from_description(message.embeds[0].description))  # type: ignore
+            serieses.extend(SERIES_REGEX.findall(message.embeds[0].description))  # type: ignore
             # captures single page
 
         async with db.async_session() as session:
