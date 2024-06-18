@@ -5,7 +5,7 @@ soundfile~=0.12.1
 
 #SMALLER
 
-discord.py[voice] @ git+https://github.com/rapptz/discord.py
+discord.py[voice] ~= 2.3
 aiohttp ~= 3.9.0
 chardet~=3.0.4
 multidict~=4.7.6
