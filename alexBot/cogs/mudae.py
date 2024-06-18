@@ -150,6 +150,7 @@ class Mudae(Cog):
             )
             for series in serieses:
                 await session.merge(db.MudaeSeriesRequest(series=series, requestedBy=interaction.user.id))
+            await session.commit()
         if interaction.response.is_done():
             await interaction.followup.send("added your liked series!", ephemeral=True)
         else:
