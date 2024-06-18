@@ -145,8 +145,8 @@ class Mudae(Cog):
             # captures single page
 
         async with db.async_session() as session:
-            await session.delete(
-                sqlalchemy.select(db.MudaeSeriesRequest).where(db.MudaeSeriesRequest.requestedBy == interaction.user.id)
+            await session.execute(
+                sqlalchemy.delete(db.MudaeSeriesRequest).where(db.MudaeSeriesRequest.requestedBy == interaction.user.id)
             )
             for series in serieses:
                 await session.merge(db.MudaeSeriesRequest(series=series, requestedBy=interaction.user.id))
