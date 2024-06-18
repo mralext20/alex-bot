@@ -184,6 +184,12 @@ class SugeryUser(Base):
     )
 
 
+class MudaeSeriesRequest(Base):
+    __tablename__ = "mudaeSeriesRequests"
+    series: Mapped[str] = mapped_column(String(), primary_key=True)
+    requestedBy: Mapped[int] = mapped_column(BIGINT(), nullable=False, primary_key=True)
+
+
 user = config.db_user
 pw = config.db_pw
 db = config.db_name
