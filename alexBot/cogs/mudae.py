@@ -132,7 +132,6 @@ class Mudae(Cog):
                 before, after = await self.bot.wait_for(
                     "message_update",
                     check=lambda before, after: before.id == message.id
-                    and after.embeds[0].footer.text == f"Page {current_page + 1} / {total_pages}",
                     timeout=60,
                 )
                 serieses.extend(SERIES_REGEX.findall(after.embeds[0].description))
