@@ -81,8 +81,8 @@ class Mudae(Cog):
                 matches = await session.scalars(
                     sqlalchemy.select(db.MudaeSeriesRequest).where(db.MudaeSeriesRequest.series == series_name)
                 )
-                if matches:
-                    mentions = [f"<@{match.requestedBy}>" for match in matches]
+                mentions = [f"<@{match.requestedBy}>" for match in matches]
+                if mentions:
                     await msg.reply(
                         f"Series Liked by {', '.join(mentions)}", allowed_mentions=discord.AllowedMentions(users=True)
                     )
