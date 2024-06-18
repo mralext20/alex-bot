@@ -128,13 +128,12 @@ class Mudae(Cog):
             while current_page < total_pages:
 
                 # get the next page
-                await self.bot.wait_for(
+                payload = await self.bot.wait_for(
                     "raw_message_edit",
                     check=lambda payload: payload.message_id == message.id,
                     timeout=60,
                 )
-                after = await message.channel.fetch_message(message.id)
-                serieses.extend(SERIES_REGEX.findall(after.embeds[0].description))
+                serieses.extend(SERIES_REGEX.findall(payload['embeds'][0]['description']))
                 # captures pages 2 thru n
                 current_page += 1
                 if current_page == total_pages:
