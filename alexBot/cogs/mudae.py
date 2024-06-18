@@ -131,7 +131,7 @@ class Mudae(Cog):
                 # get the next page
                 before, after = await self.bot.wait_for(
                     "message_update",
-                    check=lambda before, after: before.id == message.id
+                    check=lambda before, after: before.id == message.id,
                     timeout=60,
                 )
                 serieses.extend(SERIES_REGEX.findall(after.embeds[0].description))
