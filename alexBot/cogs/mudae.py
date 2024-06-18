@@ -108,7 +108,7 @@ class Mudae(Cog):
         serieses: List[str] = []
         # it's a message we care about! do we have a paginator?
         if message.embeds[0].footer:
-            assert message.embeds[0].footer.text is str
+            assert isinstance(message.embeds[0].footer.text, str)
             if 'Page' not in message.embeds[0].footer.text:
                 await interaction.response.send_message("This shound not happen...", ephemeral=True)
             # extract page details:
