@@ -152,9 +152,9 @@ class Mudae(Cog):
                 await session.merge(db.MudaeSeriesRequest(series=series, requestedBy=interaction.user.id))
             await session.commit()
         if interaction.response.is_done():
-            await interaction.followup.send("added your liked series!", ephemeral=True)
+            await interaction.followup.send(f"added {len(serieses)} liked series!", ephemeral=True)
         else:
-            await interaction.response.send_message("added your liked series!", ephemeral=True)
+            await interaction.response.send_message(f"added {len(serieses)} liked series!", ephemeral=True)
 
 
 async def setup(bot: "Bot"):
