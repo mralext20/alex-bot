@@ -123,14 +123,13 @@ class Mudae(Cog):
                 return
             serieses.extend(SERIES_REGEX.findall(message.embeds[0].description))  # type: ignore
             # ^ captures first page
+            await interaction.response.send_message("tab through your liked series, i'll save them!", ephemeral=True)
+
             while current_page < total_pages:
 
-                await interaction.response.send_message(
-                    "tab through your liked series, i'll save them!", ephemeral=True
-                )
                 # get the next page
                 before, after = await self.bot.wait_for(
-                    "message_update",
+                    "message_edit",
                     check=lambda before, after: before.id == message.id,
                     timeout=60,
                 )
