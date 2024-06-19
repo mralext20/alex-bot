@@ -102,10 +102,12 @@ class Mudae(Cog):
         # it's a mudae message! check if it's a liked series message
         if not message.embeds or not message.embeds[0].author or not message.embeds[0].author.name:
             await interaction.response.send_message("This message does not contain an embed.", ephemeral=True)
+            return
         if 'Liked Series' not in message.embeds[0].author.name:  # type: ignore
             await interaction.response.send_message(
                 "This is not a $ml response. please right click on the message from $ml.", ephemeral=True
             )
+            return
 
         serieses: List[str] = []
         # it's a message we care about! do we have a paginator?
