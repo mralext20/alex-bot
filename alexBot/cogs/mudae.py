@@ -70,6 +70,7 @@ class Mudae(Cog):
         msg = await self.bot.wait_for(
             "message",
             check=lambda m: m.author.id == MUDAE_BOT and m.channel.id == PRIMARY_COMMAND_CHANNEL and len(m.embeds) == 1,
+            timeout=5,
         )
         # get the series name from the embed
         description = msg.embeds[0].description
