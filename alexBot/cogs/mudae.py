@@ -84,7 +84,8 @@ class Mudae(Cog):
                 mentions = [f"<@{match.requestedBy}>" for match in matches]
                 if mentions:
                     await msg.reply(
-                        f"Series Liked by {', '.join(mentions)}", allowed_mentions=discord.AllowedMentions(users=True)
+                        f"The series {series_name} is Liked by {', '.join(mentions)}!",
+                        allowed_mentions=discord.AllowedMentions(users=True),
                     )
 
     async def extract_series(self, interaction: discord.Interaction, message: discord.Message):
