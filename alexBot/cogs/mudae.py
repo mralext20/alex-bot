@@ -76,7 +76,7 @@ class Mudae(Cog):
         description = msg.embeds[0].description
         assert description
         is_collectable = "React with any emoji to claim!" in description
-        series_name = description.split("\n")[0]
+        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', description)[0].replace('\n', '')
         if is_collectable:
             async with db.async_session() as session:
                 matches = await session.scalars(
