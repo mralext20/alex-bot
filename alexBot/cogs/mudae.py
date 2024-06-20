@@ -73,9 +73,10 @@ class Mudae(Cog):
             timeout=5,
         )
         # get the series name from the embed
-        description = msg.embeds[0].description
+        embed = msg.embeds[0]
+        description = embed.description
         assert description
-        is_collectable = "React with any emoji to claim!" in description
+        is_collectable = embed.footer and embed.footer.icon_url
         series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', description)[0].replace('\n', '')
         if is_collectable:
             async with db.async_session() as session:
