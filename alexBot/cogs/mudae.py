@@ -57,6 +57,7 @@ class Mudae(Cog):
             self.seriesExtractMenu,
             self.addSeriesFromRollMenu,
             self.removeSeriesFromRollMenu,
+            self.removeSeriesCommand,
         ]
         for command in commands:
             self.bot.tree.add_command(command, guilds=[discord.Object(GAMESERVER)])
@@ -66,6 +67,7 @@ class Mudae(Cog):
             self.seriesExtractMenu,
             self.addSeriesFromRollMenu,
             self.removeSeriesFromRollMenu,
+            self.removeSeriesCommand,
         ]
         for command in commands:
             self.bot.tree.remove_command(command.name, type=command.type)
