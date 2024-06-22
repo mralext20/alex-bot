@@ -46,31 +46,56 @@ class Mudae(Cog):
             name='Remove Series from Liked',
             callback=self.removeSeriesFromRoll,
         )
+        self.removeSeriesCommand = app_commands.Command(
+            name='remove_series',
+            description='Remove a series from your liked series',
+        )
 
     async def cog_load(self) -> None:
-        self.bot.tree.add_command(
+        commands = [
             self.seriesExtractMenu,
-            guilds=[
-                discord.Object(GAMESERVER),
-            ],
-        )
-        self.bot.tree.add_command(
             self.addSeriesFromRollMenu,
-            guilds=[
-                discord.Object(GAMESERVER),
-            ],
-        )
-        self.bot.tree.add_command(
             self.removeSeriesFromRollMenu,
-            guilds=[
-                discord.Object(GAMESERVER),
-            ],
-        )
+        ]
+        for command in commands:
+            self.bot.tree.add_command(command, guilds=[discord.Object(GAMESERVER)])
 
     async def cog_unload(self) -> None:
-        self.bot.tree.remove_command(self.seriesExtractMenu.name, type=self.seriesExtractMenu.type)
-        self.bot.tree.remove_command(self.addSeriesFromRollMenu.name, type=self.addSeriesFromRollMenu.type)
-        self.bot.tree.remove_command(self.removeSeriesFromRollMenu.name, type=self.removeSeriesFromRollMenu.type)
+        commands = [
+            self.seriesExtractMenu,
+            self.addSeriesFromRollMenu,
+            self.removeSeriesFromRollMenu,
+        ]
+        for command in commands:
+            self.bot.tree.remove_command(command.name, type=command.type)
+
+    async def series_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
+        async with db.async_session() as session:
+            series = await session.scalars(
+                sqlalchemy.select(db.MudaeSeriesRequest.series).where(
+                    sqlalchemy.and_(
+                        db.MudaeSeriesRequest.requestedBy == interaction.user.id,
+                        db.MudaeSeriesRequest.series.ilike(f'%{guess}%'),
+                    )
+                )
+            )
+        return [app_commands.Choice(name=s, value=s) for s in series]
+
+    @app_commands.autocomplete(series=series_autocomplete)
+    async def removeSeriesViaCommand(self, interaction: discord.Interaction, series: str):
+        async with db.async_session() as session:
+            await session.execute(
+                sqlalchemy.delete(db.MudaeSeriesRequest).where(
+                    sqlalchemy.and_(
+                        db.MudaeSeriesRequest.series == series,
+                        db.MudaeSeriesRequest.requestedBy == interaction.user.id,
+                    )
+                )
+            )
+            await session.commit()
+        await interaction.response.send_message(
+            f"removed {series} from your liked series!\n Don't forget to also $lmr {series}", ephemeral=True
+        )
 
     async def addSeriesFromRoll(self, interaction: discord.Interaction, message: discord.Message):
         if message.author.id != MUDAE_BOT:
