@@ -143,29 +143,47 @@ class Mudae(Cog):
     async def on_message(self, message: discord.Message):
         if message.channel.id != PRIMARY_COMMAND_CHANNEL:
             return
+        rolling_message = False
         if message.content.lower() in ["$m", "$mg", "$ma"]:
             self.bot.loop.create_task(self.message_series_detector(message))
-            if self.lastMessage is None:
-                self.lastMessage = datetime.now()
-            elif datetime.now() - self.lastMessage < timedelta(seconds=60):
-                self.lastMessage = datetime.now()
-                return
+            rolling_message = True
+        elif (
+            message.author.id == MUDAE_BOT
+            and message.interaction
+            and message.interaction.name
+            in [
+                "mx",
+                "mg",
+                "ma",
+            ]
+        ):  # if mudae posts a message from an interaction for the slash command versions of the mudae commands, do the things too
+            self.bot.loop.create_task(self.message_series_detector(message, actual_message=message))
+            rolling_message = True
+        if not rolling_message:
+            return
+        if self.lastMessage is None:
+            self.lastMessage = datetime.now()
+        elif datetime.now() - self.lastMessage < timedelta(seconds=60):
+            self.lastMessage = datetime.now()
+            return
 
-            if self.lastPinged is None:
-                self.lastPinged = datetime.now()
-            elif datetime.now() - self.lastPinged < timedelta(minutes=5):
-                return
+        if self.lastPinged is None:
             self.lastPinged = datetime.now()
-            await message.channel.send(f"<@&{MENTION_ROLE}>", allowed_mentions=discord.AllowedMentions(roles=True))
+        elif datetime.now() - self.lastPinged < timedelta(minutes=5):
+            return
+        self.lastPinged = datetime.now()
+        await message.channel.send(f"<@&{MENTION_ROLE}>", allowed_mentions=discord.AllowedMentions(roles=True))
 
-    async def message_series_detector(self, message: discord.Message):
-        msg = await self.bot.wait_for(
-            "message",
-            check=lambda m: m.author.id == MUDAE_BOT and m.channel.id == PRIMARY_COMMAND_CHANNEL and len(m.embeds) == 1,
-            timeout=5,
-        )
+    async def message_series_detector(self, message: discord.Message, actual_message: Optional[discord.Message] = None):
+        if actual_message is None:
+            actual_message = await self.bot.wait_for(
+                "message",
+                check=lambda m: m.author.id == MUDAE_BOT and m.channel.id == message.channel.id and len(m.embeds) == 1,
+                timeout=5,
+            )
+
         # get the series name from the embed
-        embed = msg.embeds[0]
+        embed = actual_message.embeds[0]
         description = embed.description
         assert description
         is_collectable = not (embed.footer and embed.footer.icon_url)
@@ -177,7 +195,7 @@ class Mudae(Cog):
                 )
                 mentions = [f"<@{match.requestedBy}>" for match in matches]
                 if mentions:
-                    await msg.reply(
+                    await actual_message.reply(
                         f"The series **{series_name}** is Liked by {', '.join(mentions)}!",
                         allowed_mentions=discord.AllowedMentions(users=True),
                     )
@@ -230,7 +248,7 @@ class Mudae(Cog):
                     check=lambda payload: payload.message_id == message.id,
                     timeout=60,
                 )
-                serieses.extend(SERIES_REGEX.findall(payload.data['embeds'][0]['description']))
+                serieses.extend(SERIES_REGEX.findall(payload.data['embeds'][0]['description']))  # type: ignore ; checked above if embed exists
                 # captures pages 2 thru n
                 current_page += 1
                 if current_page == total_pages:
@@ -250,15 +268,15 @@ class Mudae(Cog):
             for series in serieses:
                 await session.merge(db.MudaeSeriesRequest(series=series, requestedBy=interaction.user.id))
             await session.commit()
-        msg = f"set your series to {len(serieses)} liked series!"
+        reply_text = f"set your series to {len(serieses)} liked series!"
         changes = [f"added {series}" for series in serieses if series not in existing]
         changes.extend(f"removed {series}" for series in existing if series not in serieses)
         if len(changes) > 0 and len(changes) < 20:
-            msg += f"\n{', '.join(changes)}"
+            reply_text += f"\n{', '.join(changes)}"
         if interaction.response.is_done():
-            await interaction.followup.send(msg, ephemeral=True)
+            await interaction.followup.send(reply_text, ephemeral=True)
         else:
-            await interaction.response.send_message(msg, ephemeral=True)
+            await interaction.response.send_message(reply_text, ephemeral=True)
 
 
 async def setup(bot: "Bot"):
