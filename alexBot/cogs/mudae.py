@@ -38,6 +38,14 @@ class Mudae(Cog):
             name='Extract Liked Series',
             callback=self.extract_series,
         )
+        self.addSeriesFromRollMenu = app_commands.ContextMenu(
+            name='Add Series to Liked',
+            callback=self.addSeriesFromRoll,
+        )
+        self.removeSeriesFromRollMenu = app_commands.ContextMenu(
+            name='Remove Series from Liked',
+            callback=self.removeSeriesFromRoll,
+        )
 
     async def cog_load(self) -> None:
         self.bot.tree.add_command(
@@ -45,6 +53,62 @@ class Mudae(Cog):
             guilds=[
                 discord.Object(GAMESERVER),
             ],
+        )
+        self.bot.tree.add_command(
+            self.addSeriesFromRollMenu,
+            guilds=[
+                discord.Object(GAMESERVER),
+            ],
+        )
+        self.bot.tree.add_command(
+            self.removeSeriesFromRollMenu,
+            guilds=[
+                discord.Object(GAMESERVER),
+            ],
+        )
+
+    async def cog_unload(self) -> None:
+        self.bot.tree.remove_command(self.seriesExtractMenu.name, type=self.seriesExtractMenu.type)
+        self.bot.tree.remove_command(self.addSeriesFromRollMenu.name, type=self.addSeriesFromRollMenu.type)
+        self.bot.tree.remove_command(self.removeSeriesFromRollMenu.name, type=self.removeSeriesFromRollMenu.type)
+
+    async def addSeriesFromRoll(self, interaction: discord.Interaction, message: discord.Message):
+        if message.author.id != MUDAE_BOT:
+            await interaction.response.send_message("you need to run $m and right click *that* message", ephemeral=True)
+            return
+        if not message.embeds or not message.embeds[0].author or not message.embeds[0].author.name:
+            await interaction.response.send_message("This message does not contain an embed.", ephemeral=True)
+            return
+        # try extract series name
+        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', message.embeds[0].description)[0].replace('\n', '')
+        async with db.async_session() as session:
+            await session.merge(db.MudaeSeriesRequest(series=series_name, requestedBy=interaction.user.id))
+            await session.commit()
+        await interaction.response.send_message(
+            f"added {series_name} to your liked series!\nDon't forget to `$likem {series_name}`!", ephemeral=True
+        )
+
+    async def removeSeriesFromRoll(self, interaction: discord.Interaction, message: discord.Message):
+        if message.author.id != MUDAE_BOT:
+            await interaction.response.send_message("you need to run $m and right click *that* message", ephemeral=True)
+            return
+        if not message.embeds or not message.embeds[0].author or not message.embeds[0].author.name:
+            await interaction.response.send_message("This message does not contain an embed.", ephemeral=True)
+            return
+        # try extract series name
+        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', message.embeds[0].description)[0].replace('\n', '')
+        async with db.async_session() as session:
+            await session.execute(
+                sqlalchemy.delete(db.MudaeSeriesRequest).where(
+                    sqlalchemy.and_(
+                        db.MudaeSeriesRequest.series == series_name,
+                        db.MudaeSeriesRequest.requestedBy == interaction.user.id,
+                    )
+                )
+            )
+            await session.commit()
+        await interaction.response.send_message(
+            f"removed {series_name} from your liked series!\n Don't forget to also $lmr {series_name}", ephemeral=True
         )
 
     @Cog.listener()
@@ -148,16 +212,25 @@ class Mudae(Cog):
             # captures single page
 
         async with db.async_session() as session:
+            existing = await session.scalars(
+                sqlalchemy.select(db.MudaeSeriesRequest).where(db.MudaeSeriesRequest.requestedBy == interaction.user.id)
+            )
+            existing = [e.series for e in existing]
             await session.execute(
                 sqlalchemy.delete(db.MudaeSeriesRequest).where(db.MudaeSeriesRequest.requestedBy == interaction.user.id)
             )
             for series in serieses:
                 await session.merge(db.MudaeSeriesRequest(series=series, requestedBy=interaction.user.id))
             await session.commit()
+        msg = f"set your series to {len(serieses)} liked series!"
+        changes = [f"added {series}" for series in serieses if series not in existing]
+        changes.extend(f"removed {series}" for series in existing if series not in serieses)
+        if len(changes) > 0 and len(changes) < 20:
+            msg += f"\n{', '.join(changes)}"
         if interaction.response.is_done():
-            await interaction.followup.send(f"added {len(serieses)} liked series!", ephemeral=True)
+            await interaction.followup.send(msg, ephemeral=True)
         else:
-            await interaction.response.send_message(f"added {len(serieses)} liked series!", ephemeral=True)
+            await interaction.response.send_message(msg, ephemeral=True)
 
 
 async def setup(bot: "Bot"):
