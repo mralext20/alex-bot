@@ -47,6 +47,7 @@ class Mudae(Cog):
             callback=self.removeSeriesFromRoll,
         )
         self.removeSeriesCommand = app_commands.Command(
+            callback=self.removeSeriesViaCommand,
             name='remove_series',
             description='Remove a series from your liked series',
         )
