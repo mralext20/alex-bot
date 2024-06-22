@@ -178,7 +178,7 @@ class Mudae(Cog):
                 mentions = [f"<@{match.requestedBy}>" for match in matches]
                 if mentions:
                     await msg.reply(
-                        f"The series {series_name} is Liked by {', '.join(mentions)}!",
+                        f"The series **{series_name}** is Liked by {', '.join(mentions)}!",
                         allowed_mentions=discord.AllowedMentions(users=True),
                     )
 
