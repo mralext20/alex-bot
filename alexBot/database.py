@@ -53,7 +53,7 @@ class Reminder(Base):
     owner: Mapped[int] = mapped_column(BIGINT(), nullable=False)
     guildId: Mapped[Optional[int]] = mapped_column(BIGINT(), nullable=True)
     message: Mapped[str] = mapped_column(String(), nullable=False)
-    next_remind: Mapped[datetime.datetime] = mapped_column(DateTime(), nullable=False)
+    next_remind: Mapped[datetime.datetime] = mapped_column(DateTime(True), nullable=False)
     frequency: Mapped[Optional[datetime.timedelta]] = mapped_column(Interval(), nullable=True)
     require_clearing: Mapped[bool] = mapped_column(Boolean(), default=False)
     auto_react: Mapped[bool] = mapped_column(Boolean(), default=False)
