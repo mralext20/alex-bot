@@ -51,7 +51,7 @@ class Reminders(Cog):
     async def reminder_loop(self):
         while True:
             async with db.async_session() as session:
-                time_soon = datetime.datetime.utcnow() + datetime.timedelta(minutes=2)
+                time_soon = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=2)
                 stmt = select(Reminder).where(
                     and_(Reminder.next_remind <= time_soon, Reminder.id.not_in(self.tasks.keys()))
                 )
@@ -64,7 +64,7 @@ class Reminders(Cog):
     async def remind(self, reminder: Reminder):
         try:
             # wait for the reminder time
-            now = datetime.datetime.utcnow()
+            now = datetime.datetime.now(datetime.UTC)
             if now > reminder.next_remind:
                 log.warning(f"reminder {reminder} is overdue")
                 if reminder.frequency:
@@ -127,7 +127,8 @@ class Reminders(Cog):
             if reminder.require_clearing:
                 v = ClearReminderView()
                 dis_message = await target.send(message, view=v, allowed_mentions=allowedMentions)
-
+                if reminder.auto_react:
+                    await dis_message.add_reaction("<:greentick:1255344157761867816>")
                 while v.waiting and v.times < 8:  # 8 * 5 minutes = 40 minutes
                     msg = None
                     try:
@@ -147,7 +148,9 @@ class Reminders(Cog):
                         await dis_message.reply("reminder!")
 
             else:
-                await target.send(message, allowed_mentions=allowedMentions)
+                msg = await target.send(message, allowed_mentions=allowedMentions)
+                if reminder.auto_react:
+                    await msg.add_reaction("<:greentick:1255344157761867816>")
 
             if reminder.frequency:
                 # reschedule the reminder for later
@@ -185,6 +188,7 @@ class Reminders(Cog):
         time="when to schedule the reminder, from now in the format xhym",
         require_clearing="if the reminder requires clearing to stop. you can not use this in a guild unless you have the manage guild permission",
         frequency="how often to repeat the reminder, in the format xhym. you can not use this in a guild unless you have the manage guild permission",
+        auto_react="if the reminder should auto react with a checkmark",
     )
     async def add_reminder(
         self,
@@ -193,6 +197,7 @@ class Reminders(Cog):
         time: str,
         require_clearing: bool = False,
         frequency: Optional[str] = None,
+        auto_react: bool = False,
     ):
         # check limits / validate input
         if interaction.guild and not interaction.user.guild_permissions.manage_guild:
@@ -214,7 +219,7 @@ class Reminders(Cog):
         try:
             td = resolve_duration(time)
             assert td.total_seconds() >= 120
-            next_remind = datetime.datetime.utcnow() + td
+            next_remind = datetime.datetime.now(datetime.UTC) + td
         except KeyError:
             return await interaction.response.send_message("Invalid time format", ephemeral=True)
         except AssertionError:
@@ -241,6 +246,7 @@ class Reminders(Cog):
                     next_remind=next_remind.replace(microsecond=0, second=0),
                     frequency=freq,
                     require_clearing=require_clearing,
+                    auto_react=auto_react,
                 )
                 session.add(reminder)
                 await session.commit()
@@ -279,12 +285,12 @@ class Reminders(Cog):
             # validate the time field and return the time, if we have the user's timezone, otherwise UTC time
             try:
                 td = resolve_duration(time)
-                dt = datetime.datetime.utcnow() + td
+                dt = datetime.datetime.now(datetime.UTC) + td
             except KeyError:
                 return [discord.app_commands.Choice(name="Invalid time format", value="Invalid time format")]
             return [
                 discord.app_commands.Choice(
-                    name=f"reminder at {dt.replace(tzinfo=None).replace(microsecond=0)}", value=time
+                    name=f"reminder at {dt.replace(tzinfo=None).replace(microsecond=0)} UTC", value=time
                 )
             ]
 

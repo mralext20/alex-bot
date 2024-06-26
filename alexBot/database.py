@@ -56,6 +56,7 @@ class Reminder(Base):
     next_remind: Mapped[datetime.datetime] = mapped_column(DateTime(), nullable=False)
     frequency: Mapped[Optional[datetime.timedelta]] = mapped_column(Interval(), nullable=True)
     require_clearing: Mapped[bool] = mapped_column(Boolean(), default=False)
+    auto_react: Mapped[bool] = mapped_column(Boolean(), default=False)
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default_factory=uuid.uuid4)
 
     @time_cache(300)
