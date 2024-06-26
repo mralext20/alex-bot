@@ -44,6 +44,7 @@ class Fun(Cog):
                 discord.Object(384843279042084865),
                 discord.Object(1083141160198996038),
                 discord.Object(1220224297235251331),
+                discord.Object(383886323699679234),
             ],
         )
 
