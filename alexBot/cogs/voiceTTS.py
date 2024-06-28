@@ -143,7 +143,10 @@ class VoiceTTS(Cog):
             instance.voiceClient = await instance.voiceClient.channel.connect()
         try:
             if instance.voiceClient.is_playing():
-                return
+                # wait, did we get stuck, or are we just waiting for the next thing?
+                await asyncio.sleep(0.3)  # more than .25 to allow for next audio to start
+                if instance.voiceClient.is_playing():
+                    return
             while len(instance.queue) > 0:
                 if instance.voiceClient.is_playing():
                     await asyncio.sleep(0.25)
