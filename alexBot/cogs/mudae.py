@@ -26,6 +26,10 @@ PRIMARY_COMMAND_CHANNEL = 1077272164887183450
 MENTION_ROLE = 1251159714532691979
 MUDAE_BOT = 432610292342587392
 
+
+# result of the bash expansion for `{m,h,w}{,x,g,b,a}`
+ROLL_COMMANDS = "m mx mg mb ma h hx hg hb ha w wx wg wb wa".split()
+
 SERIES_REGEX = regex.compile(r'\*\*\d{1,3} - (.+)\*\*')
 
 
@@ -144,18 +148,11 @@ class Mudae(Cog):
         if message.channel.id != PRIMARY_COMMAND_CHANNEL:
             return
         rolling_message = False
-        if message.content.lower() in ["$m", "$mg", "$ma"]:
+        if message.content.lower()[1:] in ROLL_COMMANDS:
             self.bot.loop.create_task(self.message_series_detector(message))
             rolling_message = True
         elif (
-            message.author.id == MUDAE_BOT
-            and message.interaction
-            and message.interaction.name
-            in [
-                "mx",
-                "mg",
-                "ma",
-            ]
+            message.author.id == MUDAE_BOT and message.interaction and message.interaction.name in ROLL_COMMANDS
         ):  # if mudae posts a message from an interaction for the slash command versions of the mudae commands, do the things too
             self.bot.loop.create_task(self.message_series_detector(message, actual_message=message))
             rolling_message = True
