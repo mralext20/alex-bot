@@ -48,7 +48,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions: 
        contents: read
-       secret: read
     steps:
     - name: Tailscale
       uses: tailscale/github-action@v2
