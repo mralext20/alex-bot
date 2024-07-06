@@ -52,4 +52,4 @@ jobs:
       - name: SSH Remote Commands
         shell: bash
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null alex@alexbot 'cd alex-bot && docker compose pull && docker compose up -d'
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t alex@alexbot 'cd alex-bot && docker compose pull && docker compose up -d'
