@@ -184,7 +184,7 @@ class Mudae(Cog):
         description = embed.description
         assert description
         is_collectable = not (embed.footer and embed.footer.icon_url)
-        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', description)[0].replace('\n', '')
+        series_name = regex.findall(r'(.+\n?.+)\n\*\*\d', description)[0].replace('\n', ' ')
         if is_collectable:
             async with db.async_session() as session:
                 matches = await session.scalars(
@@ -193,7 +193,7 @@ class Mudae(Cog):
                 mentions = [f"<@{match.requestedBy}>" for match in matches]
                 if mentions:
                     await actual_message.reply(
-                        f"The series **{series_name}** is Liked by {', '.join(mentions)}!",
+                        f"The series **{series_name}** (Character ***{embed.title}***) is Liked by {', '.join(mentions)}!",
                         allowed_mentions=discord.AllowedMentions(users=True),
                     )
 
