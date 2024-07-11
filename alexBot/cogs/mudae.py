@@ -112,7 +112,7 @@ class Mudae(Cog):
             await interaction.response.send_message("This message does not contain an embed.", ephemeral=True)
             return
         # try extract series name
-        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', message.embeds[0].description)[0].replace('\n', '')
+        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', message.embeds[0].description)[0].replace('\n', ' ')
         async with db.async_session() as session:
             await session.merge(db.MudaeSeriesRequest(series=series_name, requestedBy=interaction.user.id))
             await session.commit()
@@ -128,7 +128,7 @@ class Mudae(Cog):
             await interaction.response.send_message("This message does not contain an embed.", ephemeral=True)
             return
         # try extract series name
-        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', message.embeds[0].description)[0].replace('\n', '')
+        series_name = regex.findall(r'(.+\n?.+)\n?\*\*\d', message.embeds[0].description)[0].replace('\n', ' ')
         async with db.async_session() as session:
             await session.execute(
                 sqlalchemy.delete(db.MudaeSeriesRequest).where(
