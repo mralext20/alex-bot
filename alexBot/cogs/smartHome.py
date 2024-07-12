@@ -269,7 +269,9 @@ class PhoneMonitor(Cog):
     async def on_presence_update(self, before: discord.Member, after: discord.Member):
         if after.id in [x[0] for x in MEMBERS.values()]:
             if before.status != after.status:
-                mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")  # type: ignore
+                mqtt: HomeAssistantIntigreation = self.bot.get_cog("HomeAssistantIntigreation")
+                if not mqtt:
+                    return
                 blob = {"status": after.status.value, "mobile": after.is_on_mobile()}
 
                 if self.status_cache.get(after.id) != blob:
