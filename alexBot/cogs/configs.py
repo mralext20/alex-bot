@@ -13,6 +13,8 @@ from ..tools import Cog, convert_to_bool
 
 log = logging.getLogger(__name__)
 
+from pytz import common_timezones
+
 
 class Configs(Cog):
     """handles config settings"""
@@ -49,9 +51,13 @@ class Configs(Cog):
         if interaction.command == self.user_setConfig and interaction.namespace.key == 'voiceModel':
             chc = [app_commands.Choice(name=f"{vc[0]} ({vc[1]})", value=vc[0]) for vc in googleVoices]
             return chc
+        if interaction.namespace.key == 'timeZone':
+            return [
+                app_commands.Choice(name=zone, value=zone) for zone in common_timezones if guess.lower() in zone.lower()
+            ]
         boolCommands = []
         if interaction.command == self.user_setConfig:
-            boolCommands = UserConfig.__config_keys__
+            boolCommands = [k for k in UserConfig.__config_keys__ if UserConfig.__dataclass_fields__[k].type == bool]
         elif interaction.command == self.guild_setConfig:
             boolCommands = [k for k in GuildConfig.__config_keys__ if GuildConfig.__dataclass_fields__[k].type == bool]
         if interaction.namespace.key in boolCommands:
@@ -83,6 +89,11 @@ class Configs(Cog):
                 if value not in names:
                     await interaction.response.send_message("Invalid voice model", ephemeral=True)
                     return
+        elif key == 'timeZone':
+            # validate the timezone against common_timezones
+            if value not in common_timezones:
+                await interaction.response.send_message("Invalid timezone", ephemeral=True)
+                return
         await self.setConfig('user', interaction, key, value)
 
     async def setConfig(

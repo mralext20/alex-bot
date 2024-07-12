@@ -14,6 +14,8 @@ import config
 from alexBot.classes import SugeryZone
 from alexBot.tools import time_cache
 
+from pytz import tzinfo
+
 
 class Base(
     MappedAsDataclass,
@@ -113,6 +115,7 @@ class UserConfig(Base):
         "voiceSleepMute",
         "dontVoiceSleep",
         "unMuteAndDeafenOnJoin",
+        "timeZone",
     ]
     __config_docs__ = {
         "ringable": "you can be rung using /ring",
@@ -121,6 +124,7 @@ class UserConfig(Base):
         "voiceSleepMute": "you are muted when /voice sleep is used",
         "dontVoiceSleep": "you are deafened when /voice sleep is used",
         "unMuteAndDeafenOnJoin": "if you are un-server-muted and deafened when you join a voice channel",
+        "timeZone": "your timezone for time related features",
     }
     userId: Mapped[int] = mapped_column(BIGINT(), primary_key=True)
     ringable: Mapped[bool] = mapped_column(Boolean(), default=True)
@@ -130,6 +134,8 @@ class UserConfig(Base):
     voiceSleepMute: Mapped[bool] = mapped_column(Boolean(), default=False)
     dontVoiceSleep: Mapped[bool] = mapped_column(Boolean(), default=False)
     unMuteAndDeafenOnJoin: Mapped[bool] = mapped_column(Boolean(), server_default="false", default=False)
+    timeZone: Mapped[str] = mapped_column(String(), server_default="UTC", default="UTC")
+    use24HourTime: Mapped[bool] = mapped_column(Boolean(), default=False)
 
 
 class VoiceName(Base):

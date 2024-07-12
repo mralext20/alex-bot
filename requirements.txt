@@ -5,13 +5,13 @@ soundfile~=0.12.1
 
 #SMALLER
 
-discord.py[voice] ~= 2.3
+discord.py[voice] ~= 2.4
+jishaku @ git+https://github.com/Gorialis/jishaku@master
 aiohttp ~= 3.9.0
 chardet~=3.0.4
 multidict~=4.7.6
 urllib3~=1.26.5
 humanize~=3.9.0
-jishaku~=2.5
 python-slugify[unidecode]~=4.0.1
 mcstatus~=5.1.4
 

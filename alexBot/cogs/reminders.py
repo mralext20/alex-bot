@@ -9,10 +9,11 @@ from typing import Coroutine, Dict, List, Optional
 import discord
 from discord import app_commands
 from discord.ext.commands import Paginator
+import pytz
 from sqlalchemy import and_, or_, select
 
 from alexBot import database as db
-from alexBot.database import Reminder
+from alexBot.database import Reminder, UserConfig
 from alexBot.tools import Cog, InteractionPaginator, resolve_duration, time_cache
 
 log = logging.getLogger(__name__)
@@ -86,7 +87,10 @@ class Reminders(Cog):
                 await asyncio.sleep((reminder.next_remind - now).total_seconds())
             allowedMentions = discord.AllowedMentions.none()
             log.debug(f"reminding {reminder}")
-            target = await self.bot.fetch_channel(reminder.target)
+            try:
+                target = await self.bot.fetch_channel(reminder.target)
+            except discord.NotFound:
+                target = None
             if not target:
                 log.error(f"Could not find target {reminder.target} for reminder {reminder}")
                 # try to message the owner about it:
@@ -284,13 +288,23 @@ class Reminders(Cog):
         else:
             # validate the time field and return the time, if we have the user's timezone, otherwise UTC time
             try:
+                uc = None
+                async with db.async_session() as session:
+                    uc = await session.scalar(select(UserConfig).where(UserConfig.userId == interaction.user.id))
+                if not uc:
+                    uc = UserConfig(interaction.user.id)
+                    session.add(uc)
+                    await session.commit()
+                tz = pytz.timezone(uc.timeZone)
                 td = resolve_duration(time)
-                dt = datetime.datetime.now(datetime.UTC) + td
+                dt = datetime.datetime.now(tz) + td
             except KeyError:
                 return [discord.app_commands.Choice(name="Invalid time format", value="Invalid time format")]
+            fmt = "%Y-%m-%d %H:%M:%S" if uc.use24HourTime else "%Y-%m-%d %I:%M:%S %p"
             return [
                 discord.app_commands.Choice(
-                    name=f"reminder at {dt.replace(tzinfo=None).replace(microsecond=0)} UTC", value=time
+                    name=f"reminder at {dt.replace(microsecond=0).strftime(fmt)} in {uc.timeZone} {'(use /config user set timeZone to change your timezone)' if uc.timeZone == 'UTC' else ''}",
+                    value=time,
                 )
             ]
 
