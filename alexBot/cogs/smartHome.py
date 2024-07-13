@@ -341,6 +341,7 @@ class PhoneMonitor(Cog):
                         "state_topic": f"discord/{after.id}/status",
                         "value_template": "{{ value_json.status }}",
                         "unique_id": f"discord-{after.id}-status",
+                        "device_class": "enum",
                     }
 
                     await mqtt.mqttPublish(
