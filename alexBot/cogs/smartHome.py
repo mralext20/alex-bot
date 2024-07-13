@@ -175,7 +175,7 @@ class PhoneMonitor(Cog):
 
         payload = {
             "device": {**device},
-            "name": "State",
+            "name": "Voice State",
             "state_topic": f"discord/{member.id}/voice",
             "value_template": "{{ value_json.state_str }}",
             "unique_id": f"discord-{member.id}-voice-state",
