@@ -50,6 +50,17 @@ USER_TO_HA_DEVICE = {
     326410251546918913: 'mobile_app_game_s_phone',
     253233185800847361: 'mobile_app_entry_plug',
 }
+#  TODO: put this in the database and MEMBERS too
+
+
+DEVICE_IDENTIFIER = {
+    "device": {
+        "name": "AlexBot",
+        "manufacturer": "Alex from Alaska",
+        "model": "Discord Bot",
+        "sw_version": "1.0.0",
+    },
+}
 
 
 class PhoneMonitor(Cog):
@@ -138,6 +149,37 @@ class PhoneMonitor(Cog):
         for key in ['self_deaf', 'self_mute', 'self_stream', 'self_video', 'mute', 'deaf']:
             jsonblob[key] = getattr(member.voice, key)
         await mqtt.mqttPublish(f"discord/{member.id}/voice", json.dumps(jsonblob))
+
+        states_templates = [
+            ('self_deaf', 'Self Deafened'),
+            ('self_mute', 'Self Muted'),
+            ('mute', 'Server Muted'),
+            ('deaf', 'Server Deafened'),
+            ('self_stream', 'Streaming'),
+            ('self_video', 'Video Active'),
+        ]
+        for key, name in states_templates:
+            payload = {
+                **self.get_device(member),
+                "name": name,
+                "state_topic": f"discord/{member.id}/voice",
+                "value_template": f"{{{{ value_json.{key} }}}}",
+                "unique_id": f"discord-{member.id}-voice-{key}",
+                "payload_on": True,
+                "payload_off": False,
+            }
+            await mqtt.mqttPublish(
+                f"homeassistant/binary_sensor/alexBot/{member.id}/voice-{key}/config", json.dumps(payload)
+            )
+
+        payload = {
+            **self.get_device(member),
+            "name": "State",
+            "state_topic": f"discord/{member.id}/voice",
+            "value_template": "{{ value_json.state_str }}",
+            "unique_id": f"discord-{member.id}-voice-state",
+        }
+        await mqtt.mqttPublish(f"homeassistant/sensor/alexBot/{member.id}/voice-state/config", json.dumps(payload))
 
     @Cog.listener()
     async def on_voice_state_update(
@@ -277,6 +319,43 @@ class PhoneMonitor(Cog):
                 if self.status_cache.get(after.id) != blob:
                     self.status_cache[after.id] = blob
                     await mqtt.mqttPublish(f"discord/{after.id}/status", json.dumps(blob))
+                    device = self.get_device(after)
+                    payload = {
+                        **device,
+                        "name": "Is Mobile",
+                        "state_topic": f"discord/{after.id}/status",
+                        "value_template": "{{ value_json.mobile }}",
+                        "unique_id": f"discord-{after.id}-mobile",
+                        "payload_on": True,
+                        "payload_off": False,
+                    }
+                    # do home assistant discovery for the topic
+                    await mqtt.mqttPublish(
+                        f"homeassistant/binary_sensor/alexBot/{after.id}/status-mobile/config", json.dumps(payload)
+                    )
+
+                    payload = {
+                        **device,
+                        "name": "Status",
+                        "state_topic": f"discord/{after.id}/status",
+                        "value_template": "{{ value_json.status }}",
+                        "unique_id": f"discord-{after.id}-status",
+                    }
+
+                    await mqtt.mqttPublish(
+                        f"homeassistant/sensor/alexBot/{after.id}/status/config", json.dumps(payload)
+                    )
+
+    @staticmethod
+    def get_device(user: discord.Member) -> Dict:
+        return {
+            "name": f"Discord: {user.global_name}",
+            "identifiers": f"discord-{user.id}",
+            "manufacturer": "Alex from Alaska",
+            "model": "Discord Bot",
+            "sw_version": "1.0.0",
+            "via_device": "alexBot",
+        }
 
 
 async def setup(bot: "Bot"):
