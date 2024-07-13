@@ -201,7 +201,6 @@ class VoiceTTS(Cog):
                 await interaction.response.send_message("ended your voice tts session.", ephemeral=True)
                 if len(self.runningTTS[interaction.guild_id].users) == 0:
                     await self.runningTTS[interaction.guild_id].voiceClient.disconnect()
-                    del self.runningTTS[interaction.guild_id]
                 return
             if interaction.user.voice.channel.id != self.runningTTS[interaction.guild_id].voiceClient.channel.id:
                 await interaction.response.send_message(
