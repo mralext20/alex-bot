@@ -169,7 +169,7 @@ class PhoneMonitor(Cog):
                 "payload_off": False,
             }
             await mqtt.mqttPublish(
-                f"homeassistant/binary_sensor/alexBot/{member.id}/voice-{key}/config", json.dumps(payload)
+                f"homeassistant/binary_sensor/alexBot/{member.id}-voice-{key}/config", json.dumps(payload)
             )
 
         payload = {
@@ -179,7 +179,7 @@ class PhoneMonitor(Cog):
             "value_template": "{{ value_json.state_str }}",
             "unique_id": f"discord-{member.id}-voice-state",
         }
-        await mqtt.mqttPublish(f"homeassistant/sensor/alexBot/{member.id}/voice-state/config", json.dumps(payload))
+        await mqtt.mqttPublish(f"homeassistant/sensor/alexBot/{member.id}-voice-state/config", json.dumps(payload))
 
     @Cog.listener()
     async def on_voice_state_update(
@@ -331,7 +331,7 @@ class PhoneMonitor(Cog):
                     }
                     # do home assistant discovery for the topic
                     await mqtt.mqttPublish(
-                        f"homeassistant/binary_sensor/alexBot/{after.id}/status-mobile/config", json.dumps(payload)
+                        f"homeassistant/binary_sensor/alexBot/{after.id}-status-mobile/config", json.dumps(payload)
                     )
 
                     payload = {
@@ -343,7 +343,7 @@ class PhoneMonitor(Cog):
                     }
 
                     await mqtt.mqttPublish(
-                        f"homeassistant/sensor/alexBot/{after.id}/status/config", json.dumps(payload)
+                        f"homeassistant/sensor/alexBot/{after.id}-status/config", json.dumps(payload)
                     )
 
     @staticmethod
