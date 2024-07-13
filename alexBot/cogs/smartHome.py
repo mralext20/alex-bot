@@ -158,9 +158,10 @@ class PhoneMonitor(Cog):
             ('self_stream', 'Streaming'),
             ('self_video', 'Video Active'),
         ]
+        device = self.get_device(member)
         for key, name in states_templates:
             payload = {
-                **self.get_device(member),
+                "device": {**device},
                 "name": name,
                 "state_topic": f"discord/{member.id}/voice",
                 "value_template": f"{{{{ value_json.{key} }}}}",
@@ -173,7 +174,7 @@ class PhoneMonitor(Cog):
             )
 
         payload = {
-            **self.get_device(member),
+            "device": {**device},
             "name": "State",
             "state_topic": f"discord/{member.id}/voice",
             "value_template": "{{ value_json.state_str }}",
@@ -321,7 +322,7 @@ class PhoneMonitor(Cog):
                     await mqtt.mqttPublish(f"discord/{after.id}/status", json.dumps(blob))
                     device = self.get_device(after)
                     payload = {
-                        **device,
+                        "device": {**device},
                         "name": "Is Mobile",
                         "state_topic": f"discord/{after.id}/status",
                         "value_template": "{{ value_json.mobile }}",
@@ -335,7 +336,7 @@ class PhoneMonitor(Cog):
                     )
 
                     payload = {
-                        **device,
+                        "device": {**device},
                         "name": "Status",
                         "state_topic": f"discord/{after.id}/status",
                         "value_template": "{{ value_json.status }}",
