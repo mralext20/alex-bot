@@ -63,6 +63,7 @@ class Reminders(Cog):
             await asyncio.sleep(60)
 
     async def remind(self, reminder: Reminder):
+        await self.bot.wait_until_ready()
         try:
             # wait for the reminder time
             now = datetime.datetime.now(datetime.UTC)
@@ -83,6 +84,10 @@ class Reminders(Cog):
                             session.add(edited)
                             await session.commit()
                             return
+                else:
+                    # modify the remidner message in memory to show it's overdue
+                    reminder.message = f"**OVERDUE** {reminder.message}"
+
             else:
                 await asyncio.sleep((reminder.next_remind - now).total_seconds())
             allowedMentions = discord.AllowedMentions.none()
