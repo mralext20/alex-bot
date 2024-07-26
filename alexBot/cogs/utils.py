@@ -29,6 +29,7 @@ class Roll:
 class Utils(Cog):
     @app_commands.command()
     @app_commands.describe(dice="dice format in XdY. can be multiple sets, seperated by spaces")
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def roll(self, interaction: discord.Interaction, dice: str):
         """Rolls a dice in NdN format."""
         roll_results: List[Roll] = []
