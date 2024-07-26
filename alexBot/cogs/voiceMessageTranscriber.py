@@ -41,8 +41,6 @@ class VoiceMessageTranscriber(Cog):
 
     async def transcribe_command_on_demand(self, interaction: discord.Interaction, message: discord.Message):
 
-        be_ephemeral = interaction.is_user_integration()  # True if user context, False if guild context
-        """transcribe this specifc message"""
         if not message.flags.voice:
             return await interaction.response.send_message("Message is not a voice message!", ephemeral=True)
         if message.attachments[0].content_type != "audio/ogg":
@@ -51,7 +49,7 @@ class VoiceMessageTranscriber(Cog):
                 "Transcription failed! (Attachment not a Voice Message)", ephemeral=True
             )
 
-        await interaction.response.defer(ephemeral=be_ephemeral)
+        await interaction.response.defer(ephemeral=True)
 
         # Read voice file and converts it into something pydub can work with
         log.debug(f"Reading voice file. message.id={message.id}")
@@ -59,9 +57,7 @@ class VoiceMessageTranscriber(Cog):
         voice_file = io.BytesIO(voice_file)
 
         result = await self.transcribe(voice_file)
-        await interaction.followup.send(
-            content=f"**Audio Message Transcription:\n** ```{result}```", ephemeral=be_ephemeral
-        )
+        await interaction.followup.send(content=f"**Audio Message Transcription:\n** ```{result}```", ephemeral=True)
 
     async def transcribe(self, audio: io.BytesIO) -> str:
         x = await self.bot.loop.run_in_executor(None, pydub.AudioSegment.from_file, audio)
