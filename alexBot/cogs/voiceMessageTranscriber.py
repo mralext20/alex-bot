@@ -3,6 +3,7 @@ import io
 import logging
 
 import discord
+from discord import app_commands
 import pydub
 import speech_recognition
 
@@ -14,6 +15,70 @@ log = logging.getLogger(__name__)
 
 
 class VoiceMessageTranscriber(Cog):
+    def __init__(self, bot):
+        super().__init__(bot)
+
+        self.voiceMessageTranscriberMenu = app_commands.ContextMenu(
+            name='Transcribe Voice Message',
+            callback=self.transcribe_command_on_demand,
+            allowed_contexts=app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True),
+            allowed_installs=app_commands.AppInstallationType(guild=True, user=True),
+        )
+
+    async def cog_load(self) -> None:
+        commands = [
+            self.voiceMessageTranscriberMenu,
+        ]
+        for command in commands:
+            self.bot.tree.add_command(command)
+
+    async def cog_unload(self) -> None:
+        commands = [
+            self.voiceMessageTranscriberMenu,
+        ]
+        for command in commands:
+            self.bot.tree.remove_command(command.name, type=command.type)
+
+    async def transcribe_command_on_demand(self, interaction: discord.Interaction, message: discord.Message):
+
+        be_ephemeral = interaction.is_user_integration()  # True if user context, False if guild context
+        """transcribe this specifc message"""
+        if not message.flags.voice:
+            return await interaction.response.send_message("Message is not a voice message!", ephemeral=True)
+        if message.attachments[0].content_type != "audio/ogg":
+            log.debug(f"Transcription failed! Attachment not a Voice Message. message.id={message.id}")
+            return await interaction.response.send_message(
+                "Transcription failed! (Attachment not a Voice Message)", ephemeral=True
+            )
+
+        await interaction.response.defer(ephemeral=be_ephemeral)
+
+        # Read voice file and converts it into something pydub can work with
+        log.debug(f"Reading voice file. message.id={message.id}")
+        voice_file = await message.attachments[0].read()
+        voice_file = io.BytesIO(voice_file)
+
+        result = await self.transcribe(voice_file)
+        await interaction.followup.send(
+            content=f"**Audio Message Transcription:\n** ```{result}```", ephemeral=be_ephemeral
+        )
+
+    async def transcribe(self, audio: io.BytesIO) -> str:
+        x = await self.bot.loop.run_in_executor(None, pydub.AudioSegment.from_file, audio)
+        new = io.BytesIO()
+        await self.bot.loop.run_in_executor(None, functools.partial(x.export, new, format='wav'))
+
+        # Convert .wav file into speech_recognition's AudioFile format or whatever idrk
+        log.debug("Converting file to AudioFile format.")
+        recognizer = speech_recognition.Recognizer()
+        with speech_recognition.AudioFile(new) as source:
+            audio = await self.bot.loop.run_in_executor(None, recognizer.record, source)
+
+        # Runs the file through OpenAI Whisper
+        log.debug("Running file through OpenAI Whisper.")
+        result = await self.bot.loop.run_in_executor(None, recognizer.recognize_whisper, audio)
+        return result if result != "" else "*Nothing*"
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         # message in a guild
@@ -43,26 +108,7 @@ class VoiceMessageTranscriber(Cog):
             voice_file = await message.attachments[0].read()
             voice_file = io.BytesIO(voice_file)
 
-            # Convert original .ogg file into a .wav file
-            log.debug(f"Converting file format to .wav. message.id={message.id}")
-            x = await self.bot.loop.run_in_executor(None, pydub.AudioSegment.from_file, voice_file)
-            new = io.BytesIO()
-            await self.bot.loop.run_in_executor(None, functools.partial(x.export, new, format='wav'))
-
-            # Convert .wav file into speech_recognition's AudioFile format or whatever idrk
-            log.debug(f"Converting file to AudioFile format. message.id={message.id}")
-            recognizer = speech_recognition.Recognizer()
-            with speech_recognition.AudioFile(new) as source:
-                audio = await self.bot.loop.run_in_executor(None, recognizer.record, source)
-
-            # Runs the file through OpenAI Whisper
-            log.debug(f"Running file through OpenAI Whisper. message.id={message.id}")
-            result = await self.bot.loop.run_in_executor(None, recognizer.recognize_whisper, audio)
-            if result == "":
-                result = "*nothing*"
-
-            # Edit the original message with the transcription result
-            log.debug(f"Editing message with transcription result. message.id={message.id}")
+            result = await self.transcribe(voice_file)
             await msg.edit(content=f"**Audio Message Transcription:\n** ```{result}```")
 
 
