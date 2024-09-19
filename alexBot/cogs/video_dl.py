@@ -53,6 +53,17 @@ class Video_DL(Cog):
     encode_lock = asyncio.Lock()
     mirror_upload_lock = asyncio.Lock()
 
+    @staticmethod
+    async def download_job(each, session):
+        res = None
+        while res is None:
+
+            res = await session.get(each.url)
+            if res.content_length == 0:
+                await asyncio.sleep(0.2)
+                res = None
+        return res
+
     @Cog.listener()
     async def on_message(self, message: discord.Message, override=False, new_deleter=None):
         log.debug("on_message function started")
@@ -124,7 +135,12 @@ class Video_DL(Cog):
                         log.debug("Status is picker. Downloading the photos.")
                         if not res.picker:
                             raise NotAVideo("No pickers found.")
-                        images = await asyncio.gather(*[session.get(each.url) for each in res.picker])
+                        fetch_jobs = []
+                        for each in res.picker:
+                            fetch_jobs.append(self.download_job(each, session))
+
+                        images = await asyncio.gather(*fetch_jobs)
+
                         attachments: List[discord.File] = []
                         for m, group in enumerate(grouper(images, 10)):
                             for n, image in enumerate(group):
