@@ -134,7 +134,11 @@ class Video_DL(Cog):
                                 else:
                                     filename = image.content_disposition.filename
                                 attachments.append(discord.File(io.BytesIO(stuff), filename=filename))
-                            uploaded = await message.reply(mention_author=False, files=attachments)
+                            try:
+
+                                uploaded = await message.reply(mention_author=False, files=attachments)
+                            except DiscordException as e:
+                                log.error("Error uploading images", e)
                     case "error":
                         log.error(f"Error in cobalt with url {rq.url}: {res.text}")
         log.debug("on_message function ended")
