@@ -7,7 +7,7 @@ import re
 import subprocess
 import traceback
 from functools import partial
-from typing import List
+from typing import List, Optional
 
 import aiohttp
 import discord
@@ -52,6 +52,29 @@ class NotAVideo(Exception):
 class Video_DL(Cog):
     encode_lock = asyncio.Lock()
     mirror_upload_lock = asyncio.Lock()
+    _cobalt: Optional[Cobalt] = None
+
+    @staticmethod
+    async def fetch_image(url: str, session: aiohttp.ClientSession, extra: any) -> bytes:
+        async with session.get(url) as response:
+            return await response.read()
+
+    async def get_cobalt_instace(self) -> Cobalt:
+        if self._cobalt:
+            return self._cobalt
+        self._cobalt = Cobalt()
+
+        async def test_cobalt():
+            while self._cobalt:
+                await asyncio.sleep(60 * 15)
+                try:
+                    await self._cobalt.get_server_info()
+                except Exception as e:
+                    log.error("Error testing cobalt", e)
+                    self._cobalt = None
+
+        self.bot.loop.create_task(test_cobalt())
+        return self._cobalt
 
     @Cog.listener()
     async def on_message(self, message: discord.Message, override=False, new_deleter=None):
@@ -94,14 +117,14 @@ class Video_DL(Cog):
             log.debug("Typing indicator started")
             stuff = None
 
-            cobalt = Cobalt()
+            cobalt = await self.get_cobalt_instace()
             rq = RequestBody(url=match.group(1))
             res = await cobalt.process(rq)
-            async with aiohttp.ClientSession(headers=cobalt.HEADERS) as session:
+            async with aiohttp.ClientSession(headers=cobalt.headers) as session:
                 match res.status:
-                    case "stream" | "redirect":
+                    case "tunnel" | "redirect":
                         # download the stream to reupload to discord
-                        log.debug("Status is stream or redirect. Downloading the stream.")
+                        log.debug("Status is stream or tunnel. Downloading the stream.")
                         async with session.get(res.url) as response:
                             stuff = await response.read()
                             if not response.content_disposition:
@@ -129,10 +152,8 @@ class Video_DL(Cog):
                         for m, group in enumerate(grouper(images, 10)):
                             for n, image in enumerate(group):
                                 stuff = await image.read()
-                                if not image.content_disposition:
-                                    filename = f"{n+(m*10)}.{image.url.suffix}"
-                                else:
-                                    filename = image.content_disposition.filename
+                                filename = f"{n+(m*10)}.{image.url.suffix}"
+
                                 attachments.append(discord.File(io.BytesIO(stuff), filename=filename))
                             try:
 
@@ -140,7 +161,7 @@ class Video_DL(Cog):
                             except DiscordException as e:
                                 log.error("Error uploading images", e)
                     case "error":
-                        log.error(f"Error in cobalt with url {rq.url}: {res.text}")
+                        log.error(f"Error in cobalt with url {rq.url}: {res.error}")
         log.debug("on_message function ended")
 
         if uploaded:

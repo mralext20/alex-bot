@@ -1,4 +1,3 @@
-version: '3.4'
 
 services:
   alexbot:
@@ -7,8 +6,11 @@ services:
     restart: unless-stopped
     depends_on:
       - db
+      - cobalt-api
     env_file:
       - .env
+    environment:
+      COBALT_URL: "http://cobalt-api:9000"
   db:
     image: postgres
     restart: unless-stopped
@@ -18,7 +20,41 @@ services:
       POSTGRES_USER: alexbot
       POSTGRES_PASSWORD: alexbot
       POSTGRES_DB: alexbot
+
     volumes:
       - alex-bot-db:/var/lib/postgresql/data
+  
+  cobalt-api:
+    image: ghcr.io/imputnet/cobalt:10
+    restart: unless-stopped
+    container_name: cobalt-api
+
+    init: true
+
+    ports:
+        - 9000:9000/tcp
+        # if you're using a reverse proxy, uncomment the next line and remove the one above (9000:9000/tcp):
+        #- 127.0.0.1:9000:9000
+
+    environment:
+        # replace https://api.cobalt.tools/ with your instance's target url in same format
+        API_URL: "http://cobalt-api:9000/"
+        # if you want to use cookies when fetching data from services, uncomment the next line and the lines under volume
+        # COOKIE_PATH: "/cookies.json"
+        # see docs/run-an-instance.md for more information
+    labels:
+        - com.centurylinklabs.watchtower.scope=cobalt
+
+    # if you want to use cookies when fetching data from services, uncomment volumes and next line
+    #volumes:
+        #- ./cookies.json:/cookies.json
+
+# update the cobalt image automatically with watchtower
+  watchtower:
+    image: ghcr.io/containrrr/watchtower
+    restart: unless-stopped
+    command: --cleanup --scope cobalt --interval 900 --include-restarting
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   alex-bot-db:
