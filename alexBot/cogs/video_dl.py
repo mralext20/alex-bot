@@ -7,7 +7,7 @@ import re
 import subprocess
 import traceback
 from functools import partial
-from typing import List, Optional
+from typing import List, Optional, Any
 
 import aiohttp
 import discord
@@ -55,9 +55,14 @@ class Video_DL(Cog):
     _cobalt: Optional[Cobalt] = None
 
     @staticmethod
-    async def fetch_image(url: str, session: aiohttp.ClientSession, extra: any) -> bytes:
+    async def fetch_image(url: str, session: aiohttp.ClientSession, count=0) -> aiohttp.ClientResponse:
+        if count > 10:
+            raise Exception("Too many retries fetching image")
         async with session.get(url) as response:
-            return await response.read()
+            if not response.ok:
+                await asyncio.sleep(0.2)
+                return await Video_DL.fetch_image(url, session, count + 1)
+            return response
 
     async def get_cobalt_instace(self) -> Cobalt:
         if self._cobalt:
@@ -147,7 +152,7 @@ class Video_DL(Cog):
                         log.debug("Status is picker. Downloading the photos.")
                         if not res.picker:
                             raise NotAVideo("No pickers found.")
-                        images = await asyncio.gather(*[session.get(each.url) for each in res.picker])
+                        images = await asyncio.gather(*[self.fetch_image(each, session) for each in res.picker])
                         attachments: List[discord.File] = []
                         for m, group in enumerate(grouper(images, 10)):
                             for n, image in enumerate(group):
