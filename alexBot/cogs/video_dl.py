@@ -1,5 +1,8 @@
 import asyncio
+from collections import namedtuple
+from dataclasses import dataclass
 import io
+import itertools
 import logging
 import math
 import os
@@ -7,19 +10,22 @@ import re
 import subprocess
 import traceback
 from functools import partial
-from typing import List, Optional, Any
+from typing import List, Optional, Tuple
 
 import aiohttp
 import discord
 from discord.errors import DiscordException
 from discord.ext import commands
+from discord import app_commands
 from slugify import slugify
 from sqlalchemy import select
 
 from alexBot import database as db
 from alexBot.cobalt import Cobalt, RequestBody
 
-from ..tools import Cog, grouper, is_in_guild, timing
+from ..tools import Cog, timing
+
+from mimetypes import guess_extension
 
 log = logging.getLogger(__name__)
 
@@ -43,26 +49,97 @@ BUFFER_CONSTANT = 20  # Magic number, see https://unix.stackexchange.com/a/59836
 FFPROBE_CMD = 'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 in.mp4'
 FFMPEG_CMD = 'ffmpeg -i in.mp4 -y -b:v {0} -maxrate:v {0} -b:a {1} -maxrate:a {1} -bufsize:v {2} out.mp4'
 
+# fake headers for firefox
+FAKE_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Cache-Control": "max-age=0",
+    "TE": "trailers",
+}
+
 
 #  -loglevel 8
 class NotAVideo(Exception):
     pass
 
 
+@dataclass
+class ImageAndExtension:
+    image: bytes
+    extension: str
+
+
 class Video_DL(Cog):
-    encode_lock = asyncio.Lock()
-    mirror_upload_lock = asyncio.Lock()
-    _cobalt: Optional[Cobalt] = None
+
+    def __init__(self, bot):
+        self.encode_lock = asyncio.Lock()
+        self.mirror_upload_lock = asyncio.Lock()
+        self._cobalt: Optional[Cobalt] = None
+        super().__init__(bot)
+
+        self.videoDLRequestMenu = app_commands.ContextMenu(
+            name='Manual Video Mirror',
+            callback=self.video_download_request,
+            allowed_contexts=app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True),
+            allowed_installs=app_commands.AppInstallationType(guild=True, user=True),
+        )
+
+    async def cog_load(self) -> None:
+        commands = [
+            self.videoDLRequestMenu,
+        ]
+        for command in commands:
+            self.bot.tree.add_command(command)
+
+    async def cog_unload(self) -> None:
+        commands = [
+            self.videoDLRequestMenu,
+        ]
+        for command in commands:
+            self.bot.tree.remove_command(command.name, type=command.type)
+
+    async def video_download_request(self, interaction: discord.Interaction, message: discord.Message):
+        # check for a valid video
+        match = None
+        for domain in DOMAINS:
+            log.debug(f"Searching for domain: {domain} in message content")
+            if match := re.search(rf'(https?://[^ ]*{domain}/[^ ]*)', message.content):
+                if domain in ["youtube.com", "youtu.be"]:
+                    if 'shorts' in match.group(1) or 'clip' in match.group(1):
+                        log.debug("Match found for youtube SHORTS / CLIPS domain. Breaking loop.")
+                        break
+                else:
+                    log.debug(f"Match found for domain: {domain}. Breaking loop.")
+                    break
+        if not match:
+            return await interaction.response.send_message("No video found in message content.", ephemeral=True)
+
+        await interaction.response.defer(ephemeral=False)
+        try:
+            await self.on_message(message, interaction)
+        except Exception as e:
+            log.error("Error processing video from direct interaction", e)
+            await interaction.followup.send(content=f"Error: {e}", ephemeral=True)
 
     @staticmethod
-    async def fetch_image(url: str, session: aiohttp.ClientSession, count=0) -> aiohttp.ClientResponse:
-        if count > 10:
+    async def fetch_image(url: str, session: aiohttp.ClientSession, count=0) -> ImageAndExtension:
+        if count > 3:
             raise Exception("Too many retries fetching image")
         async with session.get(url) as response:
             if not response.ok:
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(1)
                 return await Video_DL.fetch_image(url, session, count + 1)
-            return response
+            if not response.content_type:
+                raise Exception("No content type found")
+            return ImageAndExtension(await response.read(), guess_extension(response.content_type) or 'jpg')
 
     async def get_cobalt_instace(self) -> Cobalt:
         if self._cobalt:
@@ -81,10 +158,56 @@ class Video_DL(Cog):
         self.bot.loop.create_task(test_cobalt())
         return self._cobalt
 
+    async def download_video(self, url: str, size_limit: int) -> List[List[discord.File]]:
+
+        cobalt = await self.get_cobalt_instace()
+        rq = RequestBody(url=url, alwaysProxy=True)
+        res = await cobalt.process(rq)
+        async with aiohttp.ClientSession(headers=cobalt.headers) as session:
+            match res.status:
+                case "tunnel" | "redirect":
+                    # download the stream to reupload to discord
+                    log.debug("Status is stream or tunnel. Downloading the stream.")
+                    async with session.get(res.url) as response:
+                        stuff = await response.read()
+                        if not response.content_disposition:
+                            raise NotAVideo("No content disposition found.")
+                        bytes = io.BytesIO(stuff)
+                        if len(bytes.getvalue()) > size_limit:
+                            async with self.encode_lock:
+                                task = partial(self.transcode_shrink, bytes, size_limit)
+                                bytes = await self.bot.loop.run_in_executor(None, task)
+                            filename = response.content_disposition.filename.split(".")[0] + ".mp4"
+                        else:
+                            filename = response.content_disposition.filename
+
+                        return [[discord.File(bytes, filename)]]
+
+                case "picker":
+                    # gotta download the photos to post, batch by 10's
+                    log.debug("Status is picker. Downloading the photos.")
+                    if not res.picker:
+                        raise NotAVideo("No pickers found.")
+                    images = await asyncio.gather(*[self.fetch_image(each.url, session) for each in res.picker])
+
+                    return [
+                        [
+                            discord.File(io.BytesIO(image.image), f"{n+(m*10)}.{image.extension}")
+                            for n, image in enumerate(group)
+                        ]
+                        for m, group in enumerate(itertools.batched(images, 10))
+                    ]
+
+                case "error":
+                    log.error(f"Error in cobalt with url {rq.url}: {res.error}")
+                    raise Exception(f"Error in cobalt with url {rq.url}: {res.error}")
+
+    log.debug("on_message function ended")
+
     @Cog.listener()
-    async def on_message(self, message: discord.Message, override=False, new_deleter=None):
+    async def on_message(self, message: discord.Message, interaction: Optional[discord.Interaction] = None):
         log.debug("on_message function started")
-        if message.guild is None or (message.author == self.bot.user and not override):
+        if message.guild is None:
             log.debug("Message is from a guild or from the bot user. Returning without processing.")
             return
         gc = None
@@ -97,7 +220,7 @@ class Video_DL(Cog):
                 gc = db.GuildConfig(guildId=message.guild.id)
                 session.add(gc)
                 await session.commit()
-        if not gc.tikTok:
+        if not gc.tikTok and not interaction:
             log.debug("tikTok is not enabled for this guild. Returning without processing.")
             return
 
@@ -120,56 +243,23 @@ class Video_DL(Cog):
 
         async with message.channel.typing():
             log.debug("Typing indicator started")
-            stuff = None
 
-            cobalt = await self.get_cobalt_instace()
-            rq = RequestBody(url=match.group(1))
-            res = await cobalt.process(rq)
-            async with aiohttp.ClientSession(headers=cobalt.headers) as session:
-                match res.status:
-                    case "tunnel" | "redirect":
-                        # download the stream to reupload to discord
-                        log.debug("Status is stream or tunnel. Downloading the stream.")
-                        async with session.get(res.url) as response:
-                            stuff = await response.read()
-                            if not response.content_disposition:
-                                raise NotAVideo("No content disposition found.")
-                            bytes = io.BytesIO(stuff)
-                            if len(bytes.getvalue()) > message.guild.filesize_limit:
-                                async with self.encode_lock:
-                                    task = partial(self.transcode_shrink, bytes, message.guild.filesize_limit)
-                                    bytes = await self.bot.loop.run_in_executor(None, task)
-                                filename = response.content_disposition.filename.split(".")[0] + ".mp4"
-                            else:
-                                filename = response.content_disposition.filename
-                            uploaded = await message.reply(
-                                mention_author=False,
-                                content=filename.split('.')[0],
-                                file=discord.File(bytes, filename=filename),
-                            )
-                    case "picker":
-                        # gotta download the photos to post, batch by 10's
-                        log.debug("Status is picker. Downloading the photos.")
-                        if not res.picker:
-                            raise NotAVideo("No pickers found.")
-                        images = await asyncio.gather(*[self.fetch_image(each, session) for each in res.picker])
-                        attachments: List[discord.File] = []
-                        for m, group in enumerate(grouper(images, 10)):
-                            for n, image in enumerate(group):
-                                stuff = await image.read()
-                                filename = f"{n+(m*10)}.{image.url.suffix}"
-
-                                attachments.append(discord.File(io.BytesIO(stuff), filename=filename))
-                            try:
-
-                                uploaded = await message.reply(mention_author=False, files=attachments)
-                            except DiscordException as e:
-                                log.error("Error uploading images", e)
-                    case "error":
-                        log.error(f"Error in cobalt with url {rq.url}: {res.error}")
-        log.debug("on_message function ended")
-
-        if uploaded:
+        # REMOVED FROM HERE
+        try:
+            Attachment_sets = await self.download_video(match.group(1), message.guild.filesize_limit)
+        except NotAVideo:
+            log.debug("Not a video. Returning without processing.")
+            return
+        except Exception as e:
+            log.error("Error downloading video", e)
+            return
+        try:
+            messages = [await message.reply(files=attachment_set) for attachment_set in Attachment_sets]
+        except Exception as e:
+            log.error("Error uploading video", e)
+            return
+        if messages[-1]:
+            uploaded = messages[-1]
             try:
                 await uploaded.add_reaction("🗑️")
             except DiscordException:
@@ -180,11 +270,7 @@ class Video_DL(Cog):
             #     pass
 
             def check(reaction: discord.Reaction, user: discord.User):
-                return (
-                    reaction.emoji == "🗑️"
-                    and user.id in [message.author.id, new_deleter]
-                    and reaction.message.id == uploaded.id
-                )
+                return reaction.emoji == "🗑️" and user.id in [message.author.id] and reaction.message.id == uploaded.id
 
             try:
                 await self.bot.wait_for('reaction_add', timeout=60 * 5, check=check)

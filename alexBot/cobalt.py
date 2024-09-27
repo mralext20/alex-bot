@@ -101,13 +101,13 @@ class Cobalt:
             self.endpoint = ENDPOINT
         self.headers = DEFAULT_HEADERS
 
-    async def get_server_info(self):
+    async def get_server_info(self) -> ServerInfo:
         async with aiohttp.ClientSession(headers=self.headers) as session:
             async with session.get(self.endpoint) as resp:
                 data = await resp.json()
                 return ServerInfo(cobalt=CobaltServerData(**data['cobalt']), git=GitServerData(**data['git']))
 
-    async def process(self, request_body: RequestBody):
+    async def process(self, request_body: RequestBody) -> ResponceBody:
         async with aiohttp.ClientSession(headers=self.headers) as session:
             async with session.post(self.endpoint, json=request_body.dict()) as resp:
                 rb = ResponceBody(**await resp.json())
