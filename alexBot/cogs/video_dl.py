@@ -124,10 +124,14 @@ class Video_DL(Cog):
 
         await interaction.response.defer(ephemeral=False)
         try:
-            await self.on_message(message, interaction)
+            attachmentss = await self.download_video(
+                match.group(1), interaction.guild.filesize_limit if interaction.guild else 8_000_000
+            )
         except Exception as e:
             log.error("Error processing video from direct interaction", e)
             await interaction.followup.send(content=f"Error: {e}", ephemeral=True)
+        for attachments in attachmentss:
+            await interaction.followup.send(files=attachments)
 
     @staticmethod
     async def fetch_image(url: str, session: aiohttp.ClientSession, count=0) -> ImageAndExtension:
@@ -159,7 +163,6 @@ class Video_DL(Cog):
         return self._cobalt
 
     async def download_video(self, url: str, size_limit: int) -> List[List[discord.File]]:
-
         cobalt = await self.get_cobalt_instace()
         rq = RequestBody(url=url, alwaysProxy=True)
         res = await cobalt.process(rq)
@@ -201,8 +204,6 @@ class Video_DL(Cog):
                 case "error":
                     log.error(f"Error in cobalt with url {rq.url}: {res.error}")
                     raise Exception(f"Error in cobalt with url {rq.url}: {res.error}")
-
-    log.debug("on_message function ended")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message, interaction: Optional[discord.Interaction] = None):
