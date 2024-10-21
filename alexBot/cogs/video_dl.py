@@ -180,9 +180,12 @@ class Video_DL(Cog):
                             async with self.encode_lock:
                                 task = partial(self.transcode_shrink, bytes, size_limit)
                                 bytes = await self.bot.loop.run_in_executor(None, task)
-                            filename = response.content_disposition.filename.split(".")[0] + ".mp4"
-                        else:
-                            filename = response.content_disposition.filename
+
+                        filename = response.content_disposition.filename
+                        if not filename:
+                            words = response.url.path.split("/")[-1]
+                            words += "." + (guess_extension(response.content_type) or "mp4")
+                            filename = words
 
                         return [[discord.File(bytes, filename)]]
 
