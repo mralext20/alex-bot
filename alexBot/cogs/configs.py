@@ -132,7 +132,7 @@ class Configs(Cog):
             session.add(uc)
             await session.commit()
         await interaction.response.send_message(
-            f"Set {key} to {val}", ephemeral=False if config_type == 'guild' else True
+            f"Set {key} to {val}", ephemeral=config_type != 'guild'
         )
 
     @configGuildCommandGroup.command(name="show", description="shows the current config")
