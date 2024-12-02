@@ -49,9 +49,7 @@ class Bots(Cog):
                 return
             key = (before.id, (before.guild.id >> 22) % config['shards'])
 
-        messagable = self.bot.get_user(config['messagable_id'])
-        if messagable is None:
-            messagable = self.bot.get_channel(config['messagable_id'])
+        messagable = self._get_messagable(config)
 
         status = after.status
 
@@ -79,6 +77,12 @@ class Bots(Cog):
             )
         except discord.HTTPException:
             pass
+
+    def _get_messagable(self, config):
+        messagable = self.bot.get_user(config['messagable_id'])
+        if messagable is None:
+            messagable = self.bot.get_channel(config['messagable_id'])
+        return messagable
 
     @staticmethod
     async def send(messagable, message, wait=30):
