@@ -41,7 +41,10 @@ class Utils(Cog):
                     return await interaction.response.send_message(
                         "You can't roll more than 100 dice at once!", ephemeral=True
                     )
-            except Exception:
+            except (TypeError
+                    , ValueError
+                    , discord.HTTPException
+                    , discord.InteractionResponded):
                 return await interaction.response.send_message("Format has to be in `WdX YdZ`...!", ephemeral=True)
             roll_results.append(Roll(f"{rolls}d{limit}", [random.randint(1, limit) for r in range(rolls)]))
 
