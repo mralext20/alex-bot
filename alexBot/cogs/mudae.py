@@ -237,19 +237,7 @@ class Mudae(Cog):
             # ^ captures first page
             await interaction.response.send_message("tab through your liked series, i'll save them!", ephemeral=True)
 
-            while current_page < total_pages:
-
-                # get the next page
-                payload = await self.bot.wait_for(
-                    "raw_message_edit",
-                    check=lambda payload: payload.message_id == message.id,
-                    timeout=60,
-                )
-                serieses.extend(SERIES_REGEX.findall(payload.data['embeds'][0]['description']))  # type: ignore ; checked above if embed exists
-                # captures pages 2 thru n
-                current_page += 1
-                if current_page == total_pages:
-                    break
+            await self._scan_pages(message, serieses, current_page, total_pages)
         else:
             serieses.extend(SERIES_REGEX.findall(message.embeds[0].description))  # type: ignore
             # captures single page
@@ -274,6 +262,20 @@ class Mudae(Cog):
             await interaction.followup.send(reply_text, ephemeral=True)
         else:
             await interaction.response.send_message(reply_text, ephemeral=True)
+
+    async def _scan_pages(self, message, serieses, current_page, total_pages):
+        while current_page < total_pages:
+                # get the next page
+            payload = await self.bot.wait_for(
+                    "raw_message_edit",
+                    check=lambda payload: payload.message_id == message.id,
+                    timeout=60,
+                )
+            serieses.extend(SERIES_REGEX.findall(payload.data['embeds'][0]['description']))  # type: ignore ; checked above if embed exists
+                # captures pages 2 thru n
+            current_page += 1
+            if current_page == total_pages:
+                break
 
 
 async def setup(bot: "Bot"):
