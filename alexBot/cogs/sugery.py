@@ -154,7 +154,9 @@ class Sugery(Cog):
                             nick=f"{name} ({ZAPSTR if charging else BATTERYSTR}{BATTERYINDICATORS[math.ceil(battery * 0.08)]})",
                             reason="user's bloodsuger group or direction changed",
                         )
-                    except Exception as e:
+                    except (discord.ClientException
+                            , discord.Forbidden
+                            , discord.HTTPException) as e:
                         log.error(f"cannot update {member}; {e.args[0]}")
                         continue
 
