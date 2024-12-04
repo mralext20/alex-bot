@@ -42,6 +42,16 @@ class CommandErrorHandler(Cog):
 
     @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+
+        error_messages = {str(commands.DisabledCommand): f'{ctx.command} has been disabled.'
+                          , str(commands.NotOwner): f'{ctx.command} is a owner only command.'
+                          , str(commands.NoPrivateMessage): f'{ctx.command} can not be used in Private Messages.'
+                          , str(commands.CheckFailure): 'A Check failed for this command.'
+                          , str(commands.MissingRequiredArgument): 
+                            f'Parameter {error.param} is required but missing, See {ctx.prefix}help {ctx.command} for help!'
+                          , str(commands.MissingPermissions): 'You do not have permission to run that command.'
+                          }
+        
         """The event triggered when an error is raised while invoking a command."""
         if isinstance(error, commands.CommandNotFound):
             return
@@ -50,47 +60,22 @@ class CommandErrorHandler(Cog):
         if isinstance(error, asyncio.TimeoutError):
             msg = f"timed out. you can start again with {ctx.prefix}{ctx.command}"
 
-        if isinstance(error, commands.MaxConcurrencyReached):
-            if ctx.author.id == 335928292542513162 and random.random() < 0.2:
-                msg = "DAWN PLS"
-            else:
-                msg = f"{ctx.command} is currently being ran. please wait for it to finish."
+        msg = self._handle_load_errors(ctx, error, msg)
 
-        if isinstance(error, commands.CommandOnCooldown):
-            if ctx.author.id == 335928292542513162 and random.random() < 0.2:
-                msg = "DAWN PLS"
-            else:
-                msg = f"{ctx.command} is being used too often, try again later"
+        if (isinstance(error, commands.DisabledCommand)
+                or isinstance(error, commands.NotOwner)
+                or isinstance(error, commands.NoPrivateMessage)
+                or isinstance(error, commands.CheckFailure)
+                or isinstance(error, commands.MissingRequiredArgument)
+                or isinstance(error, commands.MissingPermissions)):
+            msg = error_messages[str(error)]
 
-        if isinstance(error, commands.DisabledCommand):
-            msg = f'{ctx.command} has been disabled.'
-
-        elif isinstance(error, commands.NotOwner):
-            msg = f'{ctx.command} is a owner only command.'
-
-        elif isinstance(error, commands.NoPrivateMessage):
-            msg = f'{ctx.command} can not be used in Private Messages.'
-
-        elif isinstance(error, commands.BadArgument):
+        if isinstance(error, commands.BadArgument):
             ctx.command.reset_cooldown(ctx)
             msg = f'Bad argument: {error} See {ctx.prefix}help {ctx.command} for help!'
             log.warning(f"bad argument on {ctx.command}: {error}")
 
-        elif isinstance(error, commands.CheckFailure):
-            msg = 'A Check failed for this command.'
-
-        elif isinstance(error, commands.MissingRequiredArgument):
-            msg = f'Parameter {error.param} is required but missing, See {ctx.prefix}help {ctx.command} for help!'
-        elif isinstance(error, commands.MissingPermissions):
-            msg = 'You do not have permission to run that command.'
-        elif isinstance(error, commands.CommandInvokeError):
-            error = error.original
-
-            if isinstance(error, discord.Forbidden):
-                msg = (
-                    'A permission error occurred while executing this command, '
-                    'Make sure I have the required permissions and try again.'
-                )
+        error, msg = self._hadle_invoke_error(error)
 
         # post the error into the chat if no short error message could be generated
         if not msg:
@@ -112,6 +97,33 @@ class CommandErrorHandler(Cog):
             await ctx.send(msg, allowed_mentions=allowed_mentions)
         except discord.HTTPException:
             await ctx.send('error message too long')
+
+    def _handle_load_errors(self, ctx, error, msg):
+        if isinstance(error, commands.MaxConcurrencyReached):
+            if ctx.author.id == 335928292542513162 and random.random() < 0.2:
+                msg = "DAWN PLS"
+            else:
+                msg = f"{ctx.command} is currently being ran. please wait for it to finish."
+
+        if isinstance(error, commands.CommandOnCooldown):
+            if ctx.author.id == 335928292542513162 and random.random() < 0.2:
+                msg = "DAWN PLS"
+            else:
+                msg = f"{ctx.command} is being used too often, try again later"
+
+        return msg
+
+    def _hadle_invoke_error(self, error):
+        if isinstance(error, commands.CommandInvokeError):
+            error = error.original
+
+            if isinstance(error, discord.Forbidden):
+                msg = (
+                    'A permission error occurred while executing this command, '
+                    'Make sure I have the required permissions and try again.'
+                )
+                
+        return error,msg
 
 
 async def setup(bot: commands.Bot):
