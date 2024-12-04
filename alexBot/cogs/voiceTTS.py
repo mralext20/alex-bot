@@ -187,27 +187,9 @@ class VoiceTTS(Cog):
 
     @app_commands.autocomplete(model=model_autocomplete)
     async def vc_tts(self, interaction: discord.Interaction, model: str):
-        if interaction.guild is None:
-            await interaction.response.send_message("This command can only be used in a guild", ephemeral=True)
+        if not self._vc_tts_validation(interaction):
             return
-
-        if interaction.user.voice is None:
-            await interaction.response.send_message("You are not in a voice channel", ephemeral=True)
-            return
-
-        if interaction.guild_id in self.runningTTS:
-            if interaction.user.id in self.runningTTS[interaction.guild_id].users and model == "QUIT":
-                del self.runningTTS[interaction.guild_id].users[interaction.user.id]
-                await interaction.response.send_message("ended your voice tts session.", ephemeral=True)
-                if len(self.runningTTS[interaction.guild_id].users) == 0:
-                    await self.runningTTS[interaction.guild_id].voiceClient.disconnect()
-                return
-            if interaction.user.voice.channel.id != self.runningTTS[interaction.guild_id].voiceClient.channel.id:
-                await interaction.response.send_message(
-                    "You are not in the same voice channel as the existing session. can not start.", ephemeral=True
-                )
-                return
-
+        
         if model == "SAVED":
             # we pull from database, and use that
             async with async_session() as session:
@@ -263,6 +245,33 @@ class VoiceTTS(Cog):
     def after(self, error: Optional[Exception]):
         if error:
             log.exception(error)
+
+    async def _vc_tts_validation(self, interaction):
+
+        valid = True
+
+        if interaction.guild is None:
+            await interaction.response.send_message("This command can only be used in a guild", ephemeral=True)
+            valid = False
+
+        elif interaction.user.voice is None:
+            await interaction.response.send_message("You are not in a voice channel", ephemeral=True)
+            valid = False
+
+        elif interaction.guild_id in self.runningTTS:
+            if interaction.user.id in self.runningTTS[interaction.guild_id].users and model == "QUIT":
+                del self.runningTTS[interaction.guild_id].users[interaction.user.id]
+                await interaction.response.send_message("ended your voice tts session.", ephemeral=True)
+                if len(self.runningTTS[interaction.guild_id].users) == 0:
+                    await self.runningTTS[interaction.guild_id].voiceClient.disconnect()
+                valid = False
+            elif interaction.user.voice.channel.id != self.runningTTS[interaction.guild_id].voiceClient.channel.id:
+                await interaction.response.send_message(
+                    "You are not in the same voice channel as the existing session. can not start.", ephemeral=True
+                )
+                valid = False
+
+        return valid
 
 
 async def setup(bot):
