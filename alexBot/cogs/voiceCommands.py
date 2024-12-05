@@ -244,9 +244,7 @@ class VoiceCommands(Cog):
     async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         if interaction.user.voice is None:
             return [app_commands.Choice(name="err: not in a voice channel", value="0")]
-        channel: discord.VoiceChannel | discord.StageChannel | None = await self.target_autocomplete_get_channel(
-            interaction
-        )
+        channel: discord.VoiceChannel | discord.StageChannel | None = await self._get_channel(interaction)
         if channel is None or interaction.user.voice.channel == channel:
             return [app_commands.Choice(name="err: no suitable shake channel found", value="0")]
 
@@ -262,34 +260,6 @@ class VoiceCommands(Cog):
             for m in valid_targets
             if guess in m.display_name.lower() or guess in m.name.lower()
         ]
-
-    async def target_autocomplete_get_channel(self, interaction):
-        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
-        if channel is None:
-            if interaction.user.voice.channel.category is not None:
-                for chan in interaction.user.voice.channel.category.channels:
-                    if (
-                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
-                        and len(chan.members) == 0
-                        and chan.permissions_for(interaction.user).view_channel
-                    ):
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.voice_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.stage_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
-                return None
-
-        return channel
 
     @app_commands.guild_only()
     @app_commands.autocomplete(target=target_autocomplete)
@@ -369,8 +339,6 @@ class VoiceCommands(Cog):
                 await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
                 return None
 
-        if interaction.user.voice.channel == channel:
-            await interaction.response.send_message("you are in the shaking channel, somehow", ephemeral=True)
             return None
 
         return channel
