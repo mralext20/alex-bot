@@ -244,7 +244,9 @@ class VoiceCommands(Cog):
     async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         if interaction.user.voice is None:
             return [app_commands.Choice(name="err: not in a voice channel", value="0")]
-        channel: discord.VoiceChannel | discord.StageChannel | None = self.target_autocomplete_get_channel(interaction)
+        channel: discord.VoiceChannel | discord.StageChannel | None = await self.target_autocomplete_get_channel(
+            interaction
+        )
         if channel is None or interaction.user.voice.channel == channel:
             return [app_commands.Choice(name="err: no suitable shake channel found", value="0")]
 
@@ -286,7 +288,7 @@ class VoiceCommands(Cog):
             if channel is None:
                 await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
                 return None
-        
+
         return channel
 
     @app_commands.guild_only()
@@ -305,7 +307,7 @@ class VoiceCommands(Cog):
         if interaction.user.voice is None:
             await interaction.response.send_message("you are not in a voice channel", ephemeral=True)
             return
-        channel: discord.VoiceChannel | discord.StageChannel | None = self._get_channel(interaction)
+        channel: discord.VoiceChannel | discord.StageChannel | None = await self._get_channel(interaction)
         if channel is None:
             return
 
@@ -341,7 +343,6 @@ class VoiceCommands(Cog):
         if voiceLog:
             del voiceLog.beingShaken[user.id]
 
-
     async def _get_channel(self, interaction):
         channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
         if channel is None:
@@ -371,7 +372,7 @@ class VoiceCommands(Cog):
         if interaction.user.voice.channel == channel:
             await interaction.response.send_message("you are in the shaking channel, somehow", ephemeral=True)
             return None
-                    
+
         return channel
 
     @app_commands.checks.bot_has_permissions(mute_members=True, deafen_members=True)
