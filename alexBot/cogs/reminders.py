@@ -65,7 +65,7 @@ class Reminders(Cog):
     async def remind(self, reminder: Reminder):
         await self.bot.wait_until_ready()
         try:
-            if self._wait_for_reminder(reminder):
+            if await self._wait_for_reminder(reminder):
                 return
             allowedMentions = discord.AllowedMentions.none()
             log.debug(f"reminding {reminder}")
@@ -74,10 +74,10 @@ class Reminders(Cog):
             except discord.NotFound:
                 target = None
 
-            owner = self._handle_no_target(reminder, target)
+            owner = await self._handle_no_target(reminder, target)
             if not owner:
                 return
-            
+
             message = reminder.message
             if message.startswith("["):
                 # random messages;
@@ -110,7 +110,7 @@ class Reminders(Cog):
 
             if self._handle_reminder(self, reminder):
                 return
-            
+
             # remove task from tasks dict
         finally:
             del self.tasks[reminder.id]
@@ -127,9 +127,8 @@ class Reminders(Cog):
                 return None
             await owner.send(f"Could not find target channel {reminder.target} for reminder {reminder.message}")
             return owner
-        
+
         return owner
-        
 
     async def _handle_clearing(self, reminder, allowedMentions, target, message):
         if reminder.require_clearing:
@@ -139,7 +138,7 @@ class Reminders(Cog):
             msg = await target.send(message, allowed_mentions=allowedMentions)
             if reminder.auto_react:
                 await msg.add_reaction("<:greentick:1255344157761867816>")
-        
+
     async def _handle_reminder(self, reminder):
 
         should_exit = False
@@ -175,10 +174,10 @@ class Reminders(Cog):
             msg = None
             try:
                 msg = await self.bot.wait_for(
-                            "message",
-                            check=lambda m: m.channel.id == target.id and m.content.lower().startswith('ack'),
-                            timeout=300,
-                        )
+                    "message",
+                    check=lambda m: m.channel.id == target.id and m.content.lower().startswith('ack'),
+                    timeout=300,
+                )
                 v.waiting = False
                 v.children[0].disabled = True
                 await msg.reply("reminder cleared")
@@ -197,7 +196,7 @@ class Reminders(Cog):
     async def _wait_for_reminder(self, reminder):
 
         should_exit = False
-        
+
         # wait for the reminder time
         now = datetime.datetime.now(datetime.UTC)
         if now > reminder.next_remind:
@@ -225,7 +224,6 @@ class Reminders(Cog):
             await asyncio.sleep((reminder.next_remind - now).total_seconds())
 
         return should_exit
-
 
     @remindersGroup.command(name="add", description="add a new reminder")
     @app_commands.describe(
