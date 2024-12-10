@@ -244,30 +244,7 @@ class VoiceCommands(Cog):
     async def target_autocomplete(self, interaction: discord.Interaction, guess: str) -> List[app_commands.Choice]:
         if interaction.user.voice is None:
             return [app_commands.Choice(name="err: not in a voice channel", value="0")]
-        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
-        if channel is None:
-            if interaction.user.voice.channel.category is not None:
-                for chan in interaction.user.voice.channel.category.channels:
-                    if (
-                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
-                        and len(chan.members) == 0
-                        and chan.permissions_for(interaction.user).view_channel
-                    ):
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.voice_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.stage_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
-                return
+        channel: discord.VoiceChannel | discord.StageChannel | None = await self._get_channel(interaction)
         if channel is None or interaction.user.voice.channel == channel:
             return [app_commands.Choice(name="err: no suitable shake channel found", value="0")]
 
@@ -300,33 +277,8 @@ class VoiceCommands(Cog):
         if interaction.user.voice is None:
             await interaction.response.send_message("you are not in a voice channel", ephemeral=True)
             return
-        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
+        channel: discord.VoiceChannel | discord.StageChannel | None = await self._get_channel(interaction)
         if channel is None:
-            if interaction.user.voice.channel.category is not None:
-                for chan in interaction.user.voice.channel.category.channels:
-                    if (
-                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
-                        and len(chan.members) == 0
-                        and chan.permissions_for(interaction.user).view_channel
-                    ):
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.voice_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                for chan in interaction.guild.stage_channels:
-                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
-                        channel = chan
-                        break
-            if channel is None:
-                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
-                return
-
-        if interaction.user.voice.channel == channel:
-            await interaction.response.send_message("you are in the shaking channel, somehow", ephemeral=True)
             return
 
         valid_targets = [
@@ -360,6 +312,36 @@ class VoiceCommands(Cog):
             await user.move_to(currentChannel, reason=f"shake requested by {interaction.user.display_name}")
         if voiceLog:
             del voiceLog.beingShaken[user.id]
+
+    async def _get_channel(self, interaction):
+        channel: discord.VoiceChannel | discord.StageChannel | None = interaction.guild.afk_channel
+        if channel is None:
+            if interaction.user.voice.channel.category is not None:
+                for chan in interaction.user.voice.channel.category.channels:
+                    if (
+                        (isinstance(chan, discord.VoiceChannel) or isinstance(chan, discord.StageChannel))
+                        and len(chan.members) == 0
+                        and chan.permissions_for(interaction.user).view_channel
+                    ):
+                        channel = chan
+                        break
+            if channel is None:
+                for chan in interaction.guild.voice_channels:
+                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                for chan in interaction.guild.stage_channels:
+                    if len(chan.members) == 0 and chan.permissions_for(interaction.user).view_channel:
+                        channel = chan
+                        break
+            if channel is None:
+                await interaction.response.send_message("No suitable channel to shake into found", ephemeral=True)
+                return None
+
+            return None
+
+        return channel
 
     @app_commands.checks.bot_has_permissions(mute_members=True, deafen_members=True)
     @app_commands.checks.has_permissions(mute_members=True, deafen_members=True)

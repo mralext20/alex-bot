@@ -253,29 +253,9 @@ class PhoneMonitor(Cog):
                 message = f"{member.display_name} left {before.channel.name}"
                 memberList = before.channel.members
 
-            if before.channel and after.channel and (before.channel != after.channel):
-                if user in [user.id for user in before.channel.members]:
-                    # person left chat to another channel in server
-                    log.debug(f"{member.display_name} moved from {before.channel.name} to {after.channel.name}")
-                    message = f"{member.display_name} was moved to {after.channel.name}"
-                    memberList = before.channel.members
-                if user in [user.id for user in after.channel.members]:
-                    # person joined chat from another channel in server
-                    if SELF_MOVED:
-                        log.debug(f"Self moved from {before.channel.name} to {after.channel.name}")
-                        message = f"you were moved to {after.channel.name}"
-                    else:
-                        log.debug(f"{member.display_name} moved from {before.channel.name} to {after.channel.name}")
-                        message = f"{member.display_name} joined {after.channel.name}"
+            message, memberList = self._handle_different_channels(member, before, after, user, SELF_MOVED, message, memberList)
 
-                    memberList = after.channel.members
-
-            if before.channel and not after.channel and user in [user.id for user in before.channel.members]:
-                # person left chat
-                log.debug(f"{member.display_name} left {before.channel.name}")
-                message = f"{member.display_name} left {before.channel.name}"
-                memberList = before.channel.members
-                pass
+            message, memberList = self._handle_leave_chat(member, before, after, user, message, memberList)
             if not before.channel and after.channel and user in [user.id for user in after.channel.members]:
                 # person joined chat
                 log.debug(f"{member.display_name} joined {after.channel.name}")
@@ -287,6 +267,34 @@ class PhoneMonitor(Cog):
                 await self.send_notification(user, message, memberList)
 
             after.channel = oldAfter
+
+    def _handle_different_channels(self, member, before, after, user, SELF_MOVED, message, memberList):
+        if before.channel and after.channel and (before.channel != after.channel):
+            if user in [user.id for user in before.channel.members]:
+                    # person left chat to another channel in server
+                log.debug(f"{member.display_name} moved from {before.channel.name} to {after.channel.name}")
+                message = f"{member.display_name} was moved to {after.channel.name}"
+                memberList = before.channel.members
+            if user in [user.id for user in after.channel.members]:
+                    # person joined chat from another channel in server
+                if SELF_MOVED:
+                    log.debug(f"Self moved from {before.channel.name} to {after.channel.name}")
+                    message = f"you were moved to {after.channel.name}"
+                else:
+                    log.debug(f"{member.display_name} moved from {before.channel.name} to {after.channel.name}")
+                    message = f"{member.display_name} joined {after.channel.name}"
+
+                memberList = after.channel.members
+        return message, memberList
+
+    def _handle_leave_chat(self, member, before, after, user, message, memberList):
+        if before.channel and not after.channel and user in [user.id for user in before.channel.members]:
+                # person left chat
+            log.debug(f"{member.display_name} left {before.channel.name}")
+            message = f"{member.display_name} left {before.channel.name}"
+            memberList = before.channel.members
+        
+        return message, memberList
 
     async def send_notification(self, user_id: int, title: str, members: List[discord.Member]):
         log.debug(f"title: {title}")

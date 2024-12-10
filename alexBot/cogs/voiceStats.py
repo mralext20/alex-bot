@@ -52,19 +52,13 @@ class VoiceStats(Cog):
                 await session.commit()
 
             # ?? are we getting an event for someone leaving?
-            if before.channel:
-                LEAVING = True
-            else:
-                LEAVING = False
+            LEAVING = bool(before.channel)
+
             # ?? were they the last person?
-            if len([m for m in channel.members if not m.bot]) == 0:
-                LAST = True
-            else:
-                LAST = False
-            if not LEAVING and len([m for m in after.channel.members if not m.bot]) == 1:  # type: ignore  # after.channel is gareted if not leaving
-                FIRST = True
-            else:
-                FIRST = False
+            LAST = len([m for m in channel.members if not m.bot]) == 0
+
+            FIRST = not LEAVING and len([m for m in after.channel.members if not m.bot]) == 1  # type: ignore  # after.channel is gareted if not leaving
+
             if LEAVING and LAST and gc.collectVoiceData:
                 # definitly ending of a call
                 await self.ending_a_call(channel, session)

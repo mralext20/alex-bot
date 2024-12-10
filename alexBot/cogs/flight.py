@@ -53,17 +53,7 @@ class Flight(Cog):
             f"please only use this data for planning purposes."
         )
 
-        magdec = None
-        if metar.data.wind_direction.value is not None:
-            declination = self.wmm.calc_mag_field(
-                location.latitude, location.longitude, location.elevation_ft
-            ).declination
-
-            magdec = declination + int(metar.data.wind_direction.value)  # add the magdec to the direction of the wind
-            if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
-                magdec = magdec - 360
-            elif magdec < 0:  # same as above, but for less than 0 condition.
-                magdec = magdec + 360
+        magdec = self._compute_magdec(location, metar)
 
         embed.title = f"{location.name}, {location.country} ({location.icao})"
 
@@ -74,6 +64,26 @@ class Flight(Cog):
         if translations.clouds != "":
             embed.add_field(name="Clouds", value=translations.clouds, inline=False)
 
+        self._handle_wind(metar, embed, magdec, translations)
+
+        if translations.altimeter != "":
+            embed.add_field(name="Altimeter", value=translations.altimeter, inline=False)
+
+        if translations.temperature != "":
+            embed.add_field(name="Temperature", value=translations.temperature, inline=False)
+
+        embed.add_field(name="Flight Rule", value=metar.data.flight_rules, inline=False)
+
+        if translations.visibility != "":
+            embed.add_field(name="Visibility", value=translations.visibility, inline=False)
+
+        embed.timestamp = metar.data.time.dt
+        if metar.data.flight_rules in ["LIFR", "IFR"]:
+            await interaction.followup.send('you might want to reconsider flying.', embed=embed)
+        else:
+            await interaction.followup.send(embed=embed)
+
+    def _handle_wind(self, metar, embed, magdec, translations):
         if translations.wind is not None:
             if magdec is not None:
                 if metar.data.wind_gust is not None:
@@ -96,22 +106,19 @@ class Flight(Cog):
             else:
                 embed.add_field(name="Wind", value=translations.wind, inline=False)
 
-        if translations.altimeter != "":
-            embed.add_field(name="Altimeter", value=translations.altimeter, inline=False)
+    def _compute_magdec(self, location, metar):
+        magdec = None
+        if metar.data.wind_direction.value is not None:
+            declination = self.wmm.calc_mag_field(
+                location.latitude, location.longitude, location.elevation_ft
+            ).declination
 
-        if translations.temperature != "":
-            embed.add_field(name="Temperature", value=translations.temperature, inline=False)
-
-        embed.add_field(name="Flight Rule", value=metar.data.flight_rules, inline=False)
-
-        if translations.visibility != "":
-            embed.add_field(name="Visibility", value=translations.visibility, inline=False)
-
-        embed.timestamp = metar.data.time.dt
-        if metar.data.flight_rules in ["LIFR", "IFR"]:
-            await interaction.followup.send('you might want to reconsider flying.', embed=embed)
-        else:
-            await interaction.followup.send(embed=embed)
+            magdec = declination + int(metar.data.wind_direction.value)  # add the magdec to the direction of the wind
+            if magdec > 360:  # if the declaration ends up being more than 360, subtract the extra.
+                magdec = magdec - 360
+            elif magdec < 0:  # same as above, but for less than 0 condition.
+                magdec = magdec + 360
+        return magdec
 
     @app_commands.command(name="taf")
     async def taf(self, interaction: discord.Interaction, station: str):

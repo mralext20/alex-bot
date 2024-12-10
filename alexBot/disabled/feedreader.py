@@ -100,7 +100,7 @@ class FeedReader(Cog):
             text = await get_text(session, feedurl)
             try:
                 feed = feedparser.parse(text)
-            except Exception as e:
+            except SAXParseException as e:
                 await interaction.response.send_message("Invalid feed!", ephemeral=True)
                 return
         feeds.append(FeedConfig(tag if tag is not None else None, feedurl))

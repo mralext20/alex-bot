@@ -80,7 +80,10 @@ class Bot(commands.Bot):
             try:
                 await self.load_extension(f"alexBot.cogs.{cog}")
                 log.info(f'loaded {cog}')
-            except Exception as e:
+            except (commands.ExtensionNotFound
+                    , commands.ExtensionAlreadyLoaded
+                    , commands.NoEntryPointError
+                    , commands.ExtensionFailed) as e:
                 log.error(f'Could not load extension {cog} due to {e.__class__.__name__}: {e}')
                 log.exception(e)
 

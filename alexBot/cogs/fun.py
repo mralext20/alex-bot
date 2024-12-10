@@ -208,7 +208,6 @@ class Fun(Cog):
                             )
                             await message.add_reaction(uploaded)
                             await uploaded.delete(reason="removed from temp addition")
-                        pass
 
                 return
             else:
